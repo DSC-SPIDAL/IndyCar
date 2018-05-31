@@ -154,7 +154,7 @@ def get_driver_name():
 # Index Page
 @app.route("/", methods=["GET"])
 def display_index():
-  return render_template('test.html')
+  return render_template('indexstyled.html')
 
 
 if __name__ == '__main__':
