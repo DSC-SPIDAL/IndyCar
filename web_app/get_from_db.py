@@ -207,6 +207,40 @@ def get_entry_info(car_num):
   return entry_record[0]
 
 
+def get_driver_name(car_num):
+  entry_coll = db.entry_info
+
+  entry_record = entry_coll.find({"entry_info_data.car_num": car_num}, {'_id': False}).sort([("$natural", -1)]).limit(1)
+
+  return entry_record[0]["entry_info_data"]["driver_name"]
+
+
+def get_rank_info(car_num, lap_num_str):
+  lap_coll = db.completed_lap_results_info
+  
+  cursor = lap_coll.find({ "$and" : [{"completed_lap_results_data.car_num": car_num}, {"completed_lap_results_data.completed_laps" : lap_num_str}]})
+
+  return cursor[0]
+
+
+def get_laptimes(car_num):
+  lap_coll = db.completed_lap_results_info
+  
+  cursor = lap_coll.find({ "$and" : [{"completed_lap_results_data.car_num": car_num}, {"completed_lap_results_data.completed_laps": {"$ne" : "0"}}]})
+ 
+  lap_times = []
+  for doc in cursor:
+    lap_time = {}
+    lap_data = doc.get("completed_lap_results_data")
+    lap_time["lap_num"] = int(lap_data.get("completed_laps"), 16)
+    lap_time["lap_time"] = int(lap_data.get("last_laptime"), 16) / 10000
+
+    lap_times.append(lap_time)
+
+  unique_lap_times = list({v['lap_num']:v for v in lap_times}.values())
+  return unique_lap_times
+    
+
 def get_car_lap_section_statistics():
   cars_list = get_cars_list()
 

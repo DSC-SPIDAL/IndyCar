@@ -1,15 +1,1123 @@
-body{
-    background-color:white;
-    background-repeat: repeat;
-    width: 100%;
-    height: 100%;
-    overflow: hidden;
+ 
+/* Boiler plate CSS */
+ html {
+     background: url(images/Indianapolis500_Background-01.png) no-repeat center center fixed;
+     -webkit-background-size: cover;
+     -moz-background-size: cover;
+     -o-background-size: cover;
+     background-size: cover;
+}
+ .sk-ab {
+     position: relative;
+     overflow: visible;
+}
+ .sk-asset {
+     position: absolute;
+     background-size: contain;
+     background-repeat: repeat-y;
+}
+/* Specific to INDIANAPOLIS 500 */
+/*.sk-ab.sk-INDIANAPOLIS-500 {
+ *      background-color: #FFFFFF;
+ *           width: 1440px;
+ *                height: 1619px;
+ *                     background-image: url(images/Indianapolis500_Background-01.png);
+ *                          background-repeat: repeat-y;
+ *                               background-size: 1444px 812px;
+ *                               }
+ *                               */
+/* Driver Info Section*/
+ .sk-asset.sk-Driver-Information {
+     width: 1000px;
+     height: 183px;
+     left: 0px;
+     top: 0px;
+     font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+     font-color: #4A4A4A;
+}
+ .sk-asset.sk-Driver-Info-Background {
+     width: 1000px;
+     height: 183px;
+     left: 0px;
+     top: 0px;
+     background-image: url("images/Driver Info Background.svg");
+}
+ .sk-asset.sk-Driver-Info-Car_num{
+     top:25px;
+     left:25px;
+     width: 71px;
+     height: 79px;
+     font-family:Impact, Haettenschweiler, "Franklin Gothic Bold", "Arial Black", "sans-serif";
+     font-size: 42pt;
+     text-align: center;
+     background-image:url(images/CarNumbFrame.png);
+     background-repeat: no-repeat;
+     background-position: center;
+}
+ .sk-asset.sk-Driver-Info-Engine{
+     top: 85pt;
+     left: 25pt;
+     width: 42pt;
+     height: 30pt;
+     //background-image: url(images/Honda.png);
+     background-repeat: no-repeat;
+     background-position: center;
+}
+ .sk-asset.sk-Driver-Info-1 {
+     width: 357px;
+     height: 71px;
+     left: 125px;
+     top: 28px;
+     font-style: italic;
+     color:#4A4A4A;
+}
+ .sk-asset.sk-driver_name {
+     width: 300px;
+     height: 46px;
+     left: 0px;
+     top: -5px;
+     font-size: 32pt;
+     font-weight: 600;
+}
+ .sk-asset.sk-Hometown {
+     width: 200px;
+     height: 15px;
+     left: 240px;
+     bottom: 30px;
+     font-size: 9pt;
+}
+ .sk-asset.sk-Team {
+     width: 420px;
+     height: 26px;
+     left: 0px;
+     top: 40px;
+     font-size:16pt;
+}
+ .sk-asset.sk-Driver-Info-2 {
+     width: 327px;
+     height: 45px;
+     left: 126px;
+     top: 110px;
+}
+ .sk-asset.sk-Driver-info-2-titles {
+     width: 350px;
+     height: 15px;
+     left: 0px;
+     top: 0px;
+}
+ .sk-asset.sk-Licence-title {
+     width: 150px;
+     height: 15px;
+     left: 0px;
+     top: 0px;
+}
+ .sk-asset.sk-Competitor-ID-title {
+     width: 150 px;
+     height: 15px;
+     left: 150px;
+     top: 0px;
+}
+ .sk-asset.sk-Rank-title {
+     width: 150px;
+     height: 15px;
+     left: 300px;
+     top: 0px;
+}
+ .sk-asset.sk-Driver-info-2-data {
+     width: 312px;
+     height: 26px;
+     left: 0px;
+     top: 19px;
+     font-size:16pt;
+}
+ .sk-asset.sk-licence {
+     width: 150px;
+     height: 24px;
+     left: 0px;
+     top: 0px;
+}
+ .sk-asset.sk-competitor_identifier {
+     width: 150px;
+     height: 24px;
+     left: 150px;
+     top: 0px;
+}
+ .sk-asset.sk-rank {
+     width: 12px;
+     height: 24px;
+     left: 300px;
+     top: 0px;
+}
+/* Lap Speeds Section*/
+ .sk-asset.sk-Driver-Information-and-Speed_-rank-1 {
+     width: 1440px;
+     height: 183px;
+     left: -2px;
+     top: 1036px;
+}
+ .sk-asset.sk-Last-Lap-Section-Speed {
+     width: 1285px;
+     height: 183px;
+     left: 560px;
+     top: 0px;
+     font-size: 16pt;
+}
+ .sk-asset.sk-Last-Lap-Section-Speed-Background {
+     width: 1285px;
+     height: 183px;
+     left: 0px;
+     top: 0px;
+     background: rgba(255,255,255,0.5);
+}
+ .sk-asset.sk-Last-Lap-Section-Speeds-title {
+     width: 300px;
+     height: 31px;
+     left: 25px;
+     top: 23px;
+     font-family: "Gill Sans", "Gill Sans MT", "Myriad Pro", "DejaVu Sans Condensed", Helvetica, Arial, "sans-serif";
+     font-size: 20pt;
+}
+ .sk-asset.sk-Last-Section-Speed-Info {
+     width: 880px;
+     height: 183px;
+     left: 0px;
+     top: 0px;
+     font-family: "Gill Sans", "Gill Sans MT", "Myriad Pro", "DejaVu Sans Condensed", Helvetica, Arial, "sans-serif";
+     font-size: 16pt;
+}
+ .sk-asset.sk-Section-Labels {
+     width: 776px;
+     height: 40px;
+     left: 27px;
+     top: 77px;
+     background-repeat: no-repeat;
+}
+ .sk-asset.sk-label-9 {
+     width: 30px;
+     height: 40px;
+     left: 746px;
+     top: 0px;
+     background-image: url("images/label 9.svg");
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-label-9 {
+         background-image: url("images/label 9@2x.svg");
+         background-size: 30px 40px;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-label-9 {
+         background-image: url("images/label 9@3x.svg");
+         background-size: 30px 40px;
+    }
+}
+ .sk-asset.sk-label-8 {
+     width: 30px;
+     height: 40px;
+     left: 653px;
+     top: 0px;
+     background-image: url("images/label 8.svg");
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-label-8 {
+         background-image: url("images/label 8@2x.svg");
+         background-size: 30px 40px;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-label-8 {
+         background-image: url("images/label 8@3x.svg");
+         background-size: 30px 40px;
+    }
+}
+ .sk-asset.sk-label-7 {
+     width: 30px;
+     height: 40px;
+     left: 560px;
+     top: 0px;
+     background-image: url("images/label 7.svg");
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-label-7 {
+         background-image: url("images/label 7@2x.svg");
+         background-size: 30px 40px;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-label-7 {
+         background-image: url("images/label 7@3x.svg");
+         background-size: 30px 40px;
+    }
+}
+ .sk-asset.sk-label-6 {
+     width: 30px;
+     height: 40px;
+     left: 467px;
+     top: 0px;
+     background-image: url("images/label 6.svg");
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-label-6 {
+         background-image: url("images/label 6@2x.svg");
+         background-size: 30px 40px;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-label-6 {
+         background-image: url("images/label 6@3x.svg");
+         background-size: 30px 40px;
+    }
+}
+ .sk-asset.sk-label-5 {
+     width: 30px;
+     height: 40px;
+     left: 374px;
+     top: 0px;
+     background-image: url("images/label 5.svg");
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-label-5 {
+         background-image: url("images/label 5@2x.svg");
+         background-size: 30px 40px;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-label-5 {
+         background-image: url("images/label 5@3x.svg");
+         background-size: 30px 40px;
+    }
+}
+ .sk-asset.sk-label-4 {
+     width: 30px;
+     height: 40px;
+     left: 281px;
+     top: 0px;
+     background-image: url("images/label 4.svg");
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-label-4 {
+         background-image: url("images/label 4@2x.svg");
+         background-size: 30px 40px;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-label-4 {
+         background-image: url("images/label 4@3x.svg");
+         background-size: 30px 40px;
+    }
+}
+ .sk-asset.sk-label-3 {
+     width: 30px;
+     height: 40px;
+     left: 188px;
+     top: 0px;
+     background-image: url("images/label 3.svg");
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-label-3 {
+         background-image: url("images/label 3@2x.svg");
+         background-size: 30px 40px;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-label-3 {
+         background-image: url("images/label 3@3x.svg");
+         background-size: 30px 40px;
+    }
+}
+ .sk-asset.sk-label-2 {
+     width: 30px;
+     height: 40px;
+     left: 93px;
+     top: 0px;
+     background-image: url("images/label 2.svg");
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-label-2 {
+         background-image: url("images/label 2@2x.svg");
+         background-size: 30px 40px;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-label-2 {
+         background-image: url("images/label 2@3x.svg");
+         background-size: 30px 40px;
+    }
+}
+ .sk-asset.sk-label-1 {
+     width: 30px;
+     height: 40px;
+     left: 0px;
+     top: 0px;
+     background-image: url("images/label 1.svg");
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-label-1 {
+         background-image: url("images/label 1@2x.svg");
+         background-size: 30px 40px;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-label-1 {
+         background-image: url("images/label 1@3x.svg");
+         background-size: 30px 40px;
+    }
+}
+ .sk-asset.sk-Section-Speed-data {
+     width: 824px;
+     height: 26px;
+     left: 45px;
+     top: 125px;
+}
+ .sk-asset.sk-section-9 {
+     width: 78px;
+     height: 26px;
+     left: 708px;
+     top: 0px;
+}
+ .sk-asset.sk-section-8 {
+     width: 78px;
+     height: 26px;
+     left: 615px;
+     top: 0px;
+}
+ .sk-asset.sk-section-7 {
+     width: 78px;
+     height: 26px;
+     left: 522px;
+     top: 0px;
+}
+ .sk-asset.sk-section-6 {
+     width: 78px;
+     height: 26px;
+     left: 429px;
+     top: 0px;
+}
+ .sk-asset.sk-section-5 {
+     width: 78px;
+     height: 26px;
+     left: 336px;
+     top: 0px;
+}
+ .sk-asset.sk-section-4 {
+     width: 78px;
+     height: 26px;
+     left: 243px;
+     top: 0px;
+}
+ .sk-asset.sk-section-3 {
+     width: 78px;
+     height: 26px;
+     left: 150px;
+     top: 0px;
+}
+ .sk-asset.sk-section-2 {
+     width: 78px;
+     height: 26px;
+     left: 35px;
+     top: 0px;
+}
+ .sk-asset.sk-section-1 {
+     width: 78px;
+     height: 26px;
+     left: -38px;
+     top: 0px;
+}
+ .sk-asset.sk-Driver-Information-and-Speed_-rank-2 {
+     width: 1440px;
+     height: 183px;
+     left: -2px;
+     top: 1225px;
+}
+ .sk-asset.sk-Driver-Information-and-Speed_-rank-3 {
+     width: 1440px;
+     height: 183px;
+     left: -2px;
+     top: 1414px;
+}
+/* Middle Track Section*/
+/* This part will be replaced by Java*/
+ .sk-asset.sk-Track- {
+     width: 1440px;
+     height: 783px;
+     left: 0px;
+     top: 10px;
+     background-image: url(images/Track_Clean.png);
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-Track- {
+         background-size: 1440px 783px;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-Track- {
+         background-size: 1440px 783px;
+    }
+}
+ .sk-asset.sk-Group-9-Copy-11 {
+     width: 30px;
+     height: 40px;
+     left: 284px;
+     top: 11px;
+     background-image: url("images/Group 9 Copy 11@3x.svg");
+     background-repeat: no-repeat;
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-Group-9-Copy-11 {
+         background-image: url("images/Group 9 Copy 11@2x.svg");
+         background-size: 30px 40px;
+         background-repeat: no-repeat;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-Group-9-Copy-11 {
+         background-image: url("images/Group 9 Copy 11@3x.svg");
+         background-size: 30px 40px;
+         background-repeat: no-repeat;
+    }
+}
+ .sk-asset.sk-Group-9-Copy-12 {
+     width: 30px;
+     height: 56px;
+     left: 687px;
+     top: 10px;
+     background-image: url("images/Group 9 Copy 12.svg");
+     background-repeat: no-repeat;
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-Group-9-Copy-12 {
+         background-image: url("images/Group 9 Copy 12@2x.svg");
+         background-size: 30px 56px;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-Group-9-Copy-12 {
+         background-image: url("images/Group 9 Copy 12@3x.svg");
+         background-size: 30px 56px;
+         background-repeat: no-repeat;
+    }
+}
+ .sk-asset.sk-Group-9-Copy-13 {
+     width: 30px;
+     height: 56px;
+     left: 1070px;
+     top: 10px;
+     background-image: url("images/Group 9 Copy 13.svg");
+     background-repeat: no-repeat;
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-Group-9-Copy-13 {
+         background-image: url("images/Group 9 Copy 13@2x.svg");
+         background-size: 30px 56px;
+         background-repeat: no-repeat;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-Group-9-Copy-13 {
+         background-image: url("images/Group 9 Copy 13@3x.svg");
+         background-size: 30px 56px;
+         background-repeat: no-repeat;
+    }
+}
+ .sk-asset.sk-Group-9-Copy-14 {
+     width: 30px;
+     height: 62px;
+     left: 1008px;
+     top: 691px;
+     background-image: url("images/Group 9 Copy 14.svg");
+     background-repeat: no-repeat;
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-Group-9-Copy-14 {
+         background-image: url("images/Group 9 Copy 14@2x.svg");
+         background-repeat: no-repeat;
+         background-size: 30px 62px;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-Group-9-Copy-14 {
+         background-image: url("images/Group 9 Copy 14@3x.svg");
+         background-size: 30px 62px;
+         background-repeat: no-repeat;
+    }
+}
+ .sk-asset.sk-Group-9-Copy-15 {
+     width: 30px;
+     height: 62px;
+     left: 664px;
+     top: 691px;
+     background-image: url("images/Group 9 Copy 15.svg");
+     background-repeat: no-repeat;
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-Group-9-Copy-15 {
+         background-image: url("images/Group 9 Copy 15@2x.svg");
+         background-size: 30px 62px;
+         background-repeat: no-repeat;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-Group-9-Copy-15 {
+         background-image: url("images/Group 9 Copy 15@3x.svg");
+         background-size: 30px 62px;
+         background-repeat: no-repeat;
+    }
+}
+ .sk-asset.sk-Group-9-Copy-16 {
+     width: 30px;
+     height: 62px;
+     left: 250px;
+     top: 691px;
+     background-image: url("images/Group 9 Copy 16.svg");
+     background-repeat: no-repeat;
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-Group-9-Copy-16 {
+         background-image: url("images/Group 9 Copy 16@2x.svg");
+         background-size: 30px 62px;
+         background-repeat: no-repeat;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-Group-9-Copy-16 {
+         background-image: url("images/Group 9 Copy 16@3x.svg");
+         background-size: 30px 62px;
+    }
+}
+ .sk-asset.sk-Group-9-Copy-17 {
+     width: 40px;
+     height: 54px;
+     left: 1335px;
+     top: 205px;
+     background-image: url("images/Group 9 Copy 17.svg");
+     background-repeat: no-repeat;
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-Group-9-Copy-17 {
+         background-image: url("images/Group 9 Copy 17@2x.svg");
+         background-size: 40px 54px;
+         background-repeat: no-repeat;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-Group-9-Copy-17 {
+         background-image: url("images/Group 9 Copy 17@3x.svg");
+         background-repeat: no-repeat;
+         background-repeat: no-repeat;
+         background-size: 40px 54px;
+    }
+}
+ .sk-asset.sk-Group-9-Copy-18 {
+     width: 40px;
+     height: 54px;
+     left: 1340px;
+     top: 448px;
+     background-image: url("images/Group 9 Copy 18.svg");
+     background-repeat: no-repeat;
+}
+ @media only screen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-Group-9-Copy-18 {
+         background-image: url("images/Group 9 Copy 18@2x.svg");
+         background-size: 40px 54px;
+         background-repeat: no-repeat;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-Group-9-Copy-18 {
+         background-image: url("images/Group 9 Copy 18@3x.svg");
+         background-size: 40px 54px;
+         background-repeat: no-repeat;
+    }
+}
+ .sk-asset.sk-Group-9-Copy-19 {
+     width: 40px;
+     height: 54px;
+     left: 0px;
+     top: 448px;
+     background-image: url(images/Label_9.png);
+     background-repeat: no-repeat;
+}
+ .sk-asset.sk-Track-Section-Label {
+     width: 1377px;
+     height: 745px;
+     left: 29px;
+     top: 52px;
+}
+ .sk-asset.sk-Track-Animation {
+     width: 1440px;
+     height: 797px;
+     left: 0px;
+     top: 0px;
+}
+ .sk-asset.sk-Track-Animation-and-Ranking {
+     width: 1440px;
+     height: 797px;
+     left: 190px;
+     top: 194px;
+}
+/* Top 3 Ranking */
+ .sk-asset.sk-Top-3-ranking {
+     width: 808px;
+     height: 428px;
+     left: 326px;
+     top: 300px;
+     font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+     font-size: 56pt;
+     font-weight: 600;
+     font-style: italic;
+     color: #FFFFFF;
+}
+ .sk-asset.sk-Rank-1- {
+     width: 700px;
+     height: 106px;
+     left: 0px;
+     top: 0px;
+     background-image: url("images/Ranking background.svg");
+}
+ .sk-asset.sk-Rank-1-text {
+     left: 50px;
+     top: 5px;
+}
+ .sk-asset.sk-Rank-2 {
+     width: 700px;
+     height: 106px;
+     left: 54px;
+     top: 126px;
+     background-image: url("images/Ranking background.svg");
+}
+ .sk-asset.sk-Rank-2-text {
+     left: 104px;
+     top: 131px;
+}
+ .sk-asset.sk-Rank-3 {
+     width: 700px;
+     height: 106px;
+     left: 108px;
+     top: 252px;
+     background-image: url("images/Ranking background.svg");
+}
+ .sk-asset.sk-Rank-3-text {
+     left: 158px;
+     top: 257px;
+}
+/* Weather Information */
+ .sk-asset.sk-Weather-Information {
+     width: 304px;
+     height: 103px;
+     left: 1073px;
+     top: 66px;
+     font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+}
+ .sk-asset.sk-Weather-info-title {
+     width: 304px;
+     height: 77px;
+     left: 400px;
+     top: 0px;
+     font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+     font-size: 12pt;
+}
+ .sk-asset.sk-Ambient-Temp-title {
+     width: 124px;
+     height: 19px;
+     left: 0px;
+     top: 0px;
+}
+ .sk-asset.sk-Relative-Humidity-title {
+     width: 180px;
+     height: 19px;
+     left: 140px;
+     top: 0px;
+}
+ .sk-asset.sk-Barometer-title {
+     width: 124px;
+     height: 19px;
+     left: 0px;
+     top: 58px;
+}
+ .sk-asset.sk-Time-of-the-Day-title {
+     width: 180px;
+     height: 19px;
+     left: 140px;
+     top: 58px;
+}
+ .sk-asset.sk-Weather-info-data {
+     width: 304px;
+     height: 84px;
+     left: 400px;
+     top: 19px;
+     font-size: 16pt;
+}
+ .sk-asset.sk-ambient_temp {
+     width: 124px;
+     height: 26px;
+     left: 0px;
+     top: 0px;
+}
+ .sk-asset.sk-relative_humidity {
+     width: 180px;
+     height: 26px;
+     left: 140px;
+     top: 0px;
+}
+ .sk-asset.sk-barometric_pressure {
+     width: 124px;
+     height: 26px;
+     left: 0px;
+     top: 58px;
+}
+ .sk-asset.sk-time_of_day {
+     width: 180px;
+     height: 26px;
+     left: 140px;
+     top: 58px;
+    /* Title Section */
+}
+ .sk-asset.sk-event_name {
+     width: 518px;
+     height: 88px;
+     left: 0px;
+     top: 20px;
+     font-size: 42pt;
+     font-weight: 600;
+     color: #ffffff;
+     text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 2px 2px 0 #000;
+}
+ .sk-asset.sk-start_date {
+     width: 400px;
+     height: 26px;
+     left: 0px;
+     top: 96px;
+     font-size: 16pt;
+}
+ .sk-asset.sk-run_name {
+     width: 66px;
+     height: 31px;
+     left: 518px;
+     bottom: 40px;
+     font-size: 20pt;
+     font-weight: 600;
+     color: #ffffff;
+     outline-color: #000000;
+     text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 2px 2px 0 #000;
+}
+ .sk-asset.sk-Line {
+     width: 600px;
+     height: 3px;
+     left: 0px;
+     top: 88px;
+     background-image: url("images/Line.svg");
+}
+ @media only sc`reen and (min--moz-device-pixel-ratio: 2), only screen and (-o-min-device-pixel-ratio: 2/1), only screen and (-webkit-min-device-pixel-ratio: 2), only screen and (min-device-pixel-ratio: 2) {
+     .sk-asset.sk-Line {
+         background-image: url("images/Line@2x.svg");
+         background-size: 587px 3px;
+    }
+}
+ @media only screen and (min--moz-device-pixel-ratio: 3), only screen and (-o-min-device-pixel-ratio: 3/1), only screen and (-webkit-min-device-pixel-ratio: 3), only screen and (min-device-pixel-ratio: 3) {
+     .sk-asset.sk-Line {
+         background-image: url("images/Line@3x.svg");
+         background-size: 587px 3px;
+    }
+}
+ .sk-asset.sk-Title {
+     width: 587px;
+     height: 122px;
+     left: 67px;
+     top: 36px;
+     font-family:Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
 }
 
-#drawing{
-    top:0;
-    left: 0;
-    position: absolute;
-    width: 100%;
-    height: 100%;
+/* Car Labels*/
+.sk-asset.sk-label-18 {
+     width: 26px;
+     height: 40px;
+     left: 1190px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
 }
+ .sk-asset.sk-label-17 {
+     width: 26px;
+     height: 40px;
+     left: 1120px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
+}
+ .sk-asset.sk-label-16 {
+     width: 26px;
+     height: 40px;
+     left: 1050px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
+}
+ .sk-asset.sk-label-15 {
+     width: 26px;
+     height: 40px;
+     left: 980px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
+}
+ .sk-asset.sk-label-14 {
+     width: 26px;
+     height: 40px;
+     left: 910px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
+}
+ .sk-asset.sk-label-13 {
+     width: 26px;
+     height: 40px;
+     left: 840px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
+}
+ .sk-asset.sk-label-12 {
+     width: 26px;
+     height: 40px;
+     left: 770px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
+}
+ .sk-asset.sk-label-11 {
+     width: 26px;
+     height: 40px;
+     left: 700px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
+}
+ .sk-asset.sk-label-10 {
+     width: 26px;
+     height: 40px;
+     left: 630px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
+}
+
+ .sk-asset.sk-label-09 {
+     width: 26px;
+     height: 40px;
+     left: 560px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
+}
+ .sk-asset.sk-label-08 {
+     width: 26px;
+     height: 40px;
+     left: 490px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
+}
+ .sk-asset.sk-label-07 {
+     width: 26px;
+     height: 40px;
+     left: 420px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
+}
+ .sk-asset.sk-label-06 {
+     width: 26px;
+     height: 40px;
+     left: 350px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
+}
+ .sk-asset.sk-label-05 {
+     width: 26px;
+     height: 40px;
+     left: 280px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
+}
+ .sk-asset.sk-label-04 {
+     width: 26px;
+     height: 40px;
+     left: 210px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
+}
+ .sk-asset.sk-label-03 {
+     width: 26px;
+     height: 40px;
+     left: 140px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
+}
+ .sk-asset.sk-label-02 {
+     width: 26px;
+     height: 40px;
+     left: 70px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
+}
+ .sk-asset.sk-label-01 {
+     width: 26px;
+     height: 40px;
+     left: 0px;
+     top: 0px;
+     background-image: url(images/label_unfilled.png);
+     background-repeat: no-repeat;
+     text-align: center;
+     padding-top: 3pt;
+}
+
+/*Section Speed Data*/
+
+.sk-asset.sk-section-09 {
+     width: 12px;
+     height: 26px;
+     left: 530px;
+     top: 0px;
+}
+ .sk-asset.sk-section-08 {
+     width: 78px;
+     height: 26px;
+     left: 455px;
+     top: 0px;
+}
+ .sk-asset.sk-section-07 {
+     width: 78px;
+     height: 26px;
+     left: 390px;
+     top: 0px;
+}
+ .sk-asset.sk-section-06 {
+     width: 78px;
+     height: 26px;
+     left: 320px;
+     top: 0px;
+}
+ .sk-asset.sk-section-05 {
+     width: 78px;
+     height: 26px;
+     left: 245px;
+     top: 0px;
+}
+ .sk-asset.sk-section-04 {
+     width: 78px;
+     height: 26px;
+     left: 177px;
+     top: 0px;
+}
+ .sk-asset.sk-section-03 {
+     width: 78px;
+     height: 26px;
+     left: 110px;
+     top: 0px;
+}
+ .sk-asset.sk-section-02 {
+     width: 78px;
+     height: 26px;
+     left: 35px;
+     top: 0px;
+}
+ .sk-asset.sk-section-01 {
+     width: 78px;
+     height: 26px;
+     left: -33px;
+     top: 0px;
+}
+ .sk-asset.sk-section-18 {
+     width: 12px;
+     height: 26px;
+     left: 1160px;
+     top: 0px;
+}
+ .sk-asset.sk-section-17 {
+     width: 78px;
+     height: 26px;
+     left: 1085px;
+     top: 0px;
+}
+ .sk-asset.sk-section-16 {
+     width: 78px;
+     height: 26px;
+     left: 1015px;
+     top: 0px;
+}
+ .sk-asset.sk-section-15 {
+     width: 78px;
+     height: 26px;
+     left: 945px;
+     top: 0px;
+}
+ .sk-asset.sk-section-14 {
+     width: 78px;
+     height: 26px;
+     left: 875px;
+     top: 0px;
+}
+ .sk-asset.sk-section-13 {
+     width: 78px;
+     height: 26px;
+     left: 805px;
+     top: 0px;
+}
+ .sk-asset.sk-section-12 {
+     width: 78px;
+     height: 26px;
+     left: 735px;
+     top: 0px;
+}
+ .sk-asset.sk-section-11 {
+     width: 78px;
+     height: 26px;
+     left: 665px;
+     top: 0px;
+}
+.sk-asset.sk-section-10 {
+     width: 12px;
+     height: 26px;
+     left: 600px;
+     top: 0px;
+}
+

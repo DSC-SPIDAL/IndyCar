@@ -248,7 +248,11 @@ function setSpeedInformation(speed_arr, delay_time) {
   setTimeout(function(){
     var i
     for (i=0; i<speed_arr.length; i++) {
-      $('#section' + (i+1)).text('Section ' + (i+1) + ': ' + speed_arr[i])
+      var num = "" + (i+1);
+      if (num.length==1) {
+          num = "0" + num
+      }
+      $('.sk-section-' + num).text(speed_arr[i].toFixed(1))
     }
   }, delay_time);
 }
@@ -282,10 +286,10 @@ function setWeatherInformation(weatherInfo, delay) {
   }
   
   setTimeout(function(){
-    $("#ambientTemp").text("Ambient Temperature: " + weatherInfo.ambient_temp)
-    $("#barometricPressure").text("Barometric Pressure: " + weatherInfo.barometric_pressure)
-    $("#relativeHumidity").text("Relative Humidity: " + weatherInfo.relative_humidity + "%")
-    $("#timeofday").text("Time of Day: " + weatherInfo.time_of_day)
+    $(".sk-ambient_temp").text(weatherInfo.ambient_temp)
+    $(".sk-barometric_pressure").text(weatherInfo.barometric_pressure)
+    $(".sk-relative_humidity").text(weatherInfo.relative_humidity + "%")
+    $(".sk-time_of_day").text(weatherInfo.time_of_day)
   }, delay)
 }
 
@@ -320,6 +324,222 @@ function getSectionLengthsArr(sectionInfo, sectionTimingInfo) {
 
 }
 
+function setLapInformation_Outer(animationTimesArrAll) {
+  var delayTimes = []
+  var lapNums = []
+  delayTimes.push(0)
+  var prevDelay = delayTimes[0]
+  for (g=1; g < animationTimesArrAll.length; g++) {
+    var timeArr = animationTimesArrAll[g]
+    delay = prevDelay + timeArr.reduce(function(acc, val) { return parseInt(acc) + parseInt(val); });
+    delayTimes.push(delay)
+    prevDelay = delay
+    lapNums.push(g)
+  }
+  lapNums.push(g)
+                           
+  let i
+  for (i=0; i<delayTimes.length; i++) {
+    setLapInformation(lapNums[i], delayTimes[i])
+  }
+
+  return delayTimes
+}
+
+
+function setWeatherInformation_Outer(sectionTimingInfoforLapRange) {
+  $.ajax({
+    url: 'http://j-093.juliet.futuresystems.org:5000/weather_data',
+    data: {
+      format: 'json'
+    },
+    error: function() {
+      console.log("An error occurred - weather info");
+    },
+    success: function(data) {
+      var begTimIndex = 0
+      var endTimIndex = sectionTimingInfoforLapRange.length - 1
+      var startTimingArr = sectionTimingInfoforLapRange[begTimIndex].section_timing
+      var endTimingArr = sectionTimingInfoforLapRange[endTimIndex].section_timing
+
+      var beg = 0
+      var end = endTimingArr.length - 1
+
+      var startTime = startTimingArr[beg].elapsed_time
+      var endTime = endTimingArr[end].elapsed_time
+
+      var timesArr = data
+                  
+      let weatherInfoArr = timesArr.filter(function(elem){
+        var time = elem.time_of_day
+        if ((startTime <= time) & (time <= endTime)) {
+          return elem
+        }
+      })
+                   
+      var h
+      var startTotalSec = getTotalSec(startTime)
+      var delayTimes = []
+      delayTimes.push(0)
+      for (h=1; h<weatherInfoArr.length; h++) {
+        var info = weatherInfoArr[h-1]
+        var tod = info.time_of_day
+        var totalSec = getTotalSec(tod)
+          delayTimes.push(Math.ceil((totalSec-startTotalSec)/4))
+        }
+                  
+      for (h=0;h<weatherInfoArr.length; h++) {
+        setWeatherInformation(weatherInfoArr[h], delayTimes[h])
+      }
+
+    },
+    type: 'GET'
+  });
+}
+
+function setEntryInformation(carnum, order) {
+  $.ajax({
+    url: 'http://j-093.juliet.futuresystems.org:5000/getentryinfo?car_num=' + carnum,
+    data: {
+      format: 'json'
+    },
+    error: function() {
+      console.log("An error occurred - race info");
+    },
+    success: function(data) {
+      var entryinfo = data.entry_info_data
+      var teaminfo = entryinfo.team + " #" + entryinfo.team_id
+      $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-Driver-Info-Car_num').text(entryinfo.car_num)
+      $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-driver_name').text(entryinfo.driver_name)
+      $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-Hometown').text("from " + entryinfo.home_town)
+      $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-Team').text(teaminfo)
+      $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-Driver-Info-Engine').text(entryinfo.engine)
+      $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-competitor_identifier').text(entryinfo.competitor_identifier)
+      $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-licence').text(entryinfo.license)
+    },
+    type: 'GET'
+  });
+}
+
+function setSpeedInformation_Outer(sectionLengthsArrAll, animationTimesArrAll, delayTimes) {
+  var k
+  var speedArrAll = [] 
+  for (k=0; k<sectionLengthsArrAll.length; k++) {
+    var elem = sectionLengthsArrAll[k]
+    var animTime = animationTimesArrAll[k] 
+    var j
+    var speedArr = []
+    for (j=0; j<elem.length; j++) {
+      var length = elem[j]
+      var time = animTime[j] * (2.77778 * 0.0000001) * 4 //since we divided by 4 to get animation times
+      speedArr.push(length/time)
+    }
+    speedArrAll.push(speedArr)
+  }             
+             
+  let d
+  for (d=0; d<delayTimes.length; d++) {
+    setSpeedInformation(speedArrAll[d], delayTimes[d])
+  }
+}
+
+var delayTimesAllArr = []
+
+function getLapRangeInfo(carnum, lapbeg, lapend, sectionInfo, order) {
+  $.ajax({
+    url: 'http://j-093.juliet.futuresystems.org:5000/gettiminginfoinlaprange?car_num=' + carnum + '&lap_beg=' + lapbeg + '&lap_end=' + lapend,
+    data: {
+      format: 'json'
+    },
+    error: function() {
+      console.log("An error occurred - section timing info");
+    },
+    success: function(data) {
+      var sectionTimingInfoforLapRange = data;
+      var g;
+               
+      var lengthPropArrAll = []
+      var startPosArrAll = []
+      var animationTimesArrAll = []
+      var sectionLengthsArrAll = []
+      //Animate Car Num for Lap Range
+      for (g=0; g<sectionTimingInfoforLapRange.length; g++) {
+        var sectionTimingInfo = sectionTimingInfoforLapRange[g].section_timing;
+        sectionDetails = getSectionDetailsArr(sectionInfo, sectionTimingInfo)
+        lengthPropArr = getLengthPropArr(sectionDetails)
+        lengthPropArrAll.push(lengthPropArr)
+        startPosArr = getStartPosArr(lengthPropArr)
+        startPosArrAll.push(startPosArr)
+        animationTimes = getAnimationTimesArr(sectionDetails) //in ms and divided by 4
+        animationTimesArrAll.push(animationTimes)
+        sectionLengths = getSectionLengthsArr(sectionInfo, sectionTimingInfo) //in miles
+        sectionLengthsArrAll.push(sectionLengths)
+      }
+
+      var carnumstr = "" + carnum
+      if (carnumstr.length == 1) {
+        carnumstr = "0" + carnumstr
+      }
+      animateCar('/static/cars/car_' + carnumstr  + '.png', animationTimesArrAll, lengthPropArrAll, startPosArrAll)
+      
+      //Set Lap Information
+      var delayTimes = setLapInformation_Outer(animationTimesArrAll)
+      delayTimesAllArr.push(delayTimes)
+
+      //Set Weather Information
+      setWeatherInformation_Outer(sectionTimingInfoforLapRange)
+
+      //Set Entry Information
+      setEntryInformation(carnum, order)
+
+      //Set Speed Information
+      setSpeedInformation_Outer(sectionLengthsArrAll, animationTimesArrAll, delayTimes)
+
+      //Set Rank Information
+      setRankInformation(carnum, lapbeg, lapend, order, delayTimes)
+    },
+    type: 'GET'
+  });
+}
+
+function setRankInformation(carnum, lapbeg, lapend, order, delayTimes) {
+  $.ajax({
+    url: 'http://j-093.juliet.futuresystems.org:5000/getrankinfo?car_num=' + carnum +'&lap_beg=' + lapbeg + "&lap_end=" + lapend,
+    data: {
+        format: 'json'
+    },
+    error: function() {
+        console.log("An error occurred - get rank info");
+    },
+    success: function(data) {
+    	var i
+        for (i=0; i< delayTimes.length; i++) {
+          setRankforCar(order, data[i].rank, delayTimes[i], carnum)
+        }
+    },
+    type: 'GET'
+  });
+}
+
+function setRankforCar(order, rank, delay, car_num) {
+  setTimeout(function() {
+    $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-rank').text(rank)
+    $.ajax({
+      url: 'http://j-093.juliet.futuresystems.org:5000/getdrivername?car_num=' + car_num,
+      data: {
+        format: 'json'
+      },
+      error: function() {
+        console.log("An error occurred - section info");
+      },
+      success: function(data) {
+        $('.sk-Rank-' + order + '-text').text(rank + " " + data)
+      },
+      type: 'GET'
+    });
+  }, delay)
+}
+
 $(document).ready(function() {
   
   $.ajax({
@@ -331,159 +551,21 @@ $(document).ready(function() {
         console.log("An error occurred - section info");
     },
     success: function(data) {
-        var sectionInfo = data;
-        var carnum = 9;
-        $('#carinfo').text('Car Number: ' + carnum)
-	var lapbeg = 1;
-        var lapend = 5;
-	$.ajax({
-          url: 'http://j-093.juliet.futuresystems.org:5000/gettiminginfoinlaprange?car_num=' + carnum + '&lap_beg=' + lapbeg + '&lap_end=' + lapend,
-          data: {
-              format: 'json'
-          },
-          error: function() {
-              console.log("An error occurred - section timing info");
-          },
-          success: function(data) {
-              var sectionTimingInfoforLapRange = data;
-              var g;
+        var sectionInfo = data
+	var lapbeg = 1
+        var lapend = 5
+        var carnum
+        var rank
+
+        carnum = 9       
+        getLapRangeInfo(carnum, lapbeg, lapend, sectionInfo, 1)
+        
+        carnum = 20
+        getLapRangeInfo(carnum, lapbeg, lapend, sectionInfo, 2)
+        
+        carnum = 12
+        getLapRangeInfo(carnum, lapbeg, lapend, sectionInfo, 3)
                
-              var lengthPropArrAll = []
-              var startPosArrAll = []
-              var animationTimesArrAll = []
-              var sectionLengthsArrAll = []
-              //Animate Car Num 9 for Laps 1-5
-              for (g=0; g<sectionTimingInfoforLapRange.length; g++) {
-                var sectionTimingInfo = sectionTimingInfoforLapRange[g].section_timing;
-                sectionDetails = getSectionDetailsArr(sectionInfo, sectionTimingInfo)
-		lengthPropArr = getLengthPropArr(sectionDetails)
-                lengthPropArrAll.push(lengthPropArr)
-                startPosArr = getStartPosArr(lengthPropArr)
-                startPosArrAll.push(startPosArr)
-                animationTimes = getAnimationTimesArr(sectionDetails) //in ms
-                animationTimesArrAll.push(animationTimes)
-                sectionLengths = getSectionLengthsArr(sectionInfo, sectionTimingInfo) //in miles
-                sectionLengthsArrAll.push(sectionLengths)
-              }
-
-              animateCar('/static/cars/car_0' + carnum  + '.png', animationTimesArrAll, lengthPropArrAll, startPosArrAll)
-              //Set Lap Information
-              var delayTimes = []
-              var lapNums = []
-              delayTimes.push(0)
-              var prevDelay = delayTimes[0]
-              for (g=1; g < animationTimesArrAll.length; g++) {
-                var timeArr = animationTimesArrAll[g]
-                delay = prevDelay + timeArr.reduce(function(acc, val) { return parseInt(acc) + parseInt(val); });
-                console.log(prevDelay)
-                delayTimes.push(delay)
-                prevDelay = delay
-                lapNums.push(g)
-              }
-              lapNums.push(g)
-                            
-              let i
-              for (i=0; i<delayTimes.length; i++) {
-                setLapInformation(lapNums[i], delayTimes[i])
-              }
-
-              //Set Weather Information
-              $.ajax({
-                url: 'http://j-093.juliet.futuresystems.org:5000/weather_data',
-                data: {
-                  format: 'json'
-                },
-                error: function() {
-                  console.log("An error occurred - weather info");
-                },
-                success: function(data) {
-                  var begTimIndex = 0
-                  var endTimIndex = sectionTimingInfoforLapRange.length - 1
-                  var startTimingArr = sectionTimingInfoforLapRange[begTimIndex].section_timing
-                  var endTimingArr = sectionTimingInfoforLapRange[endTimIndex].section_timing
-
-                  var beg = 0
-                  var end = endTimingArr.length - 1
-
-                  var startTime = startTimingArr[beg].elapsed_time
-                  var endTime = endTimingArr[end].elapsed_time
-
-                  var timesArr = data
-                  
-                  let weatherInfoArr = timesArr.filter(function(elem){
-                    var time = elem.time_of_day
-                    if ((startTime <= time) & (time <= endTime)) {
-                      return elem
-                    }
-                  })
-                   
-                  var h
-                  var startTotalSec = getTotalSec(startTime)
-                  var delayTimes = []
-                  delayTimes.push(0)
-                  for (h=1; h<weatherInfoArr.length; h++) {
-	            var info = weatherInfoArr[h-1]
-	            var tod = info.time_of_day
-                    var totalSec = getTotalSec(tod)
-                    delayTimes.push(Math.ceil((totalSec-startTotalSec)/4))
-                  }
-                  
-                  for (h=0;h<weatherInfoArr.length; h++) {
-                    setWeatherInformation(weatherInfoArr[h], delayTimes[h])
-                  }
-
-                },
-                type: 'GET'
-              });
-
-              //Set Entry Information
-              $.ajax({
-                url: 'http://j-093.juliet.futuresystems.org:5000/getentryinfo?car_num=' + carnum,
-                data: {
-                  format: 'json'
-                },
-                error: function() {
-                  console.log("An error occurred - race info");
-                },
-                success: function(data) {
-                  var entryinfo = data.entry_info_data
-                  console.log(entryinfo)
-                  $('#carnum').text(entryinfo.car_num)
-                  $('#drivername').text(entryinfo.driver_name)
-                  $('#hometown').text("from " + entryinfo.home_town)
-                  $('#teamname').text(entryinfo.team)
-                  $('#teamid').text("#" + entryinfo.team_id)
-                  $('#engine').text("Engine: " + entryinfo.engine)
-                  $('#competitorid').text("Competitor: " + entryinfo.competitor_identifier)
-                  $('#license').text("License: " + entryinfo.license)
-                },
-                type: 'GET'
-             });
-
-             //Set Speed Information
-             var k
-             var speedArrAll = [] 
-             for (k=0; k<sectionLengthsArrAll.length; k++) {
-               var elem = sectionLengthsArrAll[k]
-               var animTime = animationTimesArrAll[k] 
-               var j
-               var speedArr = []
-               for (j=0; j<elem.length; j++) {
-                 var length = elem[j]
-                 var time = animTime[j] * (2.77778 * 0.0000001)
-                 speedArr.push(length/time)
-               }
-               speedArrAll.push(speedArr)
-             }             
-             
-             let d
-             for (d=0; d<delayTimes.length; d++) {
-               setSpeedInformation(speedArrAll[d], delayTimes[d])
-             }
-
-          },
-          type: 'GET'
-        });
     },
     type: 'GET'
   });
@@ -498,10 +580,12 @@ $(document).ready(function() {
         console.log("An error occurred - race info");
     },
     success: function(data) {
-        var eventinfo = data.event_name + '  ' + data.run_name
-        var timeinfo = data.start_date
-        $('#eventinfo').text(eventinfo)
-        $('#timeinfo').text(timeinfo)
+        var eventinfo = data.event_name.trim().toUpperCase()
+        var runinfo = data.run_name.trim()
+        var timeinfo = data.start_date.trim()
+        $('.sk-event_name').text(eventinfo)
+        $('.sk-run_name').text(runinfo)
+        $('.sk-start_date').text(timeinfo)
     },
     type: 'GET'
   });
