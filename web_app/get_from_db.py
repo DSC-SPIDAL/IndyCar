@@ -207,17 +207,34 @@ def get_entry_info(car_num):
   return entry_record[0]
 
 
+def get_driver_name(car_num):
+  entry_coll = db.entry_info
+
+  entry_record = entry_coll.find({"entry_info_data.car_num": car_num}, {'_id': False}).sort([("$natural", -1)]).limit(1)
+
+  return entry_record[0]["entry_info_data"]["driver_name"]
+
+
+def get_rank_info(car_num, lap_num_str):
+  lap_coll = db.completed_lap_results_info
+  
+  cursor = lap_coll.find({ "$and" : [{"completed_lap_results_data.car_num": car_num}, {"completed_lap_results_data.completed_laps" : lap_num_str}]})
+
+  return cursor[0]
+
 def get_car_lap_section_statistics():
   cars_list = get_cars_list()
 
   cars_info_arr = []
   for car in cars_list:
+    print(car)
     car_info = {}
     car_info["car_num"] = car
     laps = get_laps_list_for_car(car)
   
     lap_info_arr = []
     for lap in laps:
+      print(lap)
       sec_timing_results = get_section_details(car, lap)
       lap_info = {}
       lap_info["lap_num"] = lap
@@ -226,5 +243,6 @@ def get_car_lap_section_statistics():
 
     car_info["lap_and_section_info"] = lap_info_arr
     cars_info_arr.append(car_info)
+  print("********")
   
   return cars_info_arr

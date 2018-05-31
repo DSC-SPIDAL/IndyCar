@@ -127,11 +127,34 @@ def get_car_lap_section_statistics():
 
   return jsonify(stat)
 
+# Get Rank Information
+@app.route("/getrankinfo", methods=["GET"])
+def get_rank_info():
+  car_num = int(request.args.get('car_num'))
+  lap_beg = int(request.args.get('lap_beg'))
+  lap_end = int(request.args.get('lap_end'))
+ 
+  ranks = [] 
+  for i in range(lap_beg, lap_end+1):
+    rank = gdb.get_rank_info(car_num, str(i))
+    rank_info = {}
+    rank_info["lap_num"] = i
+    rank_info["rank"] = rank["completed_lap_results_data"]["rank"]
+    ranks.append(rank_info)
+
+  return jsonify(ranks)
+
+# Get Driver Name
+@app.route("/getdrivername", methods=["GET"])
+def get_driver_name():
+  car_num = int(request.args.get('car_num'))
+  
+  return jsonify(gdb.get_driver_name(car_num))
 
 # Index Page
 @app.route("/", methods=["GET"])
 def display_index():
-  return render_template('index.html')
+  return render_template('test.html')
 
 
 if __name__ == '__main__':
