@@ -151,6 +151,13 @@ def get_driver_name():
   
   return jsonify(gdb.get_driver_name(car_num))
 
+# Get Lap Times
+@app.route("/getlaptimes", methods=["GET"])
+def get_laptimes():
+  car_num = int(request.args.get('car_num'))
+  
+  return jsonify(gdb.get_laptimes(car_num))
+
 # Index Page
 @app.route("/", methods=["GET"])
 def display_index():
@@ -159,4 +166,3 @@ def display_index():
 
 if __name__ == '__main__':
   app.run(host='0.0.0.0') #, ssl_context='adhoc')
-
