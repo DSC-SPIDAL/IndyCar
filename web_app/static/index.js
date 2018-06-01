@@ -188,8 +188,8 @@ function getAnimationTimesArr(sectionDetails) {
   return animationTimes
 }
 
-
-function animateSection(carContainer, car, animationTime, sectionLengthProp, startPos, carRect, fillColor) {
+//function animateSection(carContainer, car, animationTime, sectionLengthProp, startPos, carRect, fillColor) {
+function animateSection(carContainer, car, animationTime, sectionLengthProp, startPos, fillColor) {
   carContainer.animate(animationTime).during(function (pos, morph, eased) {
     var adjustedPos = (eased*sectionLengthProp) + startPos
     var p = path.pointAt(adjustedPos * length)
@@ -216,15 +216,16 @@ function animateSection(carContainer, car, animationTime, sectionLengthProp, sta
     }
 
     car.rotate(angle)
-    carRect.rotate(angle)
-    carRect.fill(fillColor)
+    //carRect.rotate(angle)
+    //carRect.fill(fillColor)
 
   })
 
 }
 
 //Animation of one Lap
-function animateLap(carContainer, car, animationTimesArr, lengthPropArr, startPosArr, carRect, color) {
+//function animateLap(carContainer, car, animationTimesArr, lengthPropArr, startPosArr, carRect, color) {
+function animateLap(carContainer, car, animationTimesArr, lengthPropArr, startPosArr, color) {
   for (i=0; i<animationTimesArr.length; i++) {
     var fillColor;
     if (i%2==0) {
@@ -232,7 +233,7 @@ function animateLap(carContainer, car, animationTimesArr, lengthPropArr, startPo
     } else {
       fillColor = '#000'
     }
-    animateSection(carContainer, car, animationTimesArr[i], lengthPropArr[i], startPosArr[i], carRect, fillColor)
+    animateSection(carContainer, car, animationTimesArr[i], lengthPropArr[i], startPosArr[i], fillColor)
   }
 }
 
@@ -244,7 +245,7 @@ function setLapInformation(lap_num, delay_time) {
 }
 
 
-function setSpeedInformation(speed_arr, delay_time) {
+function setSpeedInformation(speed_arr, delay_time, order) {
   setTimeout(function(){
     var i
     for (i=0; i<speed_arr.length; i++) {
@@ -252,20 +253,20 @@ function setSpeedInformation(speed_arr, delay_time) {
       if (num.length==1) {
           num = "0" + num
       }
-      $('.sk-section-' + num).text(speed_arr[i].toFixed(1))
+      $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-section-' + num).text(speed_arr[i].toFixed(1))
     }
   }, delay_time);
 }
 
 
-function animateCar(image, animationTimesArrAll, lengthPropArrAll, startPosArrAll) {
+function animateCar(image, animationTimesArrAll, lengthPropArrAll, startPosArrAll, y) {
   var carContainer = draw.group();
   var car = carContainer.image(image).size(5.5 * carScale, 2.5 * carScale);
   let boundingBoxMax = Math.sqrt(Math.pow(4.8 * carScale, 2) * 2);
   carContainer.rect(boundingBoxMax, boundingBoxMax).fill('transparent');
-  car.move(boundingBoxMax / 2 - 4.8 * carScale / 2, boundingBoxMax / 2 - 1.8 * carScale / 2);
-  var carRect = carContainer.rect(4.8 * carScale, 1.8 * carScale).stroke(1).fill('#ccc').attr({ 'stroke-width': 1 })
-
+  car.move(boundingBoxMax / 2 - 4.8 * carScale / 2, boundingBoxMax / 2 - y * carScale / 2);
+  //var carRect = carContainer.rect(4.8 * carScale, 1.8 * carScale).stroke(1).fill('#ccc').attr({ 'stroke-width': 1 })
+  
   var fillColors = []
   fillColors.push('#42aaf4')
   fillColors.push('#f9a2de')
@@ -275,7 +276,8 @@ function animateCar(image, animationTimesArrAll, lengthPropArrAll, startPosArrAl
 
   var g;
   for (g=0; g<lengthPropArrAll.length; g++) {
-    animateLap(carContainer, car, animationTimesArrAll[g], lengthPropArrAll[g], startPosArrAll[g], carRect, fillColors[g])
+    //animateLap(carContainer, car, animationTimesArrAll[g], lengthPropArrAll[g], startPosArrAll[g], carRect, fillColors[g])
+    animateLap(carContainer, car, animationTimesArrAll[g], lengthPropArrAll[g], startPosArrAll[g], fillColors[g])
   }
 
 }
@@ -421,7 +423,7 @@ function setEntryInformation(carnum, order) {
   });
 }
 
-function setSpeedInformation_Outer(sectionLengthsArrAll, animationTimesArrAll, delayTimes) {
+function setSpeedInformation_Outer(sectionLengthsArrAll, animationTimesArrAll, delayTimes, order) {
   var k
   var speedArrAll = [] 
   for (k=0; k<sectionLengthsArrAll.length; k++) {
@@ -436,16 +438,16 @@ function setSpeedInformation_Outer(sectionLengthsArrAll, animationTimesArrAll, d
     }
     speedArrAll.push(speedArr)
   }             
-             
+         
   let d
   for (d=0; d<delayTimes.length; d++) {
-    setSpeedInformation(speedArrAll[d], delayTimes[d])
+    setSpeedInformation(speedArrAll[d], delayTimes[d], order)
   }
 }
 
 var delayTimesAllArr = []
 
-function getLapRangeInfo(carnum, lapbeg, lapend, sectionInfo, order) {
+function getLapRangeInfo(carnum, lapbeg, lapend, sectionInfo, order, y) {
   $.ajax({
     url: 'http://j-093.juliet.futuresystems.org:5000/gettiminginfoinlaprange?car_num=' + carnum + '&lap_beg=' + lapbeg + '&lap_end=' + lapend,
     data: {
@@ -480,23 +482,26 @@ function getLapRangeInfo(carnum, lapbeg, lapend, sectionInfo, order) {
       if (carnumstr.length == 1) {
         carnumstr = "0" + carnumstr
       }
-      animateCar('/static/cars/car_' + carnumstr  + '.png', animationTimesArrAll, lengthPropArrAll, startPosArrAll)
       
-      //Set Lap Information
-      var delayTimes = setLapInformation_Outer(animationTimesArrAll)
-      delayTimesAllArr.push(delayTimes)
+      setTimeout(function() {
+        animateCar('/static/cars/car_' + carnumstr + '.png', animationTimesArrAll, lengthPropArrAll, startPosArrAll, y)
+      
+        //Set Lap Information
+        var delayTimes = setLapInformation_Outer(animationTimesArrAll)
+        delayTimesAllArr.push(delayTimes)
 
-      //Set Weather Information
-      setWeatherInformation_Outer(sectionTimingInfoforLapRange)
+        //Set Weather Information
+        setWeatherInformation_Outer(sectionTimingInfoforLapRange)
 
-      //Set Entry Information
-      setEntryInformation(carnum, order)
+        //Set Entry Information
+        setEntryInformation(carnum, order)
 
-      //Set Speed Information
-      setSpeedInformation_Outer(sectionLengthsArrAll, animationTimesArrAll, delayTimes)
+        //Set Speed Information
+        setSpeedInformation_Outer(sectionLengthsArrAll, animationTimesArrAll, delayTimes, order)
 
-      //Set Rank Information
-      setRankInformation(carnum, lapbeg, lapend, order, delayTimes)
+        //Set Rank Information
+        setRankInformation(carnum, lapbeg, lapend, order, delayTimes)
+      }, 1000)
     },
     type: 'GET'
   });
@@ -541,7 +546,7 @@ function setRankforCar(order, rank, delay, car_num) {
 }
 
 $(document).ready(function() {
-  
+
   $.ajax({
     url: 'http://j-093.juliet.futuresystems.org:5000/sectioninfo',
     data: {
@@ -555,16 +560,19 @@ $(document).ready(function() {
 	var lapbeg = 1
         var lapend = 5
         var carnum
-        var rank
+        var y
 
-        carnum = 9       
-        getLapRangeInfo(carnum, lapbeg, lapend, sectionInfo, 1)
+        carnum = 9
+        y = 0       
+        getLapRangeInfo(carnum, lapbeg, lapend, sectionInfo, 1, y)
         
         carnum = 20
-        getLapRangeInfo(carnum, lapbeg, lapend, sectionInfo, 2)
+        y=4
+        getLapRangeInfo(carnum, lapbeg, lapend, sectionInfo, 2, y)
         
         carnum = 12
-        getLapRangeInfo(carnum, lapbeg, lapend, sectionInfo, 3)
+        y=7
+        getLapRangeInfo(carnum, lapbeg, lapend, sectionInfo, 3, y)
                
     },
     type: 'GET'
@@ -591,3 +599,4 @@ $(document).ready(function() {
   });
 
 });
+
