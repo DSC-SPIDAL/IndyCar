@@ -19,7 +19,7 @@
 
 5) Start the web app using following command
 
-   ```python web_app.py```
+   ```nohup python web_app.py &```
 
 6) Get general info such as race info, weather info using following commands respectively
 
