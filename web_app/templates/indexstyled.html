@@ -265,9 +265,108 @@
       </div>
       <div id="drawing" style="margin-top:200px;"></div>
       </div>
+      <div style="margin-top:2000px;">
+         <canvas id="myChart" style="margin-top:4000px;"></canvas>
+      </div>
    </body>
    <!--Scripts-->
    <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
    <script src="static/svg.js" type="text/javascript"></script>
    <script src="static/index.js" type="text/javascript"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+   <script type="text/javascript">
+       //todo remove https://cors-anywhere.herokuapp.com/
+       let base = "http://j-093.juliet.futuresystems.org:5000";
+       let ctx = document.getElementById('myChart').getContext('2d');
+       let chart = new Chart(ctx, {
+           type: 'line',
+           data: {
+               labels: [],
+               datasets: []
+           },
+           options: {}
+       });
+
+       function getRandomColor() {
+           let letters = '0123456789ABCDEF';
+           let color = '#';
+           for (let i = 0; i < 6; i++) {
+               color += letters[Math.floor(Math.random() * 16)];
+           }
+           return color;
+       }
+
+       let colorCache = {};
+
+       /**
+        * to prevent color change on next poll
+        * @param car
+        */
+       function getCarColor(car) {
+           if (!colorCache[car]) {
+               colorCache[car] = getRandomColor();
+           }
+           return colorCache[car];
+       }
+
+       function getCarInfo(car) {
+           return axios.get(`${base}/getentryinfo?car_num=${car}`);
+       }
+
+       function getCarLapsTimes(car) {
+           return axios.get(`${base}/getlaptimes?car_num=${car}`);
+       }
+
+       function getCar(car) {
+           return Promise.all([getCarInfo(car), getCarLapsTimes(car)]).then(arr => {
+               return {
+                   info: arr[0].data,
+                   lapTimes: arr[1].data
+               }
+           });
+       }
+
+       //start polling
+       function poll() {
+           axios.get(`${base}/carslist`).then(response => {
+               let cars = response.data;
+           return cars.map(car => getCar(car));
+       }).then(promises => {
+               Promise.all(promises).then(data => {
+               //update the chart
+               let lapMax = -1;
+           let dataSet = [];
+           data.forEach(car => {
+               let dataArray = car.lapTimes.map(time => {
+                   if (lapMax < time['lap_num']) {
+               lapMax = time['lap_num'];
+           }
+           return time['lap_time'];
+       });
+           dataSet.push({
+               label: car.info['entry_info_data']['driver_name'],
+               data: dataArray,
+               fill: false,
+               borderColor: getCarColor(car.info['entry_info_data']['car_num']),
+               backgroundColor: getCarColor(car.info['entry_info_data']['car_num'])
+           })
+       });
+           //x axis
+           chart.data.labels = [];
+           for (let i = 1; i <= lapMax; i++) {
+               chart.data.labels.push(i);
+           }
+           chart.data.datasets = dataSet;
+
+
+           chart.update();
+           console.log(data);
+       })
+       });
+       }
+
+       poll();
+       setInterval(poll, 30000);
+   </script>
 </html>
