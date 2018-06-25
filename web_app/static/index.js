@@ -83,29 +83,39 @@ let y8 = y7 - shortStraightWay.length;
 //--------------------------------//
 //          TRACK DISTANCE        //
 //--------------------------------//
-let oneToTwo = longStraightWay.length;
+let twoToOne = longStraightWay.length;
+let oneToEight = twoToOne + scalledTurnArc;
+let eightToSeven = oneToEight + shortStraightWay.length;
+let sevenToSix = eightToSeven + scalledTurnArc;
+let sixToFive = sevenToSix + longStraightWay.length;
+let fiveToFour = sixToFive + scalledTurnArc;
+let fourToThree = fiveToFour + shortStraightWay.length;
+let threeToTwo = fourToThree + scalledTurnArc;
+
+/*let oneToTwo = longStraightWay.length;
 let twoToThree = oneToTwo + scalledTurnArc;
 let threeToFour = twoToThree + shortStraightWay.length;
 let fourToFive = threeToFour + scalledTurnArc;
 let fiveToSix = fourToFive + longStraightWay.length;
 let sixToSeven = fiveToSix + scalledTurnArc;
 let sevenToEight = sixToSeven + shortStraightWay.length;
-let eightToOne = sevenToEight + scalledTurnArc;
+let eightToOne = sevenToEight + scalledTurnArc;*/
 
-console.log("Total", eightToOne);
+console.log("Total", threeToTwo);
 
 //drawing track
+// counter-clockwise
 let path = draw.path
     (`
-        M${x1} ${y1} 
-        L${x2} ${y2} 
-        Q ${xc2} ${yc2} ${x3} ${y3}
-        L${x4} ${y4}
-        Q ${xc3} ${yc3} ${x5} ${y5}
-        L${x6} ${y6}
-        Q ${xc4} ${yc4} ${x7} ${y7}
-        L${x8} ${y8}
-        Q ${xc1} ${yc1} ${x1} ${y1}
+        M${x2} ${y2} 
+        L${x1} ${y1} 
+        Q ${xc1} ${yc1} ${x8} ${y8}
+        L${x7} ${y7}
+        Q ${xc4} ${yc4} ${x6} ${y6}
+        L${x5} ${y5}
+        Q ${xc3} ${yc3} ${x4} ${y4}
+        L${x3} ${y3}
+        Q ${xc2} ${yc2} ${x2} ${y2}
     `)
     .attr({ stroke: roadTexture, fill: 'transparent', 'stroke-width': longStraightWay.width })
     .center(window.innerWidth / 2, window.innerHeight / 2);
@@ -119,7 +129,7 @@ let pattern = draw.pattern(20, 20, function (add) {
 });
 
 //start line
-let startLine = draw.rect(20 * scale, longStraightWay.width).fill(pattern).move(x1, y1 - (longStraightWay.width / 2));
+let startLine = draw.rect(20 * scale, longStraightWay.width).fill(pattern).move(x2, y1 - (longStraightWay.width / 2));
 
 console.log("Length", length / scale);
 
@@ -197,22 +207,22 @@ function animateSection(carContainer, car, animationTime, sectionLengthProp, sta
 
     let distance = length * adjustedPos;
     var angle;
-    if (distance < oneToTwo) {
-      angle = 360;
-    } else if (distance < twoToThree) {
-      angle = (distance - oneToTwo) / scalledTurnArc * 90;
-    } else if (distance < threeToFour) {
-      angle = 90;
-    } else if (distance < fourToFive) {
-      angle = 90 + (distance - threeToFour) / scalledTurnArc * 90;
-    } else if (distance < fiveToSix) {
+    if (distance < twoToOne) {
       angle = 180;
-    } else if (distance < sixToSeven) {
-      angle = 180 + (distance - fiveToSix) / scalledTurnArc * 90;
-    } else if (distance < sevenToEight) {
+    } else if (distance < oneToEight) {
+      angle = 180 - (distance - twoToOne) / scalledTurnArc * 90;
+    } else if (distance < eightToSeven) {
+      angle = 90;
+    } else if (distance < sevenToSix) {
+      angle = 90 - (distance - eightToSeven) / scalledTurnArc * 90;
+    } else if (distance < sixToFive) {
+      angle = 0;
+    } else if (distance < fiveToFour) {
+      angle = (distance - sixToFive) / scalledTurnArc * -90;
+    } else if (distance < fourToThree) {
       angle = 270;
-    } else if (distance < eightToOne) {
-      angle = 270 + (distance - sevenToEight) / scalledTurnArc * 90;
+    } else if (distance < threeToTwo) {
+      angle = 270 + (distance - fourToThree) / scalledTurnArc * -90;
     }
 
     car.rotate(angle)
