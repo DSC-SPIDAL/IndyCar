@@ -1,0 +1,271 @@
+$side_padding: 80px;
+
+body {
+  background: url(images/Indianapolis500_Background-01.png) no-repeat center center fixed;
+  background-size: cover;
+  font-family: 'Josefin Sans', sans-serif;
+
+  padding-top: 20px;
+  padding-bottom: 20px;
+  display: grid;
+  grid-template-rows: auto auto auto auto;
+
+  margin: 0;
+  overflow-x: hidden;
+  width: 100%;
+
+  .pre-loader {
+    z-index: 9999;
+    background-color: black;
+    position: fixed;
+    width: 100%;
+    height: 100%;
+    top: 0;
+    left: 0;
+
+    img {
+      position: fixed;
+      top: 50%;
+      left: 50%;
+      transform: translateY(-50%) translateX(-50%);
+    }
+  }
+
+  .header {
+    padding: 0 $side_padding 0 $side_padding;
+    display: grid;
+    grid-template-columns: auto 400px;
+    .title {
+      .title-typeface {
+        color: white;
+        text-shadow: rgb(0, 0, 0) -1px -1px 0px, rgb(0, 0, 0) 1px -1px 0px, rgb(0, 0, 0) -1px 1px 0px, rgb(0, 0, 0) 2px 2px 0px;
+      }
+
+      .event-name {
+        font-size: 60px;
+        font-weight: 600;
+        font-family: 'Racing Sans One', cursive;
+      }
+
+      .run-name {
+        font-size: 28px;
+        font-family: 'Racing Sans One', cursive;
+      }
+
+      .start-date {
+        font-size: 20px;
+        font-family: 'Merriweather', serif;
+      }
+    }
+
+    .weather-information {
+      display: grid;
+      grid-template-rows: 50% 50%;
+      grid-template-columns: 50% 50%;
+      text-align: right;
+
+      .weather-indicator {
+        padding-top: 20px;
+        font-family: 'Merriweather', serif;
+
+        div:first-of-type {
+          font-weight: 900;
+        }
+      }
+    }
+  }
+
+  .track-wrapper {
+    position: relative;
+    .ranking {
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translateX(calc(-50% - 50px)) translateY(-50%);
+      //width: 50%;
+
+      .top-3 {
+        display: grid;
+        grid-template-rows: 1fr 1fr 1fr;
+        grid-row-gap: 10px;
+        div {
+          width: 100%;
+          background-image: url('images/Ranking background.svg');
+          background-size: contain;
+          background-position: center;
+          background-repeat: no-repeat;
+          font-family: Gotham, "Helvetica Neue", Helvetica, Arial, sans-serif;
+          font-size: 60px;
+          font-size: 3vw;
+          font-weight: 600;
+          font-style: italic;
+          color: white;
+          padding-top: 2vh;
+          padding-bottom: 2vh;
+          text-align: center;
+        }
+      }
+
+      .rank-1 {
+
+      }
+
+      .rank-2 {
+        margin-left: 50px;
+      }
+
+      .rank-3 {
+        margin-left: 100px;
+      }
+    }
+  }
+
+  .speed-data {
+    padding-left: $side_padding;
+    padding-right: $side_padding;
+    display: grid;
+    grid-template-rows: repeat(3, 1fr);
+
+    .speed-data-rank-wrapper {
+      display: grid;
+      grid-template-columns: 450px auto;
+      @media (max-width: 1000px) {
+        grid-template-columns: 1fr;
+        grid-template-rows: repeat(2, 1fr);
+      }
+
+      &:not(:last-of-type) {
+        margin-bottom: 5px;
+      }
+
+      .speed-data-info-wrapper {
+        display: grid;
+        grid-template-columns: 120px auto;
+        background-color: rgba(255, 255, 255, 0.7);
+        padding: 10px;
+        .speed-data-car-info {
+          text-align: center;
+          position: relative;
+          vertical-align: middle;
+
+          .speed-data-car-info-middle {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translateX(-50%) translateY(-50%);
+
+            .speed-data-car-info-number {
+              font-family: Impact, Haettenschweiler, "Franklin Gothic Bold", "Arial Black", "sans-serif";
+              font-size: 42px;
+              background-image: url(images/CarNumbFrame.png);
+              background-position: center;
+              background-size: contain;
+              background-repeat: no-repeat;
+              padding: 20px;
+            }
+          }
+        }
+
+        .speed-data-driver-info {
+          display: grid;
+          grid-template-rows: auto auto;
+          grid-row-gap: 10px;
+          .speed-data-driver-info-bio {
+            color: #4A4A4A;
+            font-style: italic;
+            .speed-data-driver-name {
+              font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+              font-weight: 600;
+              font-size: 42px;
+            }
+
+            .speed-data-driver-team {
+              font-family: Gotham, "Helvetica Neue", Helvetica, Arial, "sans-serif";
+              font-size: 20px;
+              margin-top: 5px;
+            }
+          }
+
+          .speed-data-driver-info-other {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+
+            .speed-data-driver-info-other-col:nth-of-type(1) {
+              text-align: left;
+            }
+
+            .speed-data-driver-info-other-col:nth-of-type(2) {
+              text-align: center;
+            }
+
+            .speed-data-driver-info-other-col:nth-of-type(3) {
+              text-align: right;
+            }
+
+            .speed-data-driver-info-other-col {
+              display: grid;
+              grid-template-rows: repeat(2, 1fr);
+              div:nth-of-type(2) {
+                font-weight: 600;
+              }
+            }
+          }
+        }
+      }
+
+      .speed-data-lap-sections {
+        display: grid;
+        grid-template-rows: 50px auto;
+        padding: 10px;
+        background-color: rgba(255, 255, 255, 0.4);
+        font-family: "Gill Sans", "Gill Sans MT", "Myriad Pro", "DejaVu Sans Condensed", Helvetica, Arial, "sans-serif";;
+
+        .speed-data-lap-sections-title {
+          font-size: 24px;
+        }
+
+        .speed-data-lap-sections-info {
+          display: grid;
+          grid-template-columns: repeat(18, 1fr);
+          text-align: center;
+
+          .speed-data-lap-section {
+            display: grid;
+            grid-template-rows: repeat(2, 1fr);
+            .speed-data-lap-section-label-wrapper {
+              background-image: url(images/label_unfilled.png);
+              background-repeat: no-repeat;
+              background-size: contain;
+              background-position: center;
+              position: relative;
+
+              .speed-data-lap-section-label {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translateX(-50%) translateY(-50%);
+                font-size: 20px;
+              }
+            }
+
+            .speed-data-lap-section-time {
+              margin-top: 5px;
+              font-size: 20px;
+            }
+          }
+        }
+      }
+    }
+  }
+
+  .speed-chart-wrapper {
+    padding-left: $side_padding;
+    padding-right: $side_padding;
+    margin-top: 20px;
+
+    #speed-chart {
+      background-color: rgba(255, 255, 255, 0.7);
+    }
+  }
+
+}
