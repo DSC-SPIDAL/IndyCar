@@ -2,8 +2,10 @@ from flask import Flask
 from flask import jsonify
 import get_from_db as gdb
 from flask import request, render_template
+from flask_cors import CORS
 
 app = Flask(__name__)
+CORS(app)
 
 # Get information about the race
 @app.route("/raceinfo", methods=['GET'])

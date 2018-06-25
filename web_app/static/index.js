@@ -182,7 +182,7 @@ function getAnimationTimesArr(sectionDetails) {
     var a = secTime.split(/[:.]+/);
     var seconds = (+a[0]) * 60 * 60 + (+a[1]) * 60 + (+a[2]) + parseFloat("0." + a[3]);
     //divide real time by 4 to show in animation
-    animationTimes.push(Math.ceil((seconds * 1000)/4)) 
+    animationTimes.push(Math.ceil((seconds * 1000)/5)) 
   }
   
   return animationTimes
@@ -433,7 +433,7 @@ function setSpeedInformation_Outer(sectionLengthsArrAll, animationTimesArrAll, d
     var speedArr = []
     for (j=0; j<elem.length; j++) {
       var length = elem[j]
-      var time = animTime[j] * (2.77778 * 0.0000001) * 4 //since we divided by 4 to get animation times
+      var time = animTime[j] * (2.77778 * 0.0000001) * 5 //since we divided by 4 to get animation times
       speedArr.push(length/time)
     }
     speedArrAll.push(speedArr)

@@ -263,10 +263,10 @@
          <div class='sk-asset sk-run_name'></div>
          <div class='sk-asset sk-Line'></div>
       </div>
-      <div id="drawing" style="margin-top:200px;"></div>
+      <div id="drawing" style="margin-top:120px;"></div>
       </div>
-      <div style="margin-top:2000px;">
-         <canvas id="myChart" style="margin-top:4000px;"></canvas>
+      <div style="margin-top:600px;">
+         <canvas id="myChart" style="margin-top:680px;"></canvas>
       </div>
    </body>
    <!--Scripts-->
@@ -285,7 +285,26 @@
                labels: [],
                datasets: []
            },
-           options: {}
+           options: { 
+               title: {
+            display: true,
+            text: 'Lap Times'
+        },
+               scales: {
+                   yAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: 'Lap time (s)'
+          }
+        }],
+        xAxes: [{
+          scaleLabel: {
+            display: true,
+            labelString: 'Lap number'
+          }
+        }],
+               }  
+           }
        });
 
        function getRandomColor() {
