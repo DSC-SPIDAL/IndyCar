@@ -376,6 +376,10 @@
            for (let i = 1; i <= lapMax; i++) {
                chart.data.labels.push(i);
            }
+
+           // setting the maximum ticks limit in x axis
+           chart.options.scales.xAxes[0].ticks.maxTicksLimit = lapMax / 6;
+
            chart.data.datasets = dataSet;
 
 
