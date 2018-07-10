@@ -425,7 +425,7 @@ function setEntryInformation(carnum, order) {
             var teaminfo = entryinfo.team + " #" + entryinfo.team_id
             $('.speed-data-rank-' + order + ' .speed-data-car-info-number').text(entryinfo.car_num)
             $('.speed-data-rank-' + order + ' .speed-data-driver-name').text(entryinfo.driver_name)
-            $('.speed-data-rank-' + order + ' .speed-data-driver-hometown').text("from " + entryinfo.home_town)
+            $('.speed-data-rank-' + order + ' .speed-data-driver-hometown').text(entryinfo.home_town)
             $('.speed-data-rank-' + order + ' .speed-data-driver-team').text(teaminfo)
             $('.speed-data-rank-' + order + ' .speed-data-car-info-engine').text(entryinfo.engine)
             $('.speed-data-rank-' + order + ' .speed-data-driver-info-other-competitor-id').text(entryinfo.competitor_identifier)
@@ -586,6 +586,9 @@ $(document).ready(function () {
             y = 7
             getLapRangeInfo(carnum, lapbeg, lapend, sectionInfo, 3, y)
 
+            setTimeout(function () {
+                $(".pre-loader").hide();
+            }, 1000);
         },
         type: 'GET'
     });

@@ -5,7 +5,6 @@
           rel="stylesheet">
 </head>
 <body>
-<!--div id="drawing"></div-->
 <div class="header">
     <div class='title'>
         <div class='event-name title-typeface'>...</div>
@@ -614,7 +613,9 @@
 <div class="speed-chart-wrapper">
     <canvas id="speed-chart"></canvas>
 </div>
-
+<div class="pre-loader">
+    <img src="./static/chequer.gif"/>
+</div>
 </body>
 <!--Scripts-->
 <script src="https://code.jquery.com/jquery-3.3.1.min.js"
@@ -638,20 +639,6 @@
                 display: true,
                 text: 'Lap Times'
             },
-            /*legendCallback: function(chart) {
-                var text = [];
-                text.push('<ul class="' + chart.id + '-legend">');
-                for (var i = 0; i < chart.data.datasets.length; i++) {
-                    //text.push('<li><input type="radio" value="' + chart.data.datasets[i].label +'>');
-                    text.push('<li><span style="background-color:' + chart.data.datasets[i].backgroundColor + '"></span>');
-                    if (chart.data.datasets[i].label) {
-                        text.push(chart.data.datasets[i].label);
-                    }
-                    text.push('</li>');
-                }
-                text.push('</ul>');
-                return text.join('');
-            },*/
             scales: {
                 yAxes: [{
                     scaleLabel: {
