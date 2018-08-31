@@ -329,21 +329,10 @@
            return colorCache[car];
        }
 
-       function getCarInfo(car) {
-           return axios.get(`${base}/getentryinfo?car_num=${car}`);
-       }
-
-       function getCarLapsTimes(car) {
-           return axios.get(`${base}/getlaptimes?car_num=${car}`);
-       }
-
        function getCar(car) {
-           return Promise.all([getCarInfo(car), getCarLapsTimes(car)]).then(arr => {
-               return {
-                   info: arr[0].data,
-                   lapTimes: arr[1].data
-               }
-           });
+           return axios.get(`${base}/getcarinfo?car_num=${car}`).then(response => {
+                   return response.data
+           })
        }
 
        //start polling
@@ -357,18 +346,18 @@
                let lapMax = -1;
            let dataSet = [];
            data.forEach(car => {
-               let dataArray = car.lapTimes.map(time => {
+               let dataArray = car.lap_times.map(time => {
                    if (lapMax < time['lap_num']) {
                lapMax = time['lap_num'];
            }
            return time['lap_time'];
        });
            dataSet.push({
-               label: car.info['entry_info_data']['driver_name'],
+               label: car.driver_name,
                data: dataArray,
                fill: false,
-               borderColor: getCarColor(car.info['entry_info_data']['car_num']),
-               backgroundColor: getCarColor(car.info['entry_info_data']['car_num'])
+               borderColor: getCarColor(car.car_num),
+               backgroundColor: getCarColor(car.car_num)
            })
        });
            //x axis
@@ -390,6 +379,6 @@
        }
 
        poll();
-       setInterval(poll, 30000);
+       // setInterval(poll, 30000);
    </script>
 </html>
