@@ -79,9 +79,9 @@ def get_weather_data():
 @app.route("/getentryinfo", methods=["GET"])
 def get_entry_info():
   car_num = int(request.args.get('car_num'))
-  entry_record = gdb.get_entry_info(car_num)
+  entry_info = gdb.get_entry_info(car_num)
   
-  return jsonify(entry_record)
+  return jsonify(entry_info)
 
 # Get Section Timing for All Laps
 @app.route("/getalllaptiminginfo", methods=["GET"])
@@ -140,25 +140,19 @@ def get_rank_info():
   for i in range(lap_beg, lap_end+1):
     rank = gdb.get_rank_info(car_num, str(i))
     rank_info = {}
-    rank_info["lap_num"] = i
-    rank_info["rank"] = rank["completed_lap_results_data"]["rank"]
+    rank_info['lap_num'] = i
+    rank_info['rank'] = rank['lap_rank']
+    rank_info['driver_name'] = rank['driver_name']
     ranks.append(rank_info)
 
   return jsonify(ranks)
 
-# Get Driver Name
-@app.route("/getdrivername", methods=["GET"])
-def get_driver_name():
+# Get Car Info with Lap Times
+@app.route("/getcarinfo", methods=["GET"])
+def get_carinfo():
   car_num = int(request.args.get('car_num'))
   
-  return jsonify(gdb.get_driver_name(car_num))
-
-# Get Lap Times
-@app.route("/getlaptimes", methods=["GET"])
-def get_laptimes():
-  car_num = int(request.args.get('car_num'))
-  
-  return jsonify(gdb.get_laptimes(car_num))
+  return jsonify(gdb.get_car_info(car_num))
 
 # Index Page
 @app.route("/", methods=["GET"])
