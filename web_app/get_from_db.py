@@ -201,33 +201,45 @@ def get_weather_data():
 
 def get_entry_info(car_num):
   entry_coll = db.entry_info
-
   entry_record = entry_coll.find({"entry_info_data.car_num": car_num}, {'_id': False}).sort([("$natural", -1)]).limit(1)
+  entry_info_data = entry_record[0]['entry_info_data']
+
+  entry_info = {}
+  entry_info['car_num'] = car_num
+  entry_info['driver_name'] = entry_info_data['driver_name']
+  entry_info['team'] = entry_info_data['team']
+  entry_info['team_id'] = entry_info_data['team_id']
+  entry_info['home_town'] = entry_info_data['home_town']
+  entry_info['engine'] = entry_info_data['engine']
+  entry_info['competitor_identifier'] = entry_info_data['competitor_identifier']
+  entry_info['license'] = entry_info_data['license']
   
-  return entry_record[0]
-
-
-def get_driver_name(car_num):
-  entry_coll = db.entry_info
-
-  entry_record = entry_coll.find({"entry_info_data.car_num": car_num}, {'_id': False}).sort([("$natural", -1)]).limit(1)
-
-  return entry_record[0]["entry_info_data"]["driver_name"]
-
+  return entry_info
 
 def get_rank_info(car_num, lap_num_str):
+  entry_coll = db.entry_info
+  entry_record = entry_coll.find({"entry_info_data.car_num": car_num}, {'_id': False}).sort([("$natural", -1)]).limit(1)
+
   lap_coll = db.completed_lap_results_info
-  
-  cursor = lap_coll.find({ "$and" : [{"completed_lap_results_data.car_num": car_num}, {"completed_lap_results_data.completed_laps" : lap_num_str}]})
+  lap_records = lap_coll.find({ "$and" : [{"completed_lap_results_data.car_num": car_num}, {"completed_lap_results_data.completed_laps" : lap_num_str}]})
 
-  return cursor[0]
+  rank_info_data = {}
+  rank_info_data['driver_name'] = entry_record[0]['entry_info_data']['driver_name']
+  rank_info_data['lap_rank'] = lap_records[0]['completed_lap_results_data']['rank']
+  return rank_info_data
 
 
-def get_laptimes(car_num):
+def get_car_info(car_num):
+  entry_coll = db.entry_info
+  entry_record = entry_coll.find({"entry_info_data.car_num": car_num}, {'_id': False}).sort([("$natural", -1)]).limit(1)
+
+  car_info = {}
+  car_info['car_num'] = car_num
+  car_info['driver_name'] = entry_record[0]['entry_info_data']['driver_name']
+
   lap_coll = db.completed_lap_results_info
-  
   cursor = lap_coll.find({ "$and" : [{"completed_lap_results_data.car_num": car_num}, {"completed_lap_results_data.completed_laps": {"$ne" : "0"}}]})
- 
+
   lap_times = []
   for doc in cursor:
     lap_time = {}
@@ -238,7 +250,8 @@ def get_laptimes(car_num):
     lap_times.append(lap_time)
 
   unique_lap_times = list({v['lap_num']:v for v in lap_times}.values())
-  return unique_lap_times
+  car_info['lap_times'] = unique_lap_times
+  return car_info
     
 
 def get_car_lap_section_statistics():

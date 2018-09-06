@@ -678,71 +678,54 @@
         return colorCache[car];
     }
 
-    function getCarInfo(car) {
-        return axios.get(`${base}/getentryinfo?car_num=${car}`);
-    }
-
-    function getCarLapsTimes(car) {
-        return axios.get(`${base}/getlaptimes?car_num=${car}`);
-    }
-
     function getCar(car) {
-        return Promise.all([getCarInfo(car), getCarLapsTimes(car)]).then(arr => {
-            return {
-                info: arr[0].data,
-                lapTimes: arr[1].data
-            }
-        });
-    }
+           return axios.get(`${base}/getcarinfo?car_num=${car}`).then(response => {
+                   return response.data
+           })
+       }
 
-   /* var myLegendContainer = document.getElementById("myChartLegend");
+       //start polling
+       function poll() {
+           axios.get(`${base}/carslist`).then(response => {
+               let cars = response.data;
+           return cars.map(car => getCar(car));
+       }).then(promises => {
+               Promise.all(promises).then(data => {
+               //update the chart
+               let lapMax = -1;
+           let dataSet = [];
+           data.forEach(car => {
+               let dataArray = car.lap_times.map(time => {
+                   if (lapMax < time['lap_num']) {
+               lapMax = time['lap_num'];
+           }
+           return time['lap_time'];
+       });
+           dataSet.push({
+               label: car.driver_name,
+               data: dataArray,
+               fill: false,
+               borderColor: getCarColor(car.car_num),
+               backgroundColor: getCarColor(car.car_num)
+           })
+       });
+           //x axis
+           chart.data.labels = [];
+           for (let i = 1; i <= lapMax; i++) {
+               chart.data.labels.push(i);
+           }
 
-    // generate HTML legend
-    myLegendContainer.innerHTML = chart.generateLegend();
-*/
-    //start polling
-    function poll() {
-        axios.get(`${base}/carslist`).then(response => {
-            let cars = response.data;
-            return cars.map(car => getCar(car));
-        }).then(promises => {
-            Promise.all(promises).then(data => {
-                //update the chart
-                let lapMax = -1;
-                let dataSet = [];
-                data.forEach(car => {
-                    let dataArray = car.lapTimes.map(time => {
-                        if (lapMax < time['lap_num']) {
-                            lapMax = time['lap_num'];
-                        }
-                        return time['lap_time'];
-                    });
-                    dataSet.push({
-                        label: car.info['entry_info_data']['driver_name'],
-                        data: dataArray,
-                        fill: false,
-                        borderColor: getCarColor(car.info['entry_info_data']['car_num']),
-                        backgroundColor: getCarColor(car.info['entry_info_data']['car_num'])
-                    })
-                });
-                //x axis
-                chart.data.labels = [];
-                for (let i = 1; i <= lapMax; i++) {
-                    chart.data.labels.push(i);
-                }
+            // setting the maximum ticks limit in x axis
+            chart.options.scales.xAxes[0].ticks.maxTicksLimit = lapMax / 6;
 
-                // setting the maximum ticks limit in x axis
-                chart.options.scales.xAxes[0].ticks.maxTicksLimit = lapMax / 6;
+            chart.data.datasets = dataSet;
 
-                chart.data.datasets = dataSet;
-
-                chart.update();
-                console.log(data);
+            chart.update();
+            console.log(data);
             })
         });
     }
-
-    poll();
-    setInterval(poll, 30000);
-</script>
+       poll();
+       // setInterval(poll, 30000);
+   </script>
 </html>
