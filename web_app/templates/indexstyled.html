@@ -1,335 +1,684 @@
 <html>
-   <head>
-      <link rel="stylesheet" href="static/style.css" />
-   </head>
-   <body>
-      <!--div id="drawing"></div-->
-      <div class='sk-ab sk-INDIANAPOLIS-500'>
-         <div class='sk-asset sk-Background'>
-         </div>
-         <div class='sk-asset sk-Driver-Information-and-Speed_-rank-1'>
-            <div class='sk-asset sk-Last-Lap-Section-Speed'>
-               <div class='sk-asset sk-Last-Section-Speed-Info'>
-                  <div class='sk-asset sk-Last-Lap-Section-Speed-Background'></div>
-                  <div class='sk-asset sk-Section-Speed-data'>
-                     <div class='sk-asset sk-section-09'>221.5</div>
-                     <div class='sk-asset sk-section-08'>208.2</div>
-                     <div class='sk-asset sk-section-07'>198.7</div>
-                     <div class='sk-asset sk-section-06'>220.3</div>
-                     <div class='sk-asset sk-section-05'>199.6</div>
-                     <div class='sk-asset sk-section-04'>185.5</div>
-                     <div class='sk-asset sk-section-03'>188.2</div>
-                     <div class='sk-asset sk-section-02'>192.3</div>
-                     <div class='sk-asset sk-section-01'>178.2</div>
-                     <div class='sk-asset sk-section-18'>221.5</div>
-                     <div class='sk-asset sk-section-17'>208.2</div>
-                     <div class='sk-asset sk-section-16'>198.7</div>
-                     <div class='sk-asset sk-section-15'>220.3</div>
-                     <div class='sk-asset sk-section-14'>199.6</div>
-                     <div class='sk-asset sk-section-13'>185.5</div>
-                     <div class='sk-asset sk-section-12'>188.2</div>
-                     <div class='sk-asset sk-section-11'>192.3</div>
-                     <div class='sk-asset sk-section-10'>178.2</div>
-                  </div>
-                  <div class='sk-asset sk-Section-Labels'>
-                     <div class='sk-asset sk-label-09'>9</div>
-                     <div class='sk-asset sk-label-08'>8</div>
-                     <div class='sk-asset sk-label-07'>7</div>
-                     <div class='sk-asset sk-label-06'>6</div>
-                     <div class='sk-asset sk-label-05'>5</div>
-                     <div class='sk-asset sk-label-04'>4</div>
-                     <div class='sk-asset sk-label-03'>3</div>
-                     <div class='sk-asset sk-label-02'>2</div>
-                     <div class='sk-asset sk-label-01'>1</div>
-                     <div class='sk-asset sk-label-18'>18</div>
-                     <div class='sk-asset sk-label-17'>17</div>
-                     <div class='sk-asset sk-label-16'>16</div>
-                     <div class='sk-asset sk-label-15'>15</div>
-                     <div class='sk-asset sk-label-14'>14</div>
-                     <div class='sk-asset sk-label-13'>13</div>
-                     <div class='sk-asset sk-label-12'>12</div>
-                     <div class='sk-asset sk-label-11'>11</div>
-                     <div class='sk-asset sk-label-10'>10</div>
-                  </div>
-               </div>
-               <div class='sk-asset sk-Last-Lap-Section-Speeds-title'>Last Lap Section Speeds</div>
+<head>
+    <link rel="stylesheet" href="static/style.css"/>
+    <link href="https://fonts.googleapis.com/css?family=Josefin+Sans|Merriweather:400,900|Racing+Sans+One"
+          rel="stylesheet">
+</head>
+<body>
+<div class="header">
+    <div class='title'>
+        <div class='event-name title-typeface'>...</div>
+        <div class='run-name title-typeface'>...</div>
+        <div class='start-date'>...</div>
+    </div>
+    <div class='weather-information'>
+        <div class="weather-indicator">
+            <div>
+                Ambient Temp
             </div>
-            <div class='sk-asset sk-Driver-Information'>
-               <div class='sk-asset sk-Driver-Info-Background'></div>
-               <div class='sk-asset sk-Driver-Info-2'>
-                  <div class='sk-asset sk-Driver-info-2-titles'>
-                     <div class='sk-asset sk-Licence-title'>Licence</div>
-                     <div class='sk-asset sk-Rank-title'>Rank</div>
-                     <div class='sk-asset sk-Competitor-ID-title'>Competitor ID</div>
-                  </div>
-                  <div class='sk-asset sk-Driver-info-2-data'>
-                     <div class='sk-asset sk-licence'>Veteran</div>
-                     <div class='sk-asset sk-rank'>1</div>
-                     <div class='sk-asset sk-competitor_identifier'>37</div>
-                  </div>
-               </div>
-               <div class='sk-asset sk-Driver-Info-Car_num'>3</div>
-               <div class='sk-asset sk-Driver-Info-Engine'></div>
-               <div class='sk-asset sk-Driver-Info-1'>
-                  <div class='sk-asset sk-driver_name'>Scott Dixon</div>
-                  <div class='sk-asset sk-Team'>Chip Ganassi Racing Teams (#25)</div>
-                  <div class='sk-asset sk-Hometown'>from Auckland New Zealand</div>
-               </div>
+            <div class="weather-indicator-ambient-temp">
+                ...
             </div>
-         </div>
-         <div class='sk-asset sk-Driver-Information-and-Speed_-rank-2'>
-            <div class='sk-asset sk-Last-Lap-Section-Speed'>
-               <div class='sk-asset sk-Last-Section-Speed-Info'>
-                  <div class='sk-asset sk-Last-Lap-Section-Speed-Background'></div>
-                  <div class='sk-asset sk-Section-Speed-data'>
-                     <div class='sk-asset sk-section-09'>221.5</div>
-                     <div class='sk-asset sk-section-08'>208.2</div>
-                     <div class='sk-asset sk-section-07'>198.7</div>
-                     <div class='sk-asset sk-section-06'>220.3</div>
-                     <div class='sk-asset sk-section-05'>199.6</div>
-                     <div class='sk-asset sk-section-04'>185.5</div>
-                     <div class='sk-asset sk-section-03'>188.2</div>
-                     <div class='sk-asset sk-section-02'>192.3</div>
-                     <div class='sk-asset sk-section-01'>178.2</div>
-                     <div class='sk-asset sk-section-18'>221.5</div>
-                     <div class='sk-asset sk-section-17'>208.2</div>
-                     <div class='sk-asset sk-section-16'>198.7</div>
-                     <div class='sk-asset sk-section-15'>220.3</div>
-                     <div class='sk-asset sk-section-14'>199.6</div>
-                     <div class='sk-asset sk-section-13'>185.5</div>
-                     <div class='sk-asset sk-section-12'>188.2</div>
-                     <div class='sk-asset sk-section-11'>192.3</div>
-                     <div class='sk-asset sk-section-10'>178.2</div>
-                  </div>
-                  <div class='sk-asset sk-Section-Labels'>
-                     <div class='sk-asset sk-label-09'>9</div>
-                     <div class='sk-asset sk-label-08'>8</div>
-                     <div class='sk-asset sk-label-07'>7</div>
-                     <div class='sk-asset sk-label-06'>6</div>
-                     <div class='sk-asset sk-label-05'>5</div>
-                     <div class='sk-asset sk-label-04'>4</div>
-                     <div class='sk-asset sk-label-03'>3</div>
-                     <div class='sk-asset sk-label-02'>2</div>
-                     <div class='sk-asset sk-label-01'>1</div>
-                     <div class='sk-asset sk-label-18'>18</div>
-                     <div class='sk-asset sk-label-17'>17</div>
-                     <div class='sk-asset sk-label-16'>16</div>
-                     <div class='sk-asset sk-label-15'>15</div>
-                     <div class='sk-asset sk-label-14'>14</div>
-                     <div class='sk-asset sk-label-13'>13</div>
-                     <div class='sk-asset sk-label-12'>12</div>
-                     <div class='sk-asset sk-label-11'>11</div>
-                     <div class='sk-asset sk-label-10'>10</div>
-                  </div>
-               </div>
-               <div class='sk-asset sk-Last-Lap-Section-Speeds-title'>Last Lap Section Speeds</div>
+        </div>
+        <div class="weather-indicator">
+            <div>
+                Barometer
             </div>
-            <div class='sk-asset sk-Driver-Information'>
-               <div class='sk-asset sk-Driver-Info-Background'></div>
-               <div class='sk-asset sk-Driver-Info-2'>
-                  <div class='sk-asset sk-Driver-info-2-titles'>
-                     <div class='sk-asset sk-Licence-title'>Licence</div>
-                     <div class='sk-asset sk-Rank-title'>Rank</div>
-                     <div class='sk-asset sk-Competitor-ID-title'>Competitor ID</div>
-                  </div>
-                  <div class='sk-asset sk-Driver-info-2-data'>
-                     <div class='sk-asset sk-licence'></div>
-                     <div class='sk-asset sk-rank'></div>
-                     <div class='sk-asset sk-competitor_identifier'></div>
-                  </div>
-               </div>
-               <div class='sk-asset sk-Driver-Info-Car_num'></div>
-               <div class='sk-asset sk-Driver-Info-Engine'></div>
-               <div class='sk-asset sk-Driver-Info-1'>
-                  <div class='sk-asset sk-driver_name'></div>
-                  <div class='sk-asset sk-Team'></div>
-                  <div class='sk-asset sk-Hometown'></div>
-               </div>
+            <div class="weather-indicator-pressure">
+                ...
             </div>
-         </div>
-         <div class='sk-asset sk-Driver-Information-and-Speed_-rank-3'>
-            <div class='sk-asset sk-Last-Lap-Section-Speed'>
-               <div class='sk-asset sk-Last-Section-Speed-Info'>
-                  <div class='sk-asset sk-Last-Lap-Section-Speed-Background'></div>
-                  <div class='sk-asset sk-Section-Speed-data'>
-                     <div class='sk-asset sk-section-09'>221.5</div>
-                     <div class='sk-asset sk-section-08'>208.2</div>
-                     <div class='sk-asset sk-section-07'>198.7</div>
-                     <div class='sk-asset sk-section-06'>220.3</div>
-                     <div class='sk-asset sk-section-05'>199.6</div>
-                     <div class='sk-asset sk-section-04'>185.5</div>
-                     <div class='sk-asset sk-section-03'>188.2</div>
-                     <div class='sk-asset sk-section-02'>192.3</div>
-                     <div class='sk-asset sk-section-01'>178.2</div>
-                     <div class='sk-asset sk-section-18'>221.5</div>
-                     <div class='sk-asset sk-section-17'>208.2</div>
-                     <div class='sk-asset sk-section-16'>198.7</div>
-                     <div class='sk-asset sk-section-15'>220.3</div>
-                     <div class='sk-asset sk-section-14'>199.6</div>
-                     <div class='sk-asset sk-section-13'>185.5</div>
-                     <div class='sk-asset sk-section-12'>188.2</div>
-                     <div class='sk-asset sk-section-11'>192.3</div>
-                     <div class='sk-asset sk-section-10'>178.2</div>
-                  </div>
-                  <div class='sk-asset sk-Section-Labels'>
-                     <div class='sk-asset sk-label-09'>9</div>
-                     <div class='sk-asset sk-label-08'>8</div>
-                     <div class='sk-asset sk-label-07'>7</div>
-                     <div class='sk-asset sk-label-06'>6</div>
-                     <div class='sk-asset sk-label-05'>5</div>
-                     <div class='sk-asset sk-label-04'>4</div>
-                     <div class='sk-asset sk-label-03'>3</div>
-                     <div class='sk-asset sk-label-02'>2</div>
-                     <div class='sk-asset sk-label-01'>1</div>
-                     <div class='sk-asset sk-label-18'>18</div>
-                     <div class='sk-asset sk-label-17'>17</div>
-                     <div class='sk-asset sk-label-16'>16</div>
-                     <div class='sk-asset sk-label-15'>15</div>
-                     <div class='sk-asset sk-label-14'>14</div>
-                     <div class='sk-asset sk-label-13'>13</div>
-                     <div class='sk-asset sk-label-12'>12</div>
-                     <div class='sk-asset sk-label-11'>11</div>
-                     <div class='sk-asset sk-label-10'>10</div>
-                  </div>
-               </div>
-               <div class='sk-asset sk-Last-Lap-Section-Speeds-title'>Last Lap Section Speeds</div>
+        </div>
+        <div class="weather-indicator">
+            <div>Relative Humidity</div>
+            <div class="weather-indicator-humidity">
+                ...
             </div>
-            <div class='sk-asset sk-Driver-Information'>
-               <div class='sk-asset sk-Driver-Info-Background'></div>
-               <div class='sk-asset sk-Driver-Info-2'>
-                  <div class='sk-asset sk-Driver-info-2-titles'>
-                     <div class='sk-asset sk-Licence-title'>Licence</div>
-                     <div class='sk-asset sk-Rank-title'>Rank</div>
-                     <div class='sk-asset sk-Competitor-ID-title'>Competitor ID</div>
-                  </div>
-                  <div class='sk-asset sk-Driver-info-2-data'>
-                     <div class='sk-asset sk-licence'>Veteran</div>
-                     <div class='sk-asset sk-rank'>1</div>
-                     <div class='sk-asset sk-competitor_identifier'>37</div>
-                  </div>
-               </div>
-               <div class='sk-asset sk-Driver-Info-Car_num'>3</div>
-               <div class='sk-asset sk-Driver-Info-Engine'></div>
-               <div class='sk-asset sk-Driver-Info-1'>
-                  <div class='sk-asset sk-driver_name'>Scott Dixon</div>
-                  <div class='sk-asset sk-Team'>Chip Ganassi Racing Teams (#25)</div>
-                  <div class='sk-asset sk-Hometown'>from Auckland New Zealand</div>
-               </div>
+        </div>
+        <div class="weather-indicator">
+            <div>Time of the Day</div>
+            <div class="weather-indicator-time">...</div>
+        </div>
+    </div>
+</div>
+<div class="track-wrapper">
+    <div id="drawing"></div>
+    <div class='ranking'>
+        <div class='top-3'>
+            <div class='rank-1'>1 Scott Dixon</div>
+            <div class='rank-2'>2 Adam Miller</div>
+            <div class='rank-3'>3 Jose Garcias</div>
+        </div>
+    </div>
+</div>
+<div class="speed-data">
+    <div class="speed-data-rank-wrapper speed-data-rank-1">
+        <div class="speed-data-info-wrapper">
+            <div class="speed-data-car-info">
+                <div class="speed-data-car-info-middle">
+                    <div class="speed-data-car-info-number">
+                        ...
+                    </div>
+                    <div class="speed-data-car-info-engine">
+                        ...
+                    </div>
+                </div>
             </div>
-         </div>
-      </div>
-      </div>
-      <div class='sk-asset sk-Track-Animation-and-Ranking'>
-         <!--div class='sk-asset sk-Track-Animation'>
-            <div class='sk-asset sk-Track-'></div>
-            <div class='sk-asset sk-Track-Section-Label'>
-            	<div class='sk-asset sk-Group-9-Copy-11'></div>
-            	<div class='sk-asset sk-Group-9-Copy-12'></div>
-            	<div class='sk-asset sk-Group-9-Copy-13'></div>
-            	<div class='sk-asset sk-Group-9-Copy-14'></div>
-            	<div class='sk-asset sk-Group-9-Copy-15'></div>
-            	<div class='sk-asset sk-Group-9-Copy-16'></div>
-            	<div class='sk-asset sk-Group-9-Copy-17'></div>
-            	<div class='sk-asset sk-Group-9-Copy-18'></div>
-            	<div class='sk-asset sk-Group-9-Copy-19'></div>
+            <div class="speed-data-driver-info">
+                <div class="speed-data-driver-info-bio">
+                    <div class='speed-data-driver-name'>...</div>
+                    <div class='speed-data-driver-hometown'>...</div>
+                    <div class='speed-data-driver-team'>...</div>
+                </div>
+                <div class="speed-data-driver-info-other">
+                    <div class="speed-data-driver-info-other-col">
+                        <div>Licence</div>
+                        <div class="speed-data-driver-info-other-licence">...</div>
+                    </div>
+                    <div class="speed-data-driver-info-other-col">
+                        <div>Competitor ID</div>
+                        <div class="speed-data-driver-info-other-competitor-id">...</div>
+                    </div>
+                    <div class="speed-data-driver-info-other-col">
+                        <div>Rank</div>
+                        <div class="speed-data-driver-info-other-rank">...</div>
+                    </div>
+                </div>
             </div>
-            </div-->
-         <div class='sk-asset sk-Top-3-ranking'>
-            <div class='sk-asset sk-Rank-1-'></div>
-            <div class='sk-asset sk-Rank-1-text'>1 Scott Dixon</div>
-            <div class='sk-asset sk-Rank-2'></div>
-            <div class='sk-asset sk-Rank-2-text'>2 Adam Miller</div>
-            <div class='sk-asset sk-Rank-3'></div>
-            <div class='sk-asset sk-Rank-3-text'>3 Jose Garcias</div>
-         </div>
-      </div>
-      <div class='sk-asset sk-Weather-Information'>
-         <div class='sk-asset sk-Weather-info-title'>
-            <div class='sk-asset sk-Ambient-Temp-title'>Ambient Temp</div>
-            <div class='sk-asset sk-Barometer-title'>Barometer</div>
-            <div class='sk-asset sk-Relative-Humidity-title'>Relative Humidity</div>
-            <div class='sk-asset sk-Time-of-the-Day-title'>Time of the Day</div>
-         </div>
-         <div class='sk-asset sk-Weather-info-data'>
-            <div class='sk-asset sk-ambient_temp'>82</div>
-            <div class='sk-asset sk-relative_humidity'>54%</div>
-            <div class='sk-asset sk-barometric_pressure'>2892</div>
-            <div class='sk-asset sk-time_of_day'>16:45:38.3370</div>
-         </div>
-      </div>
-      <div class='sk-asset sk-Title'>
-         <div class='sk-asset sk-event_name'></div>
-         <div class='sk-asset sk-start_date'></div>
-         <div class='sk-asset sk-run_name'></div>
-         <div class='sk-asset sk-Line'></div>
-      </div>
-      <div id="drawing" style="margin-top:120px;"></div>
-      </div>
-      <div style="margin-top:600px;">
-         <canvas id="myChart" style="margin-top:680px;"></canvas>
-      </div>
-   </body>
-   <!--Scripts-->
-   <script src="https://code.jquery.com/jquery-3.3.1.min.js" integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
-   <script src="static/svg.js" type="text/javascript"></script>
-   <script src="static/index.js" type="text/javascript"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
-   <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
-   <script type="text/javascript">
-       //todo remove https://cors-anywhere.herokuapp.com/
-       let base = "http://j-093.juliet.futuresystems.org:5000";
-       let ctx = document.getElementById('myChart').getContext('2d');
-       let chart = new Chart(ctx, {
-           type: 'line',
-           data: {
-               labels: [],
-               datasets: []
-           },
-           options: { 
-               title: {
-            display: true,
-            text: 'Lap Times'
+        </div>
+        <div class="speed-data-lap-sections">
+            <div class="speed-data-lap-sections-title">
+                Last Lap Section Speeds
+            </div>
+            <div class="speed-data-lap-sections-info">
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">1</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">2</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">3</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">4</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">5</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">6</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">7</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">8</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">9</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">10</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">11</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">12</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">13</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">14</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">15</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">16</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">17</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">18</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="speed-data-rank-wrapper speed-data-rank-2">
+        <div class="speed-data-info-wrapper">
+            <div class="speed-data-car-info">
+                <div class="speed-data-car-info-middle">
+                    <div class="speed-data-car-info-number">
+                        ...
+                    </div>
+                    <div class="speed-data-car-info-engine">
+                        ...
+                    </div>
+                </div>
+            </div>
+            <div class="speed-data-driver-info">
+                <div class="speed-data-driver-info-bio">
+                    <div class='speed-data-driver-name'>...</div>
+                    <div class='speed-data-driver-hometown'>...</div>
+                    <div class='speed-data-driver-team'>...</div>
+                </div>
+                <div class="speed-data-driver-info-other">
+                    <div class="speed-data-driver-info-other-col">
+                        <div>Licence</div>
+                        <div class="speed-data-driver-info-other-licence">...</div>
+                    </div>
+                    <div class="speed-data-driver-info-other-col">
+                        <div>Competitor ID</div>
+                        <div class="speed-data-driver-info-other-competitor-id">...</div>
+                    </div>
+                    <div class="speed-data-driver-info-other-col">
+                        <div>Rank</div>
+                        <div class="speed-data-driver-info-other-rank">...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="speed-data-lap-sections">
+            <div class="speed-data-lap-sections-title">
+                Last Lap Section Speeds
+            </div>
+            <div class="speed-data-lap-sections-info">
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">1</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">2</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">3</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">4</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">5</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">6</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">7</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">8</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">9</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">10</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">11</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">12</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">13</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">14</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">15</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">16</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">17</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">18</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div class="speed-data-rank-wrapper speed-data-rank-3">
+        <div class="speed-data-info-wrapper">
+            <div class="speed-data-car-info">
+                <div class="speed-data-car-info-middle">
+                    <div class="speed-data-car-info-number">
+                        ...
+                    </div>
+                    <div class="speed-data-car-info-engine">
+                        ...
+                    </div>
+                </div>
+            </div>
+            <div class="speed-data-driver-info">
+                <div class="speed-data-driver-info-bio">
+                    <div class='speed-data-driver-name'>...</div>
+                    <div class='speed-data-driver-hometown'>...</div>
+                    <div class='speed-data-driver-team'>...</div>
+                </div>
+                <div class="speed-data-driver-info-other">
+                    <div class="speed-data-driver-info-other-col">
+                        <div>Licence</div>
+                        <div class="speed-data-driver-info-other-licence">...</div>
+                    </div>
+                    <div class="speed-data-driver-info-other-col">
+                        <div>Competitor ID</div>
+                        <div class="speed-data-driver-info-other-competitor-id">...</div>
+                    </div>
+                    <div class="speed-data-driver-info-other-col">
+                        <div>Rank</div>
+                        <div class="speed-data-driver-info-other-rank">...</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <div class="speed-data-lap-sections">
+            <div class="speed-data-lap-sections-title">
+                Last Lap Section Speeds
+            </div>
+            <div class="speed-data-lap-sections-info">
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">1</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">2</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">3</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">4</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">5</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">6</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">7</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">8</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">9</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">10</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">11</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">12</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">13</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">14</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">15</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">16</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">17</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+                <div class="speed-data-lap-section speed-data-lap-section-1">
+                    <div class="speed-data-lap-section-label-wrapper">
+                        <span class="speed-data-lap-section-label">18</span>
+                    </div>
+                    <div class="speed-data-lap-section-time">
+                        ...
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<div class="speed-chart-wrapper">
+    <canvas id="speed-chart"></canvas>
+</div>
+<div class="pre-loader">
+    <img src="./static/chequer.gif"/>
+</div>
+</body>
+<!--Scripts-->
+<script src="https://code.jquery.com/jquery-3.3.1.min.js"
+        integrity="sha256-FgpCb/KJQlLNfOu91ta32o/NMZxltwRo8QtmkMRdAu8=" crossorigin="anonymous"></script>
+<script src="static/svg.js" type="text/javascript"></script>
+<script src="static/index.js" type="text/javascript"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.4.0/Chart.min.js"></script>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script type="text/javascript">
+    //todo remove https://cors-anywhere.herokuapp.com/
+    let base = "http://j-093.juliet.futuresystems.org:5000";
+    let ctx = document.getElementById('speed-chart').getContext('2d');
+    let chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: [],
+            datasets: []
         },
-               scales: {
-                   yAxes: [{
-          scaleLabel: {
-            display: true,
-            labelString: 'Lap time (s)'
-          }
-        }],
-        xAxes: [{
-          scaleLabel: {
-            display: true,
-            labelString: 'Lap number'
-          }
-        }],
-               }  
-           }
-       });
+        options: {
+            title: {
+                display: true,
+                text: 'Lap Times'
+            },
+            scales: {
+                yAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Lap time (s)'
+                    }
+                }],
+                xAxes: [{
+                    scaleLabel: {
+                        display: true,
+                        labelString: 'Lap number'
+                    }
+                }],
+            }
+        }
+    });
 
-       function getRandomColor() {
-           let letters = '0123456789ABCDEF';
-           let color = '#';
-           for (let i = 0; i < 6; i++) {
-               color += letters[Math.floor(Math.random() * 16)];
-           }
-           return color;
-       }
+    function getRandomColor() {
+        let letters = '0123456789ABCDEF';
+        let color = '#';
+        for (let i = 0; i < 6; i++) {
+            color += letters[Math.floor(Math.random() * 16)];
+        }
+        return color;
+    }
 
-       let colorCache = {};
+    let colorCache = {};
 
-       /**
-        * to prevent color change on next poll
-        * @param car
-        */
-       function getCarColor(car) {
-           if (!colorCache[car]) {
-               colorCache[car] = getRandomColor();
-           }
-           return colorCache[car];
-       }
+    /**
+     * to prevent color change on next poll
+     * @param car
+     */
+    function getCarColor(car) {
+        if (!colorCache[car]) {
+            colorCache[car] = getRandomColor();
+        }
+        return colorCache[car];
+    }
 
-       function getCar(car) {
+    function getCar(car) {
            return axios.get(`${base}/getcarinfo?car_num=${car}`).then(response => {
                    return response.data
            })
@@ -366,18 +715,16 @@
                chart.data.labels.push(i);
            }
 
-           // setting the maximum ticks limit in x axis
-           chart.options.scales.xAxes[0].ticks.maxTicksLimit = lapMax / 6;
+            // setting the maximum ticks limit in x axis
+            chart.options.scales.xAxes[0].ticks.maxTicksLimit = lapMax / 6;
 
-           chart.data.datasets = dataSet;
+            chart.data.datasets = dataSet;
 
-
-           chart.update();
-           console.log(data);
-       })
-       });
-       }
-
+            chart.update();
+            console.log(data);
+            })
+        });
+    }
        poll();
        // setInterval(poll, 30000);
    </script>

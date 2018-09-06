@@ -12,7 +12,7 @@ let turnRadius = turnArc * 4 / (2 * Math.PI);
 //calculating optimum scale for screen size
 var scale = Math.min((window.innerWidth - 200) / (trackLongLength + (turnRadius * 2)), (window.innerHeight - 200) / (trackShortLength + turnRadius * 2));
 var widthSCale = scale * 5;
-var carScale = 15;
+var carScale = 15 * scale;
 
 //scaled dimensions
 let scaledRadius = turnRadius * scale;
@@ -96,7 +96,7 @@ console.log("Total", threeToTwo);
 
 // drawing track (counter-clock direction)
 let path = draw.path
-    (`
+(`
         M${x2} ${y2} 
         L${x1} ${y1} 
         Q ${xc1} ${yc1} ${x8} ${y8}
@@ -107,7 +107,7 @@ let path = draw.path
         L${x3} ${y3}
         Q ${xc2} ${yc2} ${x2} ${y2}
     `)
-    .attr({ stroke: roadTexture, fill: 'transparent', 'stroke-width': longStraightWay.width })
+    .attr({stroke: roadTexture, fill: 'transparent', 'stroke-width': longStraightWay.width})
     .center(window.innerWidth / 2, window.innerHeight / 2);
 let length = path.length();
 
@@ -126,66 +126,66 @@ console.log("Length", length / scale);
 // Start - List of functions for animating laps
 
 function getSectionDetailsArr(sectionInfo, sectionTimingInfo) {
-  var i;
-  var sectionDetails = [];
-  for (i=0; i< sectionTimingInfo.length; i++) {
-    var sectionId = sectionTimingInfo[i].section_id;
-    var j;
-    for (j=0; j<sectionInfo.length; j++) {
-      var section = sectionInfo[j];
-      if (sectionId===section.section_name) {
-        var sectionDetail = {};
-        sectionDetail.sectionId = sectionId;
-        sectionDetail.sectionLength = section.section_length
-        sectionDetail.section_time = sectionTimingInfo[i].last_section_time
-        sectionDetails.push(sectionDetail)
-      }
+    var i;
+    var sectionDetails = [];
+    for (i = 0; i < sectionTimingInfo.length; i++) {
+        var sectionId = sectionTimingInfo[i].section_id;
+        var j;
+        for (j = 0; j < sectionInfo.length; j++) {
+            var section = sectionInfo[j];
+            if (sectionId === section.section_name) {
+                var sectionDetail = {};
+                sectionDetail.sectionId = sectionId;
+                sectionDetail.sectionLength = section.section_length
+                sectionDetail.section_time = sectionTimingInfo[i].last_section_time
+                sectionDetails.push(sectionDetail)
+            }
+        }
     }
-  }
-  
-  return sectionDetails
+
+    return sectionDetails
 }
 
 function getLengthPropArr(sectionDetails) {
-  var k, totalLength=0;
-  var lengthPropArr = []
-  
-  for (k=0; k<sectionDetails.length;k++){
-    totalLength = totalLength + parseInt(sectionDetails[k].sectionLength)
-  }
+    var k, totalLength = 0;
+    var lengthPropArr = []
 
-  var lengthProp;
-  for (k=0; k<sectionDetails.length;k++){
-    lengthProp = sectionDetails[k].sectionLength/totalLength
-    lengthPropArr.push(lengthProp);
-  }
+    for (k = 0; k < sectionDetails.length; k++) {
+        totalLength = totalLength + parseInt(sectionDetails[k].sectionLength)
+    }
 
-  return lengthPropArr
+    var lengthProp;
+    for (k = 0; k < sectionDetails.length; k++) {
+        lengthProp = sectionDetails[k].sectionLength / totalLength
+        lengthPropArr.push(lengthProp);
+    }
+
+    return lengthPropArr
 }
 
 function getStartPosArr(lengthPropArr) {
-  var k, startPosArr = []
-  startPosArr.push(0)
-  
-  var lengthProp;
-  for (k=1; k<lengthPropArr.length;k++){
-    startPosArr.push(startPosArr[k-1] + lengthPropArr[k-1])
-  }
+    var k, startPosArr = []
+    startPosArr.push(0)
 
-  return startPosArr
+    var lengthProp;
+    for (k = 1; k < lengthPropArr.length; k++) {
+        startPosArr.push(startPosArr[k - 1] + lengthPropArr[k - 1])
+    }
+
+    return startPosArr
 }
 
 function getAnimationTimesArr(sectionDetails) {
-  var l, secTime, animationTimes = [];
-  for (l=0; l<sectionDetails.length;l++){
-    secTime = sectionDetails[l].section_time;
-    var a = secTime.split(/[:.]+/);
-    var seconds = (+a[0]) * 60 * 60 + (+a[1]) * 60 + (+a[2]) + parseFloat("0." + a[3]);
-    //divide real time by 4 to show in animation
-    animationTimes.push(Math.ceil((seconds * 1000)/5)) 
-  }
-  
-  return animationTimes
+    var l, secTime, animationTimes = [];
+    for (l = 0; l < sectionDetails.length; l++) {
+        secTime = sectionDetails[l].section_time;
+        var a = secTime.split(/[:.]+/);
+        var seconds = (+a[0]) * 60 * 60 + (+a[1]) * 60 + (+a[2]) + parseFloat("0." + a[3]);
+        //divide real time by 4 to show in animation
+        animationTimes.push(Math.ceil((seconds * 1000) / 5))
+    }
+
+    return animationTimes
 }
 
 function getSectionLengthsArr(sectionInfo, sectionTimingInfo) {
@@ -207,86 +207,86 @@ function getSectionLengthsArr(sectionInfo, sectionTimingInfo) {
 
 //function animateSection(carContainer, car, animationTime, sectionLengthProp, startPos, carRect, fillColor) {
 function animateSection(carContainer, car, animationTime, sectionLengthProp, startPos, fillColor) {
-  carContainer.animate(animationTime).during(function (pos, morph, eased) {
-    var adjustedPos = (eased*sectionLengthProp) + startPos
-    var p = path.pointAt(adjustedPos * length)
-    carContainer.center(p.x, p.y);
+    carContainer.animate(animationTime).during(function (pos, morph, eased) {
+        var adjustedPos = (eased * sectionLengthProp) + startPos
+        var p = path.pointAt(adjustedPos * length)
+        carContainer.center(p.x, p.y);
 
-    let distance = length * adjustedPos;
-    var angle;
-    if (distance < twoToOne) {
-      angle = 180;
-    } else if (distance < oneToEight) {
-      angle = 180 - (distance - twoToOne) / scalledTurnArc * 90;
-    } else if (distance < eightToSeven) {
-      angle = 90;
-    } else if (distance < sevenToSix) {
-      angle = 90 - (distance - eightToSeven) / scalledTurnArc * 90;
-    } else if (distance < sixToFive) {
-      angle = 0;
-    } else if (distance < fiveToFour) {
-      angle = (distance - sixToFive) / scalledTurnArc * -90;
-    } else if (distance < fourToThree) {
-      angle = 270;
-    } else if (distance < threeToTwo) {
-      angle = 270 + (distance - fourToThree) / scalledTurnArc * -90;
-    }
+        let distance = length * adjustedPos;
+        var angle;
+        if (distance < twoToOne) {
+            angle = 180;
+        } else if (distance < oneToEight) {
+            angle = 180 - (distance - twoToOne) / scalledTurnArc * 90;
+        } else if (distance < eightToSeven) {
+            angle = 90;
+        } else if (distance < sevenToSix) {
+            angle = 90 - (distance - eightToSeven) / scalledTurnArc * 90;
+        } else if (distance < sixToFive) {
+            angle = 0;
+        } else if (distance < fiveToFour) {
+            angle = (distance - sixToFive) / scalledTurnArc * -90;
+        } else if (distance < fourToThree) {
+            angle = 270;
+        } else if (distance < threeToTwo) {
+            angle = 270 + (distance - fourToThree) / scalledTurnArc * -90;
+        }
 
-    car.rotate(angle)
-    //carRect.rotate(angle)
-    //carRect.fill(fillColor)
+        car.rotate(angle)
+        //carRect.rotate(angle)
+        //carRect.fill(fillColor)
 
-  })
+    })
 
 }
 
 //Animation of one Lap
 //function animateLap(carContainer, car, animationTimesArr, lengthPropArr, startPosArr, carRect, color) {
 function animateLap(carContainer, car, animationTimesArr, lengthPropArr, startPosArr, color) {
-  for (i=0; i<animationTimesArr.length; i++) {
-    var fillColor;
-    if (i%2==0) {
-      fillColor = color
-    } else {
-      fillColor = '#000'
+    for (i = 0; i < animationTimesArr.length; i++) {
+        var fillColor;
+        if (i % 2 == 0) {
+            fillColor = color
+        } else {
+            fillColor = '#000'
+        }
+        animateSection(carContainer, car, animationTimesArr[i], lengthPropArr[i], startPosArr[i], fillColor)
     }
-    animateSection(carContainer, car, animationTimesArr[i], lengthPropArr[i], startPosArr[i], fillColor)
-  }
 }
 
 function animateCar(image, animationTimesArrAll, lengthPropArrAll, startPosArrAll, y) {
-  var carContainer = draw.group();
-  var car = carContainer.image(image).size(5.5 * carScale, 2.5 * carScale);
-  let boundingBoxMax = Math.sqrt(Math.pow(4.8 * carScale, 2) * 2);
-  carContainer.rect(boundingBoxMax, boundingBoxMax).fill('transparent');
-  car.move(boundingBoxMax / 2 - 4.8 * carScale / 2, boundingBoxMax / 2 - y * carScale / 2);
-  //var carRect = carContainer.rect(4.8 * carScale, 1.8 * carScale).stroke(1).fill('#ccc').attr({ 'stroke-width': 1 })
-  
-  var fillColors = []
-  fillColors.push('#42aaf4')
-  fillColors.push('#f9a2de')
-  fillColors.push('#29516d')
-  fillColors.push('#a8217e')
-  fillColors.push('#031f33')
+    var carContainer = draw.group();
+    var car = carContainer.image(image).size(5.5 * carScale, 2.5 * carScale);
+    let boundingBoxMax = Math.sqrt(Math.pow(4.8 * carScale, 2) * 2);
+    carContainer.rect(boundingBoxMax, boundingBoxMax).fill('transparent');
+    car.move(boundingBoxMax / 2 - 4.8 * carScale / 2, boundingBoxMax / 2 - y * carScale / 2);
+    //var carRect = carContainer.rect(4.8 * carScale, 1.8 * carScale).stroke(1).fill('#ccc').attr({ 'stroke-width': 1 })
 
-  var g;
-  for (g=0; g<lengthPropArrAll.length; g++) {
-    //animateLap(carContainer, car, animationTimesArrAll[g], lengthPropArrAll[g], startPosArrAll[g], carRect, fillColors[g])
-    animateLap(carContainer, car, animationTimesArrAll[g], lengthPropArrAll[g], startPosArrAll[g], fillColors[g])
-  }
+    var fillColors = []
+    fillColors.push('#42aaf4')
+    fillColors.push('#f9a2de')
+    fillColors.push('#29516d')
+    fillColors.push('#a8217e')
+    fillColors.push('#031f33')
+
+    var g;
+    for (g = 0; g < lengthPropArrAll.length; g++) {
+        //animateLap(carContainer, car, animationTimesArrAll[g], lengthPropArrAll[g], startPosArrAll[g], carRect, fillColors[g])
+        animateLap(carContainer, car, animationTimesArrAll[g], lengthPropArrAll[g], startPosArrAll[g], fillColors[g])
+    }
 
 }
 
 function getTotalSec(tod) {
-  var todcomp = tod.split(/[:.]+/)
-  var hr2sec = todcomp[0]*60*60
-  var min2sec = todcomp[1]*60
-  var sec = todcomp[2]
-  var fracsec = parseFloat('0.' + todcomp[3])
-  
-  var totalSec = hr2sec + min2sec + sec + fracsec
-  
-  return totalSec
+    var todcomp = tod.split(/[:.]+/)
+    var hr2sec = todcomp[0] * 60 * 60
+    var min2sec = todcomp[1] * 60
+    var sec = todcomp[2]
+    var fracsec = parseFloat('0.' + todcomp[3])
+
+    var totalSec = hr2sec + min2sec + sec + fracsec
+
+    return totalSec
 }
 
 function setLapInformation(lap_num, delay_time) {
@@ -296,90 +296,92 @@ function setLapInformation(lap_num, delay_time) {
 }
 
 function setLapInformation_Outer(animationTimesArrAll) {
-  var delayTimes = []
-  var lapNums = []
-  delayTimes.push(0)
-  var prevDelay = delayTimes[0]
-  for (g=1; g < animationTimesArrAll.length; g++) {
-    var timeArr = animationTimesArrAll[g]
-    delay = prevDelay + timeArr.reduce(function(acc, val) { return parseInt(acc) + parseInt(val); });
-    delayTimes.push(delay)
-    prevDelay = delay
+    var delayTimes = []
+    var lapNums = []
+    delayTimes.push(0)
+    var prevDelay = delayTimes[0]
+    for (g = 1; g < animationTimesArrAll.length; g++) {
+        var timeArr = animationTimesArrAll[g]
+        delay = prevDelay + timeArr.reduce(function (acc, val) {
+            return parseInt(acc) + parseInt(val);
+        });
+        delayTimes.push(delay)
+        prevDelay = delay
+        lapNums.push(g)
+    }
     lapNums.push(g)
-  }
-  lapNums.push(g)
-                           
-  let i
-  for (i=0; i<delayTimes.length; i++) {
-    setLapInformation(lapNums[i], delayTimes[i])
-  }
 
-  return delayTimes
+    let i
+    for (i = 0; i < delayTimes.length; i++) {
+        setLapInformation(lapNums[i], delayTimes[i])
+    }
+
+    return delayTimes
 }
 
 function setEntryInformation(carnum, order) {
-  $.ajax({
-    url: 'http://j-093.juliet.futuresystems.org:5000/getentryinfo?car_num=' + carnum,
-    data: {
-      format: 'json'
-    },
-    error: function() {
-      console.log("An error occurred - race info");
-    },
-    success: function(data) {
-      var entryinfo = data;
-      var teaminfo = entryinfo.team + " #" + entryinfo.team_id
-      $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-Driver-Info-Car_num').text(entryinfo.car_num)
-      $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-driver_name').text(entryinfo.driver_name)
-      $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-Hometown').text("from " + entryinfo.home_town)
-      $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-Team').text(teaminfo)
-      $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-Driver-Info-Engine').text(entryinfo.engine)
-      $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-competitor_identifier').text(entryinfo.competitor_identifier)
-      $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-licence').text(entryinfo.license)
-    },
-    type: 'GET'
-  });
+    $.ajax({
+        url: 'http://j-093.juliet.futuresystems.org:5000/getentryinfo?car_num=' + carnum,
+        data: {
+            format: 'json'
+        },
+        error: function () {
+            console.log("An error occurred - race info");
+        },
+        success: function (data) {
+            var entryinfo = data.entry_info_data
+            var teaminfo = entryinfo.team + " #" + entryinfo.team_id
+            $('.speed-data-rank-' + order + ' .speed-data-car-info-number').text(entryinfo.car_num)
+            $('.speed-data-rank-' + order + ' .speed-data-driver-name').text(entryinfo.driver_name)
+            $('.speed-data-rank-' + order + ' .speed-data-driver-hometown').text(entryinfo.home_town)
+            $('.speed-data-rank-' + order + ' .speed-data-driver-team').text(teaminfo)
+            $('.speed-data-rank-' + order + ' .speed-data-car-info-engine').text(entryinfo.engine)
+            $('.speed-data-rank-' + order + ' .speed-data-driver-info-other-competitor-id').text(entryinfo.competitor_identifier)
+            $('.speed-data-rank-' + order + ' .speed-data-driver-info-other-licence').text(entryinfo.license)
+        },
+        type: 'GET'
+    });
 }
 
 function setSpeedInformation(speed_arr, delay_time, order) {
-  setTimeout(function(){
-    var i
-    for (i=0; i<speed_arr.length; i++) {
-      var num = "" + (i+1);
-      if (num.length==1) {
-          num = "0" + num
-      }
-      $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-section-' + num).text(speed_arr[i].toFixed(1))
-    }
-  }, delay_time);
+    setTimeout(function () {
+        var i
+        for (i = 0; i < speed_arr.length; i++) {
+            var num = "" + (i + 1);
+            if (num.length == 1) {
+                num = "0" + num
+            }
+            $('.speed-data-rank-' + order + ' .speed-data-lap-section-time').eq(i).text(speed_arr[i].toFixed(1))
+        }
+    }, delay_time);
 }
 
 function setSpeedInformation_Outer(sectionLengthsArrAll, animationTimesArrAll, delayTimes, order) {
-  var k
-  var speedArrAll = [] 
-  for (k=0; k<sectionLengthsArrAll.length; k++) {
-    var elem = sectionLengthsArrAll[k]
-    var animTime = animationTimesArrAll[k] 
-    var j
-    var speedArr = []
-    for (j=0; j<elem.length; j++) {
-      var length = elem[j]
-      var time = animTime[j] * (2.77778 * 0.0000001) * 5 //since we divided by 4 to get animation times
-      speedArr.push(length/time)
+    var k
+    var speedArrAll = []
+    for (k = 0; k < sectionLengthsArrAll.length; k++) {
+        var elem = sectionLengthsArrAll[k]
+        var animTime = animationTimesArrAll[k]
+        var j
+        var speedArr = []
+        for (j = 0; j < elem.length; j++) {
+            var length = elem[j]
+            var time = animTime[j] * (2.77778 * 0.0000001) * 5 //since we divided by 4 to get animation times
+            speedArr.push(length / time)
+        }
+        speedArrAll.push(speedArr)
     }
-    speedArrAll.push(speedArr)
-  }             
-         
-  let d
-  for (d=0; d<delayTimes.length; d++) {
-    setSpeedInformation(speedArrAll[d], delayTimes[d], order)
-  }
+
+    let d
+    for (d = 0; d < delayTimes.length; d++) {
+        setSpeedInformation(speedArrAll[d], delayTimes[d], order)
+    }
 }
 
 function setRankforCar(order, rank, driver_name, delay) {
   setTimeout(function() {
-    $('.sk-Driver-Information-and-Speed_-rank-' + order + ' .sk-rank').text(rank);
-    $('.sk-Rank-' + order + '-text').text(rank + " " + driver_name)
+    $('.speed-data-rank-' + order + ' .speed-data-driver-info-other-rank').text(rank)
+    $('.rank-' + order).text(rank + " " + driver_name)
   }, delay)
 }
 
@@ -405,7 +407,7 @@ function setRankInformation(carnum, lapbeg, lapend, order, delayTimes) {
 var sectionInfoAllCars = [];
 
 function getLapRangeInfo(carnum, lapbeg, lapend, sectionInfo, order, y) {
-  $.ajax({
+    $.ajax({
     url: 'http://j-093.juliet.futuresystems.org:5000/gettiminginfoinlaprange?car_num=' + carnum + '&lap_beg=' + lapbeg + '&lap_end=' + lapend,
     data: {
       format: 'json'
@@ -485,11 +487,12 @@ function setWeatherInformation(weatherInfo) {
     if ((delay < 1000) & (delay != 0)) {
         delay = 2000
     }
+    
     setTimeout(function () {
-        $(".sk-ambient_temp").text(weatherInfo.ambient_temp);
-        $(".sk-barometric_pressure").text(weatherInfo.barometric_pressure);
-        $(".sk-relative_humidity").text(weatherInfo.relative_humidity + "%");
-        $(".sk-time_of_day").text(weatherInfo.time_of_day);
+        $(".weather-indicator-ambient-temp").text(weatherInfo.ambient_temp)
+        $(".weather-indicator-pressure").text(weatherInfo.barometric_pressure)
+        $(".weather-indicator-humidity").text(weatherInfo.relative_humidity + "%")
+        $(".weather-indicator-time").text(weatherInfo.time_of_day)
     }, delay)
 }
 
@@ -542,7 +545,6 @@ function setWeatherInformation_Outer() {
 }
 
 $(document).ready(function() {
-
   $.ajax({
     url: 'http://j-093.juliet.futuresystems.org:5000/sectioninfo',
     data: {
@@ -553,7 +555,7 @@ $(document).ready(function() {
     },
     success: function(data) {
         var sectionInfo = data
-	var lapbeg = 1
+        var lapbeg = 1
         var lapend = 5
         var carnum
         var y
@@ -573,6 +575,7 @@ $(document).ready(function() {
         // Set weather information
         setTimeout(function () {
             setWeatherInformation_Outer();
+            $(".pre-loader").hide();
         }, 1000);
                
     },
@@ -580,24 +583,23 @@ $(document).ready(function() {
   });
 
   //Display Race Info
-  $.ajax({
-    url: 'http://j-093.juliet.futuresystems.org:5000/raceinfo',
-    data: {
-        format: 'json'
-    },
-    error: function() {
-        console.log("An error occurred - race info");
-    },
-    success: function(data) {
-        var eventinfo = data.event_name.trim().toUpperCase()
-        var runinfo = data.run_name.trim()
-        var timeinfo = data.start_date.trim()
-        $('.sk-event_name').text(eventinfo)
-        $('.sk-run_name').text(runinfo)
-        $('.sk-start_date').text(timeinfo)
-    },
-    type: 'GET'
-  });
-
+    $.ajax({
+        url: 'http://j-093.juliet.futuresystems.org:5000/raceinfo',
+        data: {
+            format: 'json'
+        },
+        error: function () {
+            console.log("An error occurred - race info");
+        },
+        success: function (data) {
+            var eventinfo = data.event_name.trim().toUpperCase()
+            var runinfo = data.run_name.trim()
+            var timeinfo = data.start_date.trim()
+            $('.event-name').text(eventinfo)
+            $('.run-name').text(runinfo)
+            $('.start-date').text(timeinfo)
+        },
+        type: 'GET'
+    });
 });
 
