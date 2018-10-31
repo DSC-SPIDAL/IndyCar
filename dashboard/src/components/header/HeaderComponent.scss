@@ -1,0 +1,53 @@
+@import "../../dimensions";
+
+.header {
+  .title {
+    .title-typeface {
+      color: white;
+      //text-shadow: rgb(0, 0, 0) -1px -1px 0px, rgb(0, 0, 0) 1px -1px 0px, rgb(0, 0, 0) -1px 1px 0px, rgb(0, 0, 0) 2px 2px 0px;
+    }
+
+    //display: grid;
+    //grid-template-columns: auto auto;
+
+    .event-name {
+      font-weight: 400;
+      font-family: 'Racing Sans One', cursive;
+      margin-bottom: 0;
+      margin-right: 20px;
+
+      @media (max-width: 320px) {
+        font-size: 32px;
+      }
+    }
+
+    .run-name {
+      font-family: 'Racing Sans One', cursive;
+      font-weight: 400;
+      margin-top: 0;
+      margin-bottom: 0;
+      vertical-align: text-bottom;
+    }
+
+    .start-date {
+      font-family: 'Merriweather', serif;
+    }
+  }
+}
+
+.weather-information {
+  .weather-indicator {
+    display: grid;
+    grid-template-columns: auto auto;
+    img {
+      margin-right: 10px;
+      margin-top: 15px;
+      height: 20px;
+    }
+
+    .weather-indicator-value {
+      line-height: 50px;
+    }
+  }
+
+}

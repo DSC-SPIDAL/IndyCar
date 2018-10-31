@@ -1,0 +1,122 @@
+@import "../../../node_modules/@blueprintjs/core/lib/scss/variables";
+
+.speed-data-component {
+  padding: 0;
+  &:not(:last-of-type) {
+    margin-bottom: 5px;
+  }
+
+  .speed-data-rank-wrapper {
+    display: grid;
+    grid-template-columns: 400px auto;
+    @media (max-width: 1000px) {
+      grid-template-columns: 100%;
+      grid-template-rows: repeat(2, 1fr);
+    }
+
+    .speed-data-info-wrapper {
+      display: grid;
+      grid-template-columns: 80px calc(100% - 80px);
+      grid-column-gap: 10px;
+      padding: 10px;
+      .speed-data-car-info {
+        text-align: center;
+        position: relative;
+        vertical-align: middle;
+
+        .speed-data-car-info-middle {
+          position: absolute;
+          top: 50%;
+          left: 50%;
+          transform: translateX(-50%) translateY(-50%);
+
+          .speed-data-car-info-number {
+            font-family: 'Oswald', sans-serif;
+            font-size: 42px;
+            border: 1px dashed $pt-code-background-color;
+            border-radius: 500px;
+            width: 80px;
+            height: 80px;
+            padding: 10px;
+            margin-bottom: 10px;
+          }
+        }
+      }
+
+      .speed-data-driver-info {
+        display: grid;
+        grid-template-columns: 100%;
+        grid-template-rows: auto auto;
+        grid-row-gap: 10px;
+        .speed-data-driver-info-bio {
+          .speed-data-driver-name {
+            font-size: 26px;
+            margin-bottom: 5px;
+            //border-bottom: 1px solid $pt-dark-divider-white;
+
+            white-space: nowrap;
+            text-overflow: ellipsis;
+            width: 100%;
+            overflow: hidden;
+
+            @media (max-width: 320px) {
+              font-size: 24px;
+            }
+          }
+          padding-bottom: 5px;
+          //border-bottom: 1px solid $pt-dark-divider-white;
+        }
+
+        .speed-data-driver-info-other {
+          display: grid;
+          grid-template-columns: repeat(3, 1fr);
+
+          .speed-data-driver-info-other-col {
+            display: grid;
+            grid-template-rows: repeat(2, 1fr);
+            text-align: center;
+          }
+        }
+      }
+    }
+
+    .speed-data-lap-sections {
+      //display: grid;
+      //grid-template-rows: 50px auto;
+      //padding: 10px;
+      //max-width: 100vw;
+      //overflow-x: scroll;
+      //
+      //.speed-data-lap-sections-title {
+      //  font-size: 18px;
+      //}
+      //
+      //.speed-data-lap-sections-info {
+      //  display: grid;
+      //  grid-template-columns: repeat(18, 1fr);
+      //  text-align: center;
+      //
+      //  .speed-data-lap-section {
+      //    display: grid;
+      //    grid-template-rows: repeat(2, 1fr);
+      //    .speed-data-lap-section-label-wrapper {
+      //      position: relative;
+      //
+      //      .speed-data-lap-section-label {
+      //        position: absolute;
+      //        top: 50%;
+      //        left: 50%;
+      //        transform: translateX(-50%) translateY(-50%);
+      //        font-size: 20px;
+      //      }
+      //    }
+      //
+      //    .speed-data-lap-section-time {
+      //      margin-top: 5px;
+      //      font-size: 20px;
+      //    }
+      //  }
+      //}
+    }
+  }
+}

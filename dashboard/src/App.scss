@@ -1,0 +1,13 @@
+@import "~@blueprintjs/core/lib/css/blueprint.css";
+@import "~@blueprintjs/icons/lib/css/blueprint-icons.css";
+
+body {
+  max-width: 100vw;
+  padding: 0;
+  margin: 0;
+  background-color: #293742;
+
+  .ic-section {
+    margin-top: 10px;
+  }
+}
