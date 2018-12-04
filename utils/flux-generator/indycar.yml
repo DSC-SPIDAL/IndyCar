@@ -1,0 +1,149 @@
+name: "indy500-v1"
+config:
+  topology.workers: 1
+
+spouts:
+  - id: "telemetryspout-1"
+    className: "com.dsc.iu.stream.app.IndycarSpout"
+    parallelism: 1
+    constructorArgs:
+      - "1"
+
+  - id: "telemetryspout-2"
+    className: "com.dsc.iu.stream.app.IndycarSpout"
+    parallelism: 1
+    constructorArgs:
+      - "2"
+
+
+bolts:
+  - id: "sink"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1  - id: "RPMBolt-1"
+    className: "com.dsc.iu.stream.app.ScalarMetricBolt"
+    parallelism: 1
+    constructorArgs:
+      - "1"
+      - "RPM"
+      - "0"
+      - "12500"
+      
+  - id: "SpeedBolt-1"
+    className: "com.dsc.iu.stream.app.ScalarMetricBolt"
+    parallelism: 1
+    constructorArgs:
+      - "1"
+      - "speed"
+      - "0"
+      - "250"
+      
+  - id: "ThrottleBolt-1"
+    className: "com.dsc.iu.stream.app.ScalarMetricBolt"
+    parallelism: 1
+    constructorArgs:
+      - "1"
+      - "throttle"
+      - "0"
+      - "30"
+
+  - id: "RPMBolt-2"
+    className: "com.dsc.iu.stream.app.ScalarMetricBolt"
+    parallelism: 1
+    constructorArgs:
+      - "2"
+      - "RPM"
+      - "0"
+      - "12500"
+      
+  - id: "SpeedBolt-2"
+    className: "com.dsc.iu.stream.app.ScalarMetricBolt"
+    parallelism: 1
+    constructorArgs:
+      - "2"
+      - "speed"
+      - "0"
+      - "250"
+      
+  - id: "ThrottleBolt-2"
+    className: "com.dsc.iu.stream.app.ScalarMetricBolt"
+    parallelism: 1
+    constructorArgs:
+      - "2"
+      - "throttle"
+      - "0"
+      - "30"
+
+
+streams:
+  - name: "telemetryspout-1 --> RPMBolt-1"
+    from: "telemetryspout-1"
+    to: "RPMBolt-1"
+    grouping:
+      type: SHUFFLE
+      
+  - name: "telemetryspout-1 --> SpeedBolt-1"
+    from: "telemetryspout-1"
+    to: "SpeedBolt-1"
+    grouping:
+      type: SHUFFLE
+      
+  - name: "telemetryspout-1 --> ThrottleBolt-1"
+    from: "telemetryspout-1"
+    to: "ThrottleBolt-1"
+    grouping:
+      type: SHUFFLE
+     
+  - name: "RPMBolt-1 --> sink"
+    from: "RPMBolt-1"
+    to: "sink"
+    grouping:
+      type: SHUFFLE
+      
+  - name: "SpeedBolt-1 --> sink"
+    from: "SpeedBolt-1"
+    to: "sink"
+    grouping:
+      type: SHUFFLE
+      
+  - name: "ThrottleBolt-1 --> sink"
+    from: "ThrottleBolt-1"
+    to: "sink"
+    grouping:
+      type: SHUFFLE
+
+  - name: "telemetryspout-2 --> RPMBolt-2"
+    from: "telemetryspout-2"
+    to: "RPMBolt-2"
+    grouping:
+      type: SHUFFLE
+      
+  - name: "telemetryspout-2 --> SpeedBolt-2"
+    from: "telemetryspout-2"
+    to: "SpeedBolt-2"
+    grouping:
+      type: SHUFFLE
+      
+  - name: "telemetryspout-2 --> ThrottleBolt-2"
+    from: "telemetryspout-2"
+    to: "ThrottleBolt-2"
+    grouping:
+      type: SHUFFLE
+     
+  - name: "RPMBolt-2 --> sink"
+    from: "RPMBolt-2"
+    to: "sink"
+    grouping:
+      type: SHUFFLE
+      
+  - name: "SpeedBolt-2 --> sink"
+    from: "SpeedBolt-2"
+    to: "sink"
+    grouping:
+      type: SHUFFLE
+      
+  - name: "ThrottleBolt-2 --> sink"
+    from: "ThrottleBolt-2"
+    to: "sink"
+    grouping:
+      type: SHUFFLE
+
