@@ -75,7 +75,7 @@ public class FluxGenerator {
             "    grouping:\n" +
             "      type: SHUFFLE\n\n";
 
-    private static final int NO_OF_CARS = 2;
+    private static final int NO_OF_CARS = 33;
 
     public static void main(String[] args) throws IOException {
         StringBuilder fluxTemplate = new StringBuilder(
@@ -88,7 +88,7 @@ public class FluxGenerator {
         StringBuilder bolts = new StringBuilder("bolts:\n");
         bolts.append("  - id: \"sink\"\n" +
                 "    className: \"com.dsc.iu.stream.app.Sink\"\n" +
-                "    parallelism: 1");
+                "    parallelism: 1\n\n");
         StringBuilder streams = new StringBuilder("streams:\n");
 
         for (int i = 0; i < NO_OF_CARS; i++) {
