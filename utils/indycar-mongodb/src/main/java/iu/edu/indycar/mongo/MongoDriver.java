@@ -21,9 +21,8 @@ public class MongoDriver {
         MongoClient mongoClient = MongoClients.create();
         MongoDatabase database = mongoClient.getDatabase("indycar");
         MongoCollection<Document> collection = database.getCollection("telemetry");
-        collection.createIndex(new BasicDBObject("record_id", 1), new IndexOptions().unique(true));
 
-        getLogsList("/media/chathura/DATA/Code/indy-data/indy500/").stream().forEach(file -> {
+        getLogsList("/media/chathura/DATA/Code/indy-data/indy500/").forEach(file -> {
             try {
                 writeToDB(file, collection);
             } catch (IOException e) {
@@ -65,12 +64,7 @@ public class MongoDriver {
                 String engineSpeed = splits[5];
                 String throttle = splits[6];
 
-                if (timeOfDay.length() <= 9) {
-                    continue;
-                }
-
                 Document document = new Document();
-                document.append("record_id", UUID.randomUUID().toString());
 
                 document.append("car_num", carNumber);
                 document.append("lap_distance", lapDistance);
@@ -90,5 +84,6 @@ public class MongoDriver {
             line = br.readLine();
         }
         collection.insertMany(docs);
+        br.close();
     }
 }
