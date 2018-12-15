@@ -15,6 +15,7 @@ public class RecordStreamer implements Runnable {
   private RecordListener recordListener;
   private File file;
   private boolean realTiming;
+  private int speed = 1;
 
   private boolean fileEnded;
 
@@ -27,6 +28,13 @@ public class RecordStreamer implements Runnable {
     this.recordListener = listener;
     this.file = file;
     this.realTiming = realTiming;
+  }
+
+  public RecordStreamer(File file, boolean realTiming, int speed, RecordListener listener) {
+    this.recordListener = listener;
+    this.file = file;
+    this.realTiming = realTiming;
+    this.speed = speed;
   }
 
   public void start() throws IOException {
@@ -96,7 +104,7 @@ public class RecordStreamer implements Runnable {
           long now = System.currentTimeMillis();
 
           if (recordTiming.isFirstRecord() || now - recordTiming.getLastRecordSubmittedTime() >=
-                  next.getTimeOfDayLong() - recordTiming.getLastRecordTime()) {
+                  (next.getTimeOfDayLong() - recordTiming.getLastRecordTime() / this.speed)) {
             recordListener.onRecord(recordsQueue.poll());
             recordTiming.setLastRecordTime(next.getTimeOfDayLong());
             recordTiming.setLastRecordSubmittedTime(now);
