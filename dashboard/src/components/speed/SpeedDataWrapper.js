@@ -48,6 +48,7 @@ export default class SpeedDataWrapper extends React.Component {
         let speedDataComponents = sorted.slice(0, 3).map((carDistanceData, index) => {
             return <SpeedDataComponent carNumber={carDistanceData.carNumber}
                                        carData={carDistanceData}
+                                       key={index + 1}
                                        rank={index + 1}/>
         });
 

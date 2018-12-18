@@ -3,10 +3,6 @@ import "./TrackComponent.css";
 import SVG from "svg.js";
 import roadTexture from "./img/road_two.jpg";
 
-import car1 from "./img/cars/car_01.png";
-import car2 from "./img/cars/car_02.png";
-import car3 from "./img/cars/car_03.png";
-
 import CarInformationService from "../../services/CarInformationService";
 
 //GLOBAL CALCULATIONS//
@@ -148,6 +144,7 @@ export default class TrackComponent extends React.Component {
         let index = 0;
         CarInformationService.getCarList().then(response => {
             response.data.forEach(carNumber => {
+                console.log(`img/cars/car_${('' + carNumber).padStart(2, '0')}.png`)
                 this.addCar(`img/cars/car_${('' + carNumber).padStart(2, '0')}.png`, trackOffsets[index++], carNumber);
                 if (index === 3) {
                     index = 0;

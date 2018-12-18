@@ -1,6 +1,6 @@
 import React from "react";
 import {Line} from "react-chartjs-2";
-import {Menu, MenuItem, Card, Button, Switch, Popover, Position, Colors} from "@blueprintjs/core";
+import {Button, Card, Colors, Menu, Popover, Position, Switch} from "@blueprintjs/core";
 import CarInformationService from "../../services/CarInformationService";
 import "./LapTimesComponent.css";
 
