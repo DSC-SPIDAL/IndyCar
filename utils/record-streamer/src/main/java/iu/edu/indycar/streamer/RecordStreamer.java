@@ -19,21 +19,24 @@ public class RecordStreamer implements Runnable {
 
   private boolean fileEnded;
 
+  private FileNameDateExtractor dateExtractor;
+
   private AtomicInteger count = new AtomicInteger(0);
 
   private HashMap<String, RecordTiming> lastRecordTime = new HashMap<>();
   private ConcurrentHashMap<String, ConcurrentLinkedQueue<TelemetryRecord>> records = new ConcurrentHashMap<>();
 
-  public RecordStreamer(File file, boolean realTiming, RecordListener listener) {
+  public RecordStreamer(File file, boolean realTiming,
+                        RecordListener listener, FileNameDateExtractor dateExtractor) {
     this.recordListener = listener;
     this.file = file;
     this.realTiming = realTiming;
+    this.dateExtractor = dateExtractor;
   }
 
-  public RecordStreamer(File file, boolean realTiming, int speed, RecordListener listener) {
-    this.recordListener = listener;
-    this.file = file;
-    this.realTiming = realTiming;
+  public RecordStreamer(File file, boolean realTiming, int speed,
+                        RecordListener listener, FileNameDateExtractor dateExtractor) {
+    this(file, realTiming, listener, dateExtractor);
     this.speed = speed;
   }
 
@@ -47,7 +50,7 @@ public class RecordStreamer implements Runnable {
   private void readFile() throws IOException {
     FileReader fis = new FileReader(file);
 
-    String date = file.getName().split("_")[2];
+    String date = this.dateExtractor.extractDate(file.getName());
 
     BufferedReader br = new BufferedReader(fis);
     String line = br.readLine();

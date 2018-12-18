@@ -14,7 +14,7 @@ public class StreamerTest {
       System.out.println(record.getLapDistance());
       System.out.println(record.getThrottle());
       System.out.println(record.getThrottle());
-    });
+    }, s -> s.split("_")[2]);
 
     recordStreamer.start();
   }
