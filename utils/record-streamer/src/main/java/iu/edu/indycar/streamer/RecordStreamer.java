@@ -6,6 +6,8 @@ import iu.edu.indycar.streamer.records.TelemetryRecord;
 import iu.edu.indycar.streamer.records.WeatherRecord;
 import iu.edu.indycar.streamer.records.parsers.TelemetryRecordParser;
 import iu.edu.indycar.streamer.records.parsers.WeatherRecordParser;
+import iu.edu.indycar.streamer.records.policy.AbstractRecordAcceptPolicy;
+import iu.edu.indycar.streamer.records.policy.DefaultRecordAcceptPolicy;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -34,6 +36,9 @@ public class RecordStreamer implements Runnable {
   private HashMap<String, RecordTiming> lastRecordTime = new HashMap<>();
   private ConcurrentHashMap<String, ConcurrentLinkedQueue<IndycarRecord>> records = new ConcurrentHashMap<>();
 
+  private HashMap<Class<? extends IndycarRecord>,
+          AbstractRecordAcceptPolicy> recordAcceptPolicies = new HashMap<>();
+
   public RecordStreamer(File file, boolean realTiming, FileNameDateExtractor dateExtractor) {
     this.file = file;
     this.realTiming = realTiming;
@@ -59,11 +64,17 @@ public class RecordStreamer implements Runnable {
     this.weatherRecordListener = weatherRecordRecordListener;
   }
 
-  public void start() throws IOException {
+  public void start() {
     if (this.realTiming) {
       new Thread(this).start();
     }
-    this.readFile();
+    new Thread(() -> {
+      try {
+        readFile();
+      } catch (IOException e) {
+        System.out.println("Error in reading files");
+      }
+    }).start();
   }
 
   private void queueEvent(IndycarRecord indycarRecord) {
@@ -89,6 +100,10 @@ public class RecordStreamer implements Runnable {
     }
   }
 
+  public void addRecordAcceptPolicy(Class<? extends IndycarRecord> clazz, AbstractRecordAcceptPolicy tRecord) {
+    this.recordAcceptPolicies.put(clazz, tRecord);
+  }
+
   private void readFile() throws IOException {
     FileReader fis = new FileReader(file);
 
@@ -102,12 +117,18 @@ public class RecordStreamer implements Runnable {
 
     while (line != null) {
       try {
+        IndycarRecord record = null;
         if (line.startsWith("$P")) {
           TelemetryRecord tr = telemetryRecordParser.parse(line);
           tr.setDate(date);
-          this.queueEvent(tr);
+          record = tr;
         } else if (line.startsWith("$W")) {
-          this.queueEvent(weatherRecordParser.parse(line));
+          record = weatherRecordParser.parse(line);
+          //this.queueEvent(weatherRecordParser.parse(line));
+        }
+        if (record != null && this.recordAcceptPolicies.getOrDefault(
+                record.getClass(), DefaultRecordAcceptPolicy.getInstance()).evaluate(record)) {
+          this.queueEvent(record);
         }
       } catch (NotParseableException e) {
         //couldn't parse
