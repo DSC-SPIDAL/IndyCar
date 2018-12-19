@@ -1,6 +1,8 @@
-package iu.edu.indycar.streamer;
+package iu.edu.indycar.streamer.records;
 
-public class TelemetryRecord {
+import iu.edu.indycar.streamer.TimeUtils;
+
+public class TelemetryRecord implements IndycarRecord {
 
   private String carNumber;
   private String timeOfDay;
@@ -75,5 +77,15 @@ public class TelemetryRecord {
 
   public void setThrottle(String throttle) {
     this.throttle = throttle;
+  }
+
+  @Override
+  public String getGroupTag() {
+    return "CAR_" + this.carNumber;
+  }
+
+  @Override
+  public long getTimeField() {
+    return this.getTimeOfDayLong();
   }
 }

@@ -1,5 +1,7 @@
 package iu.edu.indycar.streamer;
 
-public interface RecordListener {
-  void onRecord(TelemetryRecord record);
+import iu.edu.indycar.streamer.records.IndycarRecord;
+
+public interface RecordListener<R extends IndycarRecord> {
+  void onRecord(R record);
 }

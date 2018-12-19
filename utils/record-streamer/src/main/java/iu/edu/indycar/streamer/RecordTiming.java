@@ -1,6 +1,7 @@
 package iu.edu.indycar.streamer;
 
 public class RecordTiming {
+
   private long lastRecordTime = -1;
   private long lastRecordSubmittedTime = -1;
 
