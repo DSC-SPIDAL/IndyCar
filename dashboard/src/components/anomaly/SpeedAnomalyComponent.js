@@ -27,6 +27,8 @@ export default class SpeedAnomalyComponent extends React.Component {
     }
 
     onReceiveChartData = (data) => {
+        console.log("Received data", data);
+
         let chartData = this.state.chartData;
 
         let speedData = chartData.speedData;
@@ -34,7 +36,7 @@ export default class SpeedAnomalyComponent extends React.Component {
         speedData.length > 300 && speedData.splice(0, speedData.length - 300);
 
         let anomalyData = chartData.anomalyData;
-        anomalyData.push(parseFloat(data.anomaly) * 10);
+        anomalyData.push(parseFloat(data.anomaly));
         anomalyData.length > 300 && anomalyData.splice(0, anomalyData.length - 300);
 
         let labels = chartData.labels;
@@ -77,7 +79,8 @@ export default class SpeedAnomalyComponent extends React.Component {
                 <Line data={{
                     labels: this.state.chartData.labels,
                     datasets: [{
-                        label: "Speed",
+                        label: this.props.metric,
+                        yAxisID: "Metric",
                         data: this.state.chartData.speedData,
                         fill: false,
                         borderColor: "#1565C0",
@@ -86,6 +89,7 @@ export default class SpeedAnomalyComponent extends React.Component {
                         pointRadius: 0
                     }, {
                         label: "Anomaly",
+                        yAxisID: "Anomaly",
                         data: this.state.chartData.anomalyData,
                         fill: false,
                         borderColor: "#c62828",
@@ -101,6 +105,19 @@ export default class SpeedAnomalyComponent extends React.Component {
                         xAxes: [{
                             ticks: {
                                 display: false
+                            }
+                        }],
+                        yAxes: [{
+                            id: 'Metric',
+                            type: 'linear',
+                            position: 'left',
+                        }, {
+                            id: 'Anomaly',
+                            type: 'linear',
+                            position: 'right',
+                            ticks: {
+                                max: 1.5,
+                                min: -0.5
                             }
                         }]
                     }

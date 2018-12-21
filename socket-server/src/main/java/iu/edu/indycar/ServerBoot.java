@@ -37,9 +37,9 @@ public class ServerBoot {
   }
 
   public void publishEvent(AnomalyMessage anomalyMessage) {
-    this.server.getRoomOperations(
-            anomalyMessage.getAnomalyType() + anomalyMessage.getCarNumber()
-    ).sendEvent("anomaly", anomalyMessage);
+    String room = anomalyMessage.getCarNumber() + anomalyMessage.getAnomalyType();
+    //LOG.info("Sending event to room {}", room);
+    this.server.getRoomOperations(room).sendEvent("anomaly", anomalyMessage);
   }
 
   public void start() {
