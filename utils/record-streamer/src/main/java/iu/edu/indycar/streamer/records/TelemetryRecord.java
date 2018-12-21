@@ -1,15 +1,13 @@
 package iu.edu.indycar.streamer.records;
 
-import iu.edu.indycar.streamer.TimeUtils;
-
 public class TelemetryRecord implements IndycarRecord {
 
   private String carNumber;
   private String timeOfDay;
-  private String lapDistance;
-  private String vehicleSpeed;
-  private String engineSpeed;
-  private String throttle;
+  private long lapDistance;
+  private double vehicleSpeed;
+  private double engineSpeed;
+  private double throttle;
   private String date;
 
   private long timeOfDayLong;
@@ -44,38 +42,37 @@ public class TelemetryRecord implements IndycarRecord {
 
   public void setTimeOfDay(String timeOfDay) {
     this.timeOfDay = timeOfDay;
-    this.timeOfDayLong = TimeUtils.convertTimestampToLong(this.timeOfDay);
   }
 
-  public String getLapDistance() {
+  public long getLapDistance() {
     return lapDistance;
   }
 
-  public void setLapDistance(String lapDistance) {
+  public void setLapDistance(long lapDistance) {
     this.lapDistance = lapDistance;
   }
 
-  public String getVehicleSpeed() {
+  public double getVehicleSpeed() {
     return vehicleSpeed;
   }
 
-  public void setVehicleSpeed(String vehicleSpeed) {
+  public void setVehicleSpeed(double vehicleSpeed) {
     this.vehicleSpeed = vehicleSpeed;
   }
 
-  public String getEngineSpeed() {
+  public double getEngineSpeed() {
     return engineSpeed;
   }
 
-  public void setEngineSpeed(String engineSpeed) {
+  public void setEngineSpeed(double engineSpeed) {
     this.engineSpeed = engineSpeed;
   }
 
-  public String getThrottle() {
+  public double getThrottle() {
     return throttle;
   }
 
-  public void setThrottle(String throttle) {
+  public void setThrottle(double throttle) {
     this.throttle = throttle;
   }
 

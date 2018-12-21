@@ -7,6 +7,18 @@
     <groupId>iu.edu.indycar</groupId>
     <artifactId>web-socket</artifactId>
     <version>1.0-SNAPSHOT</version>
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <configuration>
+                    <source>8</source>
+                    <target>8</target>
+                </configuration>
+            </plugin>
+        </plugins>
+    </build>
 
 
     <dependencies>
@@ -27,6 +39,12 @@
             <version>2.11.1</version>
         </dependency>
 
+        <dependency>
+            <groupId>iu.edu</groupId>
+            <artifactId>record-streamer</artifactId>
+            <version>1.0-SNAPSHOT</version>
+        </dependency>
+
         <!-- https://mvnrepository.com/artifact/com.corundumstudio.socketio/netty-socketio -->
         <dependency>
             <groupId>com.corundumstudio.socketio</groupId>
@@ -34,6 +52,11 @@
             <version>1.7.16</version>
         </dependency>
 
+        <dependency>
+            <groupId>org.eclipse.paho</groupId>
+            <artifactId>org.eclipse.paho.client.mqttv3</artifactId>
+            <version>1.1.0</version>
+        </dependency>
     </dependencies>
 
 

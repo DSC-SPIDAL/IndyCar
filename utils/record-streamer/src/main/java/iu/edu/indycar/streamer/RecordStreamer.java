@@ -34,6 +34,7 @@ public class RecordStreamer implements Runnable {
   private FileNameDateExtractor dateExtractor;
 
   private HashMap<String, RecordTiming> lastRecordTime = new HashMap<>();
+
   private ConcurrentHashMap<String, ConcurrentLinkedQueue<IndycarRecord>> records = new ConcurrentHashMap<>();
 
   private HashMap<Class<? extends IndycarRecord>,
@@ -158,7 +159,7 @@ public class RecordStreamer implements Runnable {
           long now = System.currentTimeMillis();
 
           if (recordTiming.isFirstRecord() || now - recordTiming.getLastRecordSubmittedTime() >=
-                  (next.getTimeField() - recordTiming.getLastRecordTime() / this.speed)) {
+                  (next.getTimeField() - recordTiming.getLastRecordTime()) / this.speed) {
 
             this.publishEvent(recordsQueue.poll());
 

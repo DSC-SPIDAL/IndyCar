@@ -4,6 +4,7 @@ import "./App.css";
 import SpeedDataWrapper from "./components/speed/SpeedDataWrapper";
 import TrackComponent from "./components/track/TrackComponent";
 import LapTimesComponent from "./components/laps/LapTimesComponent";
+import AnomalyWrapper from "./components/anomaly/AnomalyWrapper";
 
 class App extends Component {
     render() {
@@ -12,6 +13,7 @@ class App extends Component {
                 <HeaderComponent/>
                 <TrackComponent/>
                 <SpeedDataWrapper/>
+                <AnomalyWrapper/>
                 <LapTimesComponent/>
             </div>
         );

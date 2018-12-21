@@ -5,7 +5,9 @@ import registerServiceWorker from './registerServiceWorker';
 import {SocketService} from "./services/SocketService";
 
 let socketService = new SocketService("http://localhost", 9092);
-socketService.start();
+socketService.start(() => {
+    console.log("Loading GUI");
+    ReactDOM.render(<App/>, document.getElementById('root'));
+});
 
-ReactDOM.render(<App/>, document.getElementById('root'));
 registerServiceWorker();

@@ -1,69 +1,121 @@
 package iu.edu.indycar;
 
 import com.corundumstudio.socketio.Configuration;
-import com.corundumstudio.socketio.SocketIOClient;
+import com.corundumstudio.socketio.SocketConfig;
 import com.corundumstudio.socketio.SocketIOServer;
-import com.corundumstudio.socketio.listener.ConnectListener;
-import com.corundumstudio.socketio.listener.DisconnectListener;
-import iu.edu.indycar.models.TelemetryMessage;
+import iu.edu.indycar.models.AnomalyMessage;
+import iu.edu.indycar.models.JoinRoomMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import java.util.Date;
-import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class ServerBoot {
 
   private final static Logger LOG = LogManager.getLogger(ServerBoot.class);
 
+  private final static String EVENT_SUB = "EVENT_SUB";
+  private final static String EVENT_UNSUB = "EVENT_UNSUB";
+
   private String host;
   private int port;
+
+  private SocketIOServer server;
 
   public ServerBoot(String host, int port) {
     this.host = host;
     this.port = port;
-  }
-
-  private void start() {
 
     Configuration config = new Configuration();
     config.setHostname(this.host);
     config.setPort(this.port);
 
-    final SocketIOServer server = new SocketIOServer(config);
+    SocketConfig socketConfig = new SocketConfig();
+    socketConfig.setReuseAddress(true);
 
-    server.addConnectListener(new ConnectListener() {
-      public void onConnect(SocketIOClient socketIOClient) {
-        LOG.info("Client {} connected", socketIOClient.getRemoteAddress());
-        socketIOClient.sendEvent("init");
-      }
-    });
+    config.setSocketConfig(socketConfig);
 
-    server.addDisconnectListener(new DisconnectListener() {
-      public void onDisconnect(SocketIOClient socketIOClient) {
-        LOG.info("Client {} disconnected", socketIOClient.getRemoteAddress());
-      }
-    });
-
-    TimerTask t = new TimerTask() {
-      @Override
-      public void run() {
-        TelemetryMessage tm = new TelemetryMessage();
-        tm.setCarNumber(9);
-        tm.setDistanceFromStart(new Random().nextDouble());
-        tm.setTimestamp(new Date());
-        server.getBroadcastOperations().sendEvent("telemetry", tm);
-      }
-    };
-
-    new Timer().schedule(t, 0, 1000);
-
-    server.start();
+    this.server = new SocketIOServer(config);
   }
 
-  public static void main(String[] args) {
-    new ServerBoot("localhost", 9092).start();
+  public void publishEvent(AnomalyMessage anomalyMessage) {
+    this.server.getRoomOperations(
+            anomalyMessage.getAnomalyType() + anomalyMessage.getCarNumber()
+    ).sendEvent("anomaly", anomalyMessage);
+  }
+
+  public void start() {
+
+    server.addConnectListener(socketIOClient -> {
+      LOG.info("Client {} connected", socketIOClient.getRemoteAddress());
+    });
+
+    server.addDisconnectListener(socketIOClient ->
+            LOG.info("Client {} disconnected", socketIOClient.getRemoteAddress()));
+
+    server.addEventListener(
+            EVENT_SUB, JoinRoomMessage.class,
+            (socketIOClient, joinRoomMessage, ackRequest) -> {
+              LOG.info("Join room[{}] request received from {}",
+                      joinRoomMessage.getRoomName(), socketIOClient.getRemoteAddress());
+              socketIOClient.joinRoom(joinRoomMessage.getRoomName());
+              ackRequest.sendAckData();
+            }
+    );
+
+    server.addEventListener(
+            EVENT_UNSUB, JoinRoomMessage.class,
+            (socketIOClient, joinRoomMessage, ackRequest) -> {
+              LOG.info("Leave room[{}] request received from {}",
+                      joinRoomMessage.getRoomName(), socketIOClient.getRemoteAddress());
+              socketIOClient.leaveRoom(joinRoomMessage.getRoomName());
+              ackRequest.sendAckData();
+            }
+    );
+//    final Random random = new Random();
+//
+//    final AtomicInteger atomicInteger = new AtomicInteger(0);
+//
+//    File file = new File("/home/chathura/Downloads/indy_data/IPBroadcaster_Input_2018-05-16_0.log");
+//
+//    RecordStreamer recordStreamer = new RecordStreamer(
+//            file, true, 1, s -> s.split("_")[2]);
+//
+//    recordStreamer.setTelemetryRecordListener(telemetryRecord -> {
+//      if (telemetryRecord.getCarNumber().equals("10")) {
+//        AnomalyMessage anomalyMessage = new AnomalyMessage();
+//        anomalyMessage.setCarNumber(9);
+//        anomalyMessage.setAnomaly(random.nextDouble());
+//        anomalyMessage.setRawData(Double.valueOf(telemetryRecord.getVehicleSpeed()));
+//        anomalyMessage.setIndex(atomicInteger.incrementAndGet());
+//        server.getBroadcastOperations().sendEvent("anomaly", anomalyMessage);
+//      }
+//    });
+//
+//    recordStreamer.addRecordAcceptPolicy(TelemetryRecord.class,
+//            new AbstractRecordAcceptPolicy<TelemetryRecord>() {
+//
+//              HashMap<String, Boolean> metFirstNonZero = new HashMap<>();
+//
+//              @Override
+//              public boolean evaluate(TelemetryRecord record) {
+//                if (metFirstNonZero.getOrDefault(record.getCarNumber(), false)) {
+//                  return true;
+//                } else if (Double.valueOf(record.getVehicleSpeed()) > 10) {
+//                  metFirstNonZero.put(record.getCarNumber(), true);
+//                  return true;
+//                }
+//                return false;
+//              }
+//            });
+//
+//    System.out.println("Starting record streamer...");
+//
+//    //recordStreamer.start();
+    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+      LOG.info("Stopping Server");
+      server.stop();
+    }));
+
+    LOG.info("Starting server...");
+    server.start();
   }
 }

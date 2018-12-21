@@ -9,11 +9,14 @@ export class SocketService {
             return SocketService.instance;
         }
 
+        SocketService.instance = this;
+
         this.host = host;
         this.port = port;
+        this.socket = undefined;
     }
 
-    start = () => {
+    start = (cb) => {
         this.socket = openSocket(`${this.host}:${this.port}`, {
             reconnection: true,
             reconnectionDelay: 1000,
@@ -21,8 +24,21 @@ export class SocketService {
             reconnectionAttempts: 99999
         });
 
-        this.socket.on('telemetry', (event) => {
-            console.log(event);
+        this.socket.on('connect', () => {
+            console.log("Connected to server", this.socket);
+            cb();
         });
-    }
+    };
+
+    send = (event, msg) => {
+        this.socket.emit(event, msg);
+    };
+
+    subscribe = (event, cb) => {
+        this.socket.on(event, cb);
+    };
+
+    unsubscribe = (event, cb) => {
+        this.socket.off(event, cb);
+    };
 }

@@ -33,8 +33,8 @@ public class StreamerTest {
     });
 
 
-    /**
-     * Adding a policy to skip all records until a non zero record is met for the first time
+    /*
+      Adding a policy to skip all records until a non zero record is met for the first time
      */
     recordStreamer.addRecordAcceptPolicy(TelemetryRecord.class,
             new AbstractRecordAcceptPolicy<TelemetryRecord>() {
