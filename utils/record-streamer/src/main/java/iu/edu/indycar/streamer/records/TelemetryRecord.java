@@ -4,7 +4,7 @@ public class TelemetryRecord implements IndycarRecord {
 
   private String carNumber;
   private String timeOfDay;
-  private long lapDistance;
+  private double lapDistance;
   private double vehicleSpeed;
   private double engineSpeed;
   private double throttle;
@@ -44,11 +44,11 @@ public class TelemetryRecord implements IndycarRecord {
     this.timeOfDay = timeOfDay;
   }
 
-  public long getLapDistance() {
+  public double getLapDistance() {
     return lapDistance;
   }
 
-  public void setLapDistance(long lapDistance) {
+  public void setLapDistance(double lapDistance) {
     this.lapDistance = lapDistance;
   }
 

@@ -22,7 +22,7 @@ public class TelemetryRecordParser extends AbstractRecordParser<TelemetryRecord>
       throw new NotParseableException();
     }
 
-    long lapDistance = Long.valueOf(splits[3]);
+    double lapDistance = Double.valueOf(splits[3]);
     double vehicleSpeed = Double.valueOf(splits[4]);
     double engineSpeed = Double.valueOf(splits[5]);
     double throttle = Double.valueOf(splits[6]);
