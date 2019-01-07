@@ -1,27 +1,76 @@
 package iu.edu.indycar.streamer;
 
-public class RecordTiming {
+import iu.edu.indycar.streamer.records.IndycarRecord;
 
-  private long lastRecordTime = -1;
-  private long lastRecordSubmittedTime = -1;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
-  public long getLastRecordTime() {
-    return lastRecordTime;
-  }
+public class RecordTiming implements Runnable {
 
-  public void setLastRecordTime(long lastRecordTime) {
-    this.lastRecordTime = lastRecordTime;
-  }
+    private final int speed;
+    private long lastRecordTime = -1;
+    private long lastRecordSubmittedTime = -1;
 
-  public long getLastRecordSubmittedTime() {
-    return lastRecordSubmittedTime;
-  }
+    private BlockingQueue<IndycarRecord> queue = new LinkedBlockingQueue<>();
+    private RecordListener<IndycarRecord> recordListener;
 
-  public void setLastRecordSubmittedTime(long lastRecordSubmittedTime) {
-    this.lastRecordSubmittedTime = lastRecordSubmittedTime;
-  }
+    public RecordTiming(String tag, RecordListener<IndycarRecord> recordListener, int speed) {
+        this.recordListener = recordListener;
+        this.speed = speed;
+        new Thread(this, tag).start();
+    }
 
-  public boolean isFirstRecord() {
-    return lastRecordTime == -1;
-  }
+    public long getLastRecordTime() {
+        return lastRecordTime;
+    }
+
+    public void setLastRecordTime(long lastRecordTime) {
+        this.lastRecordTime = lastRecordTime;
+    }
+
+    public long getLastRecordSubmittedTime() {
+        return lastRecordSubmittedTime;
+    }
+
+    public void setLastRecordSubmittedTime(long lastRecordSubmittedTime) {
+        this.lastRecordSubmittedTime = lastRecordSubmittedTime;
+    }
+
+    public boolean isFirstRecord() {
+        return lastRecordTime == -1;
+    }
+
+    public void enqueue(IndycarRecord indycarRecord) throws InterruptedException {
+        this.queue.put(indycarRecord);
+    }
+
+    private void publishRecord(IndycarRecord indycarRecord) {
+        this.recordListener.onRecord(indycarRecord);
+        this.setLastRecordTime(indycarRecord.getTimeField());
+        this.setLastRecordSubmittedTime(System.currentTimeMillis());
+    }
+
+    @Override
+    public void run() {
+        while (true) {
+            try {
+                IndycarRecord indycarRecord = this.queue.poll(1, TimeUnit.MINUTES);
+                long now = System.currentTimeMillis();
+
+                if (this.isFirstRecord() || now - this.getLastRecordSubmittedTime() >=
+                        (indycarRecord.getTimeField() - this.getLastRecordTime()) / this.speed) {
+                    this.publishRecord(indycarRecord);
+                } else {
+                    Thread.sleep(
+                            ((indycarRecord.getTimeField() - this.getLastRecordTime()) / this.speed) -
+                                    (now - this.getLastRecordSubmittedTime())
+                    );
+                    this.publishRecord(indycarRecord);
+                }
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
+        }
+    }
 }

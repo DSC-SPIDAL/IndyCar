@@ -15,9 +15,8 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
 
-public class RecordStreamer implements Runnable {
+public class RecordStreamer {
 
     //Listeners
     private RecordListener<IndycarRecord> recordListener;
@@ -32,9 +31,7 @@ public class RecordStreamer implements Runnable {
 
     private FileNameDateExtractor dateExtractor;
 
-    private HashMap<String, RecordTiming> lastRecordTime = new HashMap<>();
-
-    private ConcurrentHashMap<String, ConcurrentLinkedQueue<IndycarRecord>> records = new ConcurrentHashMap<>();
+    private ConcurrentHashMap<String, RecordTiming> records = new ConcurrentHashMap<>();
 
     private HashMap<Class<? extends IndycarRecord>,
             AbstractRecordAcceptPolicy> recordAcceptPolicies = new HashMap<>();
@@ -65,24 +62,29 @@ public class RecordStreamer implements Runnable {
     }
 
     public void start() {
-        if (this.realTiming) {
-            new Thread(this).start();
-        }
         new Thread(() -> {
             try {
                 readFile();
             } catch (IOException e) {
                 System.out.println("Error in reading files");
             }
-        }).start();
+        }, "file-reader").start();
     }
 
     private void queueEvent(IndycarRecord indycarRecord) {
         if (!realTiming) {
             this.publishEvent(indycarRecord);
         } else {
-            this.records.computeIfAbsent(indycarRecord.getGroupTag(),
-                    (s) -> new ConcurrentLinkedQueue<>()).add(indycarRecord);
+            try {
+                this.records.computeIfAbsent(indycarRecord.getGroupTag(),
+                        (s) -> new RecordTiming(
+                                indycarRecord.getGroupTag(),
+                                this::publishEvent,
+                                this.speed)
+                ).enqueue(indycarRecord);
+            } catch (InterruptedException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -125,6 +127,8 @@ public class RecordStreamer implements Runnable {
                 } else if (line.startsWith("$W")) {
                     record = weatherRecordParser.parse(line);
                     //this.queueEvent(weatherRecordParser.parse(line));
+                } else if (line.startsWith("$C")) {
+                    //System.out.println(line);
                 }
                 if (record != null && this.recordAcceptPolicies.getOrDefault(
                         record.getClass(), DefaultRecordAcceptPolicy.getInstance()).evaluate(record)) {
@@ -139,40 +143,5 @@ public class RecordStreamer implements Runnable {
         br.close();
         this.fileEnded = true;
         System.out.println("End of File : " + file.getName());
-    }
-
-
-    @Override
-    public void run() {
-        final boolean[] foundSomething = {false};
-        while (true) {
-            foundSomething[0] = false;
-            //final AtomicBoolean foundSomething = new AtomicBoolean(false);
-            this.records.forEach((carNumber, recordsQueue) -> {
-                IndycarRecord next = recordsQueue.peek();
-                if (next != null) {
-                    foundSomething[0] = true;
-
-                    RecordTiming recordTiming = lastRecordTime.computeIfAbsent(
-                            next.getGroupTag(), s -> new RecordTiming()
-                    );
-
-                    long now = System.currentTimeMillis();
-
-                    if (recordTiming.isFirstRecord() || now - recordTiming.getLastRecordSubmittedTime() >=
-                            (next.getTimeField() - recordTiming.getLastRecordTime()) / this.speed) {
-
-                        this.publishEvent(recordsQueue.poll());
-
-                        recordTiming.setLastRecordTime(next.getTimeField());
-                        recordTiming.setLastRecordSubmittedTime(now);
-                    }
-                }
-            });
-
-            if (!foundSomething[0] && this.fileEnded) {
-                break;
-            }
-        }
     }
 }

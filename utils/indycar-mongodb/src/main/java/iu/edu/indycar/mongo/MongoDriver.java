@@ -1,5 +1,6 @@
 package iu.edu.indycar.mongo;
 
+import com.mongodb.ConnectionString;
 import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
@@ -19,11 +20,11 @@ import java.util.stream.Collectors;
 public class MongoDriver {
 
     public static void main(String[] args) {
-        MongoClient mongoClient = MongoClients.create();
+        MongoClient mongoClient = MongoClients.create(new ConnectionString("mongodb://j-093.juliet.futuresystems.org"));
         MongoDatabase database = mongoClient.getDatabase("indycar");
         MongoCollection<Document> collection = database.getCollection("telemetry");
 
-        getLogsList("/media/chathura/DATA/Code/indy-data/indy500/").forEach(file -> {
+        getLogsList("/home/chathura/Downloads/indy_data/").forEach(file -> {
             try {
                 writeToDB(file, collection);
             } catch (IOException e) {

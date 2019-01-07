@@ -1,6 +1,5 @@
 package iu.edu.indycar.streamer;
 
-import iu.edu.indycar.streamer.records.IndycarRecord;
 import iu.edu.indycar.streamer.records.TelemetryRecord;
 import iu.edu.indycar.streamer.records.policy.AbstractRecordAcceptPolicy;
 
@@ -17,7 +16,7 @@ public class StreamerTest {
 
     recordStreamer.setTelemetryRecordListener(record -> {
 
-      System.out.println(record.getCarNumber() + ":" + record.getVehicleSpeed());
+      //System.out.println(record.getCarNumber() + ":" + record.getVehicleSpeed());
 //      System.out.println(record.getCarNumber());
 //      System.out.println(record.getTimeOfDay());
 //      System.out.println(record.getEngineSpeed());
@@ -27,9 +26,9 @@ public class StreamerTest {
     });
 
     recordStreamer.setWeatherRecordListener(wr -> {
-      System.out.println(wr.getTimeOfDay());
-      System.out.println(wr.getPressure());
-      System.out.println(wr.getTemperature());
+      //System.out.println(wr.getTimeOfDay());
+      //System.out.println(wr.getPressure());
+      //System.out.println(wr.getTemperature());
     });
 
 
