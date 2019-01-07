@@ -95,7 +95,8 @@ export default class SpeedAnomalyComponent extends React.Component {
                         borderColor: "#c62828",
                         backgroundColor: "#c62828",
                         borderWidth: 1,
-                        pointRadius: 0
+                        pointRadius: 0,
+                        steppedLine: true
                     }],
                 }} options={{
                     animation: {
@@ -111,13 +112,16 @@ export default class SpeedAnomalyComponent extends React.Component {
                             id: 'Metric',
                             type: 'linear',
                             position: 'left',
+                            ticks: {
+                                min: 0
+                            }
                         }, {
                             id: 'Anomaly',
                             type: 'linear',
                             position: 'right',
                             ticks: {
-                                max: 1.5,
-                                min: -0.5
+                                max: 1,
+                                min: 0
                             }
                         }]
                     }
