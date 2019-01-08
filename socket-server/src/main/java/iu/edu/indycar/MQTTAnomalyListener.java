@@ -5,9 +5,9 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.*;
 
-public class MQTTListener {
+public class MQTTAnomalyListener {
 
-  private final static Logger LOG = LogManager.getLogger(MQTTListener.class);
+  private final static Logger LOG = LogManager.getLogger(MQTTAnomalyListener.class);
 
   private static final String CONNECTION_URL = "tcp://localhost:61613";
   private static final String SUBSCRIPTION = "streaming_output";
@@ -16,7 +16,7 @@ public class MQTTListener {
 
   private ServerBoot serverBoot;
 
-  public MQTTListener(ServerBoot serverBoot) {
+  public MQTTAnomalyListener(ServerBoot serverBoot) {
     this.serverBoot = serverBoot;
   }
 
@@ -42,7 +42,7 @@ public class MQTTListener {
         anomalyMessage.setRawData(Double.valueOf(split[2]));
         anomalyMessage.setAnomaly(Double.valueOf(split[3]));
 
-        serverBoot.publishEvent(anomalyMessage);
+        serverBoot.publishAnomalyEvent(anomalyMessage);
         //LOG.info("Message arrived {} : {}", s, new String(mqttMessage.getPayload()));
       }
 

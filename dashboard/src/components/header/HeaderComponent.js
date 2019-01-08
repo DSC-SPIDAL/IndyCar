@@ -6,6 +6,7 @@ import THERMO_IMG from "./img/thermometer.png";
 import BARO_IMG from "./img/gauge.png";
 import HUMIDITY_IMG from "./img/humidity.png";
 import CLOCK_IMG from "./img/clock.png";
+import {SocketService} from "../../services/SocketService";
 
 /**
  * @author Chathura Widanage
@@ -17,9 +18,31 @@ export default class HeaderComponent extends React.Component {
         this.state = {
             eventName: "",
             runName: "",
-            startDate: ""
-        }
+            startDate: "",
+            weather: {
+                pressure: "...",
+                relativeHumidity: "...",
+                temperature: "...",
+                timeOfDay: "..."
+            }
+        };
+        this.socketService = new SocketService();
     }
+
+    onWeatherRecord = (data) => {
+        console.log("Weather data", data);
+        let time = parseInt(data.timeOfDay, 16);
+        let hours = Math.floor(time / (1000 * 60 * 60));
+        let mins = Math.floor((time % (1000 * 60 * 60)) / (1000 * 60));
+        this.setState({
+            weather: {
+                pressure: data.pressure,
+                relativeHumidity: data.relativeHumidity,
+                temperature: data.temperature,
+                timeOfDay: hours + ":" + mins
+            }
+        })
+    };
 
     componentDidMount() {
         RaceInformationService.getRaceInformation().then(response => {
@@ -30,7 +53,13 @@ export default class HeaderComponent extends React.Component {
             })
         }).catch(err => {
             console.error("Error in fetching race info", err);
-        })
+        });
+
+        this.socketService.subscribe("weather", this.onWeatherRecord);
+    }
+
+    componentWillUnmount() {
+        this.socketService.unsubscribe("weather", this.onWeatherRecord);
     }
 
     render() {
@@ -54,7 +83,7 @@ export default class HeaderComponent extends React.Component {
                             <div className="weather-indicator">
                                 <img src={THERMO_IMG} alt="thermometer"/>
                                 <div className="weather-indicator-value">
-                                    77
+                                    {this.state.weather.temperature}
                                 </div>
                             </div>
                         </Tooltip>
@@ -63,7 +92,7 @@ export default class HeaderComponent extends React.Component {
                             <div className="weather-indicator">
                                 <img src={BARO_IMG} alt="barometer"/>
                                 <div className="weather-indicator-value">
-                                    2893
+                                    {this.state.weather.pressure}
                                 </div>
                             </div>
                         </Tooltip>
@@ -72,7 +101,7 @@ export default class HeaderComponent extends React.Component {
                             <div className="weather-indicator">
                                 <img src={HUMIDITY_IMG} alt="humidity"/>
                                 <div className="weather-indicator-value">
-                                    63%
+                                    {this.state.weather.relativeHumidity}%
                                 </div>
                             </div>
                         </Tooltip>
@@ -81,7 +110,7 @@ export default class HeaderComponent extends React.Component {
                             <div className="weather-indicator">
                                 <img src={CLOCK_IMG} alt="time"/>
                                 <div className="weather-indicator-value">
-                                    12:07
+                                    {this.state.weather.timeOfDay}
                                 </div>
                             </div>
                         </Tooltip>

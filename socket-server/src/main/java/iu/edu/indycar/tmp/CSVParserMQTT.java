@@ -1,21 +1,11 @@
-package com.dsc.iu.report;
+package iu.edu.indycar.tmp;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.Arrays;
+import org.eclipse.paho.client.mqttv3.*;
+
+import java.io.*;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Random;
-
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
 
 public class CSVParserMQTT implements MqttCallback {
   private static MqttClient client;
@@ -69,8 +59,8 @@ public class CSVParserMQTT implements MqttCallback {
       if (record == null) {
         System.out.println("closed reading for file:" + key_filename);
 
-        map.remove(map.keySet().toArray()[index]);
         map.get(map.keySet().toArray()[index]).close();
+        map.remove(map.keySet().toArray()[index]);
 
         index = random.nextInt(map.size());
         record = map.get(map.keySet().toArray()[index]).readLine();

@@ -108,6 +108,8 @@ export default class TrackComponent extends React.Component {
         this.cars = {};
 
         this.pastRecords = {};
+
+        this.longest = 0;
     }
 
     componentDidMount() {
@@ -249,10 +251,16 @@ export default class TrackComponent extends React.Component {
         let distanceFromStart = pastRecord.distance * scale;
         let deltaDistance = (newRecord.distance - pastRecord.distance) * scale;
         let deltaTime = newRecord.time - pastRecord.time;
-        console.log("Distance", newRecord.distance);
+        if (this.longest < newRecord.distance) {
+            this.longest = newRecord.distance;
+            console.log("Longest", this.longest);
+        }
+
         if (deltaDistance < 0) {
             console.log("DDB", deltaDistance, newRecord.distance, pastRecord.distance, deltaTime);
-            deltaDistance = totalTrackLength - pastRecord.distance + newRecord.distance;
+            //sometimes recorded distance is larger than totalTrack length
+
+            deltaDistance = (totalTrackLength - pastRecord.distance + newRecord.distance) * scale;
             console.log("DD", deltaDistance)
         }
 

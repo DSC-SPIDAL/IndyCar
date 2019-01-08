@@ -4,72 +4,89 @@ import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketConfig;
 import com.corundumstudio.socketio.SocketIOServer;
 import iu.edu.indycar.models.AnomalyMessage;
+import iu.edu.indycar.models.CarPositionMessage;
 import iu.edu.indycar.models.JoinRoomMessage;
+import iu.edu.indycar.streamer.records.WeatherRecord;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 public class ServerBoot {
 
-  private final static Logger LOG = LogManager.getLogger(ServerBoot.class);
+    private final static Logger LOG = LogManager.getLogger(ServerBoot.class);
 
-  private final static String EVENT_SUB = "EVENT_SUB";
-  private final static String EVENT_UNSUB = "EVENT_UNSUB";
+    private final static String EVENT_SUB = "EVENT_SUB";
+    private final static String EVENT_UNSUB = "EVENT_UNSUB";
 
-  private String host;
-  private int port;
+    private String host;
+    private int port;
 
-  private SocketIOServer server;
+    private SocketIOServer server;
 
-  public ServerBoot(String host, int port) {
-    this.host = host;
-    this.port = port;
+    //initial records for newly connected clients
+    private WeatherRecord lastWeatherRecord;
 
-    Configuration config = new Configuration();
-    config.setHostname(this.host);
-    config.setPort(this.port);
+    public ServerBoot(String host, int port) {
+        this.host = host;
+        this.port = port;
 
-    SocketConfig socketConfig = new SocketConfig();
-    socketConfig.setReuseAddress(true);
+        Configuration config = new Configuration();
+        config.setHostname(this.host);
+        config.setPort(this.port);
 
-    config.setSocketConfig(socketConfig);
+        SocketConfig socketConfig = new SocketConfig();
+        socketConfig.setReuseAddress(true);
 
-    this.server = new SocketIOServer(config);
-  }
+        config.setSocketConfig(socketConfig);
 
-  public void publishEvent(AnomalyMessage anomalyMessage) {
-    String room = anomalyMessage.getCarNumber() + anomalyMessage.getAnomalyType();
-    //LOG.info("Sending event to room {}", room);
-    this.server.getRoomOperations(room).sendEvent("anomaly", anomalyMessage);
-  }
+        this.server = new SocketIOServer(config);
+    }
 
-  public void start() {
+    public void publishAnomalyEvent(AnomalyMessage anomalyMessage) {
+        String room = anomalyMessage.getCarNumber() + anomalyMessage.getAnomalyType();
+        LOG.info("Sending event to room {}", room);
+        this.server.getRoomOperations(room).sendEvent("anomaly", anomalyMessage);
+    }
 
-    server.addConnectListener(socketIOClient -> {
-      LOG.info("Client {} connected", socketIOClient.getRemoteAddress());
-    });
+    public void publishPositionEvent(CarPositionMessage carPositionMessage) {
+        this.server.getBroadcastOperations().sendEvent("position", carPositionMessage);
+    }
 
-    server.addDisconnectListener(socketIOClient ->
-            LOG.info("Client {} disconnected", socketIOClient.getRemoteAddress()));
+    public void publishWeatherEvent(WeatherRecord weatherRecord) {
+        this.lastWeatherRecord = weatherRecord;
+        this.server.getBroadcastOperations().sendEvent("weather", weatherRecord);
+    }
 
-    server.addEventListener(
-            EVENT_SUB, JoinRoomMessage.class,
-            (socketIOClient, joinRoomMessage, ackRequest) -> {
-              LOG.info("Join room[{}] request received from {}",
-                      joinRoomMessage.getRoomName(), socketIOClient.getRemoteAddress());
-              socketIOClient.joinRoom(joinRoomMessage.getRoomName());
-              ackRequest.sendAckData();
+    public void start() {
+
+        server.addConnectListener(socketIOClient -> {
+            LOG.info("Client {} connected", socketIOClient.getRemoteAddress());
+            if (this.lastWeatherRecord != null) {
+                socketIOClient.sendEvent("weather", this.lastWeatherRecord);
             }
-    );
+        });
 
-    server.addEventListener(
-            EVENT_UNSUB, JoinRoomMessage.class,
-            (socketIOClient, joinRoomMessage, ackRequest) -> {
-              LOG.info("Leave room[{}] request received from {}",
-                      joinRoomMessage.getRoomName(), socketIOClient.getRemoteAddress());
-              socketIOClient.leaveRoom(joinRoomMessage.getRoomName());
-              ackRequest.sendAckData();
-            }
-    );
+        server.addDisconnectListener(socketIOClient ->
+                LOG.info("Client {} disconnected", socketIOClient.getRemoteAddress()));
+
+        server.addEventListener(
+                EVENT_SUB, JoinRoomMessage.class,
+                (socketIOClient, joinRoomMessage, ackRequest) -> {
+                    LOG.info("Join room[{}] request received from {}",
+                            joinRoomMessage.getRoomName(), socketIOClient.getRemoteAddress());
+                    socketIOClient.joinRoom(joinRoomMessage.getRoomName());
+                    ackRequest.sendAckData();
+                }
+        );
+
+        server.addEventListener(
+                EVENT_UNSUB, JoinRoomMessage.class,
+                (socketIOClient, joinRoomMessage, ackRequest) -> {
+                    LOG.info("Leave room[{}] request received from {}",
+                            joinRoomMessage.getRoomName(), socketIOClient.getRemoteAddress());
+                    socketIOClient.leaveRoom(joinRoomMessage.getRoomName());
+                    ackRequest.sendAckData();
+                }
+        );
 //    final Random random = new Random();
 //
 //    final AtomicInteger atomicInteger = new AtomicInteger(0);
@@ -110,12 +127,12 @@ public class ServerBoot {
 //    System.out.println("Starting record streamer...");
 //
 //    //recordStreamer.start();
-    Runtime.getRuntime().addShutdownHook(new Thread(() -> {
-      LOG.info("Stopping Server");
-      server.stop();
-    }));
+        Runtime.getRuntime().addShutdownHook(new Thread(() -> {
+            LOG.info("Stopping Server");
+            server.stop();
+        }));
 
-    LOG.info("Starting server...");
-    server.start();
-  }
+        LOG.info("Starting server...");
+        server.start();
+    }
 }
