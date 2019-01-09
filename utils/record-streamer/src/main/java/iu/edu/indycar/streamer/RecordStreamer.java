@@ -1,13 +1,17 @@
 package iu.edu.indycar.streamer;
 
-import iu.edu.indycar.streamer.exceptions.NotParseableException;
+import iu.edu.indycar.streamer.exceptions.NotParsableException;
+import iu.edu.indycar.streamer.records.EntryRecord;
 import iu.edu.indycar.streamer.records.IndycarRecord;
 import iu.edu.indycar.streamer.records.TelemetryRecord;
 import iu.edu.indycar.streamer.records.WeatherRecord;
+import iu.edu.indycar.streamer.records.parsers.EntryRecordParser;
 import iu.edu.indycar.streamer.records.parsers.TelemetryRecordParser;
 import iu.edu.indycar.streamer.records.parsers.WeatherRecordParser;
 import iu.edu.indycar.streamer.records.policy.AbstractRecordAcceptPolicy;
 import iu.edu.indycar.streamer.records.policy.DefaultRecordAcceptPolicy;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.BufferedReader;
 import java.io.File;
@@ -18,10 +22,13 @@ import java.util.concurrent.ConcurrentHashMap;
 
 public class RecordStreamer {
 
+    private final static Logger LOG = LogManager.getLogger(RecordStreamer.class);
+
     //Listeners
     private RecordListener<IndycarRecord> recordListener;
     private RecordListener<WeatherRecord> weatherRecordListener;
     private RecordListener<TelemetryRecord> telemetryRecordListener;
+    private RecordListener<EntryRecord> entryRecordRecordListener;
 
     private File file;
     private boolean realTiming;
@@ -61,6 +68,10 @@ public class RecordStreamer {
         this.weatherRecordListener = weatherRecordRecordListener;
     }
 
+    public void setEntryRecordRecordListener(RecordListener<EntryRecord> entryRecordRecordListener) {
+        this.entryRecordRecordListener = entryRecordRecordListener;
+    }
+
     public void start() {
         new Thread(() -> {
             try {
@@ -72,7 +83,7 @@ public class RecordStreamer {
     }
 
     private void queueEvent(IndycarRecord indycarRecord) {
-        if (!realTiming) {
+        if (!realTiming || !indycarRecord.isTimeSensitive()) {
             this.publishEvent(indycarRecord);
         } else {
             try {
@@ -99,6 +110,8 @@ public class RecordStreamer {
         } else if (this.weatherRecordListener != null
                 && indycarRecord instanceof WeatherRecord) {
             this.weatherRecordListener.onRecord((WeatherRecord) indycarRecord);
+        } else if (this.entryRecordRecordListener != null && indycarRecord instanceof EntryRecord) {
+            this.entryRecordRecordListener.onRecord((EntryRecord) indycarRecord);
         }
     }
 
@@ -116,6 +129,7 @@ public class RecordStreamer {
 
         TelemetryRecordParser telemetryRecordParser = new TelemetryRecordParser("�");
         WeatherRecordParser weatherRecordParser = new WeatherRecordParser("�");
+        EntryRecordParser entryRecordParser = new EntryRecordParser("�");
 
         while (line != null) {
             try {
@@ -126,15 +140,17 @@ public class RecordStreamer {
                     record = tr;
                 } else if (line.startsWith("$W")) {
                     record = weatherRecordParser.parse(line);
-                    //this.queueEvent(weatherRecordParser.parse(line));
-                } else if (line.startsWith("$C")) {
-                    //System.out.println(line);
+                } else if (line.startsWith("$E")) {
+                    record = entryRecordParser.parse(line);
                 }
                 if (record != null && this.recordAcceptPolicies.getOrDefault(
                         record.getClass(), DefaultRecordAcceptPolicy.getInstance()).evaluate(record)) {
                     this.queueEvent(record);
                 }
-            } catch (NotParseableException e) {
+            } catch (NotParsableException e) {
+                if (e.isLog()) {
+                    LOG.warn("Couldn't parse a record", e);
+                }
                 //couldn't parse
             } finally {
                 line = br.readLine();

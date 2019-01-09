@@ -1,4 +1,5 @@
 import openSocket from "socket.io-client";
+import CarInformationService from "./CarInformationService";
 
 export class SocketService {
 
@@ -26,6 +27,7 @@ export class SocketService {
 
         this.socket.on('connect', () => {
             console.log("Connected to server", this.socket);
+            CarInformationService.init(this);
             cb();
         });
     };

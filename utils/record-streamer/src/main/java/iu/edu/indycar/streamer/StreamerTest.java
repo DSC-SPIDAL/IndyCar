@@ -9,7 +9,7 @@ import java.util.HashMap;
 
 public class StreamerTest {
   public static void main(String[] args) throws IOException {
-    File file = new File("/home/chathura/Downloads/indy_data/IPBroadcaster_Input_2018-05-16_0.log");
+    File file = new File("/home/chathura/Downloads/indy_data/IPBroadcaster_Input_2018-05-27_0.log");
 
     RecordStreamer recordStreamer = new RecordStreamer(
             file, true, 1, s -> s.split("_")[2]);
@@ -29,6 +29,10 @@ public class StreamerTest {
       //System.out.println(wr.getTimeOfDay());
       //System.out.println(wr.getPressure());
       //System.out.println(wr.getTemperature());
+    });
+
+    recordStreamer.setEntryRecordRecordListener(er->{
+        System.out.println(er.getCarNumber());
     });
 
 

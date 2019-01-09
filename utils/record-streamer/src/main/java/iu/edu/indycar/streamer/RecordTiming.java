@@ -56,6 +56,9 @@ public class RecordTiming implements Runnable {
         while (true) {
             try {
                 IndycarRecord indycarRecord = this.queue.poll(1, TimeUnit.MINUTES);
+                if (indycarRecord == null) {
+                    continue;
+                }
                 long now = System.currentTimeMillis();
 
                 if (this.isFirstRecord() || now - this.getLastRecordSubmittedTime() >=

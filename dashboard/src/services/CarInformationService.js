@@ -4,13 +4,28 @@ import RestService from "./RestService";
 let carDistances = {};
 let rankSubscribers = [];
 
+let carInformation = {};
+
 /**
  * @author Chathura Widanage
  */
 export default class CarInformationService {
 
+    static init(socket) {
+        socket.subscribe("entry", (entry) => {
+            carInformation[entry.carNumber] = entry;
+        });
+
+        socket.subscribe("entries", (entries) => {
+            entries.forEach(entry => {
+                carInformation[entry.carNumber] = entry;
+            });
+        });
+    }
+
     static getCarInformation(carNumber) {
-        return axios.get(RestService.getUrl(`getentryinfo?car_num=${carNumber}`));
+        // return axios.get(RestService.getUrl(`getentryinfo?car_num=${carNumber}`));
+
     }
 
     static getCarLapTimes(carNumber) {

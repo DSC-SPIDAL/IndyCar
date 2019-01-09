@@ -1,6 +1,6 @@
 package iu.edu.indycar.streamer.records.parsers;
 
-import iu.edu.indycar.streamer.exceptions.NotParseableException;
+import iu.edu.indycar.streamer.exceptions.NotParsableException;
 import iu.edu.indycar.streamer.records.WeatherRecord;
 
 public class WeatherRecordParser extends AbstractRecordParser<WeatherRecord> {
@@ -10,7 +10,7 @@ public class WeatherRecordParser extends AbstractRecordParser<WeatherRecord> {
   }
 
   @Override
-  public WeatherRecord parse(String line) throws NotParseableException {
+  public WeatherRecord parse(String line) throws NotParsableException {
     String[] splits = line.split(this.splitBy);
 
     try {
@@ -22,7 +22,7 @@ public class WeatherRecordParser extends AbstractRecordParser<WeatherRecord> {
 
       return weatherRecord;
     } catch (NumberFormatException | ArrayIndexOutOfBoundsException ex) {
-      throw new NotParseableException();
+      throw new NotParsableException();
     }
   }
 }

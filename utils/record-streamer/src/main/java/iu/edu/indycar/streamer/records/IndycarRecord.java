@@ -2,7 +2,11 @@ package iu.edu.indycar.streamer.records;
 
 public interface IndycarRecord {
 
-  String getGroupTag();
+    String getGroupTag();
 
-  long getTimeField();
+    long getTimeField();
+
+    default boolean isTimeSensitive() {
+        return false;
+    }
 }

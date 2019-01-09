@@ -108,8 +108,6 @@ export default class TrackComponent extends React.Component {
         this.cars = {};
 
         this.pastRecords = {};
-
-        this.longest = 0;
     }
 
     componentDidMount() {
@@ -251,32 +249,18 @@ export default class TrackComponent extends React.Component {
         let distanceFromStart = pastRecord.distance * scale;
         let deltaDistance = (newRecord.distance - pastRecord.distance) * scale;
         let deltaTime = newRecord.time - pastRecord.time;
-        if (this.longest < newRecord.distance) {
-            this.longest = newRecord.distance;
-            console.log("Longest", this.longest, this.path.length() / scale);
-        }
-
-        let hitHere = false;
 
         if (deltaDistance < 0) {
-            console.log("DDB", deltaDistance, newRecord.distance * scale, pastRecord.distance * scale, deltaTime);
             //sometimes recorded distance is larger than totalTrack length
-
             deltaDistance = ((this.path.length() / scale) - pastRecord.distance + newRecord.distance) * scale;
-            console.log("DD", deltaDistance);
-            hitHere = true;
         }
 
         carContainer
             .animate(deltaTime)
             .during((pos, morph, eased) => {
                 let distance = distanceFromStart + (eased * deltaDistance);
-                let earlyDistance = distance;
                 if (distance >= (this.path.length())) {
                     distance = distance - (this.path.length());
-                }
-                if (hitHere) {
-                    console.log(distanceFromStart, earlyDistance, distance);
                 }
 
                 let p = this.path.pointAt(distance);

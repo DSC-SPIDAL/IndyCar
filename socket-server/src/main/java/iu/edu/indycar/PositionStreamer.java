@@ -29,7 +29,7 @@ public class PositionStreamer {
 
     public void start() {
         RecordStreamer recordStreamer = new RecordStreamer(
-                new File("/home/chathura/Downloads/indy_data/IPBroadcaster_Input_2018-05-16_0.log"),
+                new File("/home/chathura/Downloads/indy_data/IPBroadcaster_Input_2018-05-27_0.log"),
                 true,
                 1,
                 s -> s.split("_")[2]
@@ -71,9 +71,10 @@ public class PositionStreamer {
             }
         });
 
-        recordStreamer.setWeatherRecordListener(weatherRecord -> {
-            this.serverBoot.publishWeatherEvent(weatherRecord);
-        });
+        recordStreamer.setWeatherRecordListener(this.serverBoot::publishWeatherEvent);
+
+        //Entry records
+        recordStreamer.setEntryRecordRecordListener(this.serverBoot::publishEntryRecord);
 
         recordStreamer.start();
     }

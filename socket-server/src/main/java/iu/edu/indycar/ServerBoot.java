@@ -6,9 +6,13 @@ import com.corundumstudio.socketio.SocketIOServer;
 import iu.edu.indycar.models.AnomalyMessage;
 import iu.edu.indycar.models.CarPositionMessage;
 import iu.edu.indycar.models.JoinRoomMessage;
+import iu.edu.indycar.streamer.records.EntryRecord;
 import iu.edu.indycar.streamer.records.WeatherRecord;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+
+import java.util.HashSet;
+import java.util.Set;
 
 public class ServerBoot {
 
@@ -17,21 +21,19 @@ public class ServerBoot {
     private final static String EVENT_SUB = "EVENT_SUB";
     private final static String EVENT_UNSUB = "EVENT_UNSUB";
 
-    private String host;
-    private int port;
-
     private SocketIOServer server;
 
     //initial records for newly connected clients
     private WeatherRecord lastWeatherRecord;
 
+    //initial set of entries for newly connected clients
+    private Set<EntryRecord> entryRecordSet = new HashSet<>();
+
     public ServerBoot(String host, int port) {
-        this.host = host;
-        this.port = port;
 
         Configuration config = new Configuration();
-        config.setHostname(this.host);
-        config.setPort(this.port);
+        config.setHostname(host);
+        config.setPort(port);
 
         SocketConfig socketConfig = new SocketConfig();
         socketConfig.setReuseAddress(true);
@@ -56,12 +58,26 @@ public class ServerBoot {
         this.server.getBroadcastOperations().sendEvent("weather", weatherRecord);
     }
 
+    public void publishEntryRecord(EntryRecord entryRecord) {
+        boolean newEntry = this.entryRecordSet.add(entryRecord);
+        if (newEntry) {
+            this.server.getBroadcastOperations().sendEvent("entry", entryRecord);
+        }
+    }
+
     public void start() {
 
         server.addConnectListener(socketIOClient -> {
             LOG.info("Client {} connected", socketIOClient.getRemoteAddress());
+            //broadcast initial weather
             if (this.lastWeatherRecord != null) {
                 socketIOClient.sendEvent("weather", this.lastWeatherRecord);
+            }
+
+            //broadcast entries
+            if (!this.entryRecordSet.isEmpty()) {
+                LOG.info("Sending initial entries to {}", socketIOClient.getRemoteAddress().toString());
+                socketIOClient.sendEvent("entries", this.entryRecordSet);
             }
         });
 

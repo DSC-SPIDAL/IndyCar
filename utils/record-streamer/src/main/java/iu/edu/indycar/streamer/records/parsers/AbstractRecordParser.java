@@ -1,6 +1,6 @@
 package iu.edu.indycar.streamer.records.parsers;
 
-import iu.edu.indycar.streamer.exceptions.NotParseableException;
+import iu.edu.indycar.streamer.exceptions.NotParsableException;
 import iu.edu.indycar.streamer.records.IndycarRecord;
 
 public abstract class AbstractRecordParser<T extends IndycarRecord> {
@@ -11,5 +11,5 @@ public abstract class AbstractRecordParser<T extends IndycarRecord> {
     this.splitBy = splitBy;
   }
 
-  public abstract T parse(String line) throws NotParseableException;
+  public abstract T parse(String line) throws NotParsableException;
 }
