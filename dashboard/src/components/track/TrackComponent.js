@@ -188,7 +188,7 @@ export default class TrackComponent extends React.Component {
         });
 
 //start line
-        let startLine = this.draw.rect(20 * scale, longStraightWay.width).fill(pattern).move(x2 + 20 * scale, longStraightWay.width / 2/*y1 - (longStraightWay.width / 2) */);
+        let startLine = this.draw.rect(20 * scale, longStraightWay.width).fill(pattern).move(this.path.pointAt(0).x - 20 * scale/*x2 + 20 * scale*/, longStraightWay.width / 2/*y1 - (longStraightWay.width / 2) */);
 
 
         let trackOffsets = [-1.5, 1.5, 5];
@@ -253,24 +253,32 @@ export default class TrackComponent extends React.Component {
         let deltaTime = newRecord.time - pastRecord.time;
         if (this.longest < newRecord.distance) {
             this.longest = newRecord.distance;
-            console.log("Longest", this.longest);
+            console.log("Longest", this.longest, this.path.length() / scale);
         }
 
+        let hitHere = false;
+
         if (deltaDistance < 0) {
-            console.log("DDB", deltaDistance, newRecord.distance, pastRecord.distance, deltaTime);
+            console.log("DDB", deltaDistance, newRecord.distance * scale, pastRecord.distance * scale, deltaTime);
             //sometimes recorded distance is larger than totalTrack length
 
-            deltaDistance = (totalTrackLength - pastRecord.distance + newRecord.distance) * scale;
-            console.log("DD", deltaDistance)
+            deltaDistance = ((this.path.length() / scale) - pastRecord.distance + newRecord.distance) * scale;
+            console.log("DD", deltaDistance);
+            hitHere = true;
         }
 
         carContainer
             .animate(deltaTime)
             .during((pos, morph, eased) => {
                 let distance = distanceFromStart + (eased * deltaDistance);
-                if (distance >= totalTrackLength) {
-                    distance = totalTrackLength - distance;
+                let earlyDistance = distance;
+                if (distance >= (this.path.length())) {
+                    distance = distance - (this.path.length());
                 }
+                if (hitHere) {
+                    console.log(distanceFromStart, earlyDistance, distance);
+                }
+
                 let p = this.path.pointAt(distance);
                 carContainer.center(p.x, p.y);
                 let angle;
@@ -306,6 +314,7 @@ export default class TrackComponent extends React.Component {
         let boundingBoxMax = Math.sqrt(Math.pow(4.8 * carScale, 2) * 2);
         carContainer.rect(boundingBoxMax, boundingBoxMax).fill('transparent');
         car.move(boundingBoxMax / 2 - 4.8 * carScale / 2, boundingBoxMax / 2 - trackOffset * carScale / 2);
+        car.rotate(180);
 
         let initPoint = this.path.pointAt(0);
         carContainer.center(initPoint.x, initPoint.y);
