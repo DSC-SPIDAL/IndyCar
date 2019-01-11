@@ -10,6 +10,10 @@ public class TelemetryRecord implements IndycarRecord {
     private double throttle;
     private String date;
 
+    private double speedAnomaly;
+    private double throttleAnomaly;
+    private double engineSpeedAnomaly;
+
     private long timeOfDayLong;
 
     public long getTimeOfDayLong() {
@@ -74,6 +78,30 @@ public class TelemetryRecord implements IndycarRecord {
 
     public void setThrottle(double throttle) {
         this.throttle = throttle;
+    }
+
+    public double getSpeedAnomaly() {
+        return speedAnomaly;
+    }
+
+    public void setSpeedAnomaly(double speedAnomaly) {
+        this.speedAnomaly = speedAnomaly;
+    }
+
+    public double getThrottleAnomaly() {
+        return throttleAnomaly;
+    }
+
+    public void setThrottleAnomaly(double throttleAnomaly) {
+        this.throttleAnomaly = throttleAnomaly;
+    }
+
+    public double getEngineSpeedAnomaly() {
+        return engineSpeedAnomaly;
+    }
+
+    public void setEngineSpeedAnomaly(double engineSpeedAnomaly) {
+        this.engineSpeedAnomaly = engineSpeedAnomaly;
     }
 
     @Override

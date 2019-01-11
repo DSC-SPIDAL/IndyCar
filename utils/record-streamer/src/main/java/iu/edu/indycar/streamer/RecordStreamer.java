@@ -1,10 +1,8 @@
 package iu.edu.indycar.streamer;
 
 import iu.edu.indycar.streamer.exceptions.NotParsableException;
-import iu.edu.indycar.streamer.records.EntryRecord;
-import iu.edu.indycar.streamer.records.IndycarRecord;
-import iu.edu.indycar.streamer.records.TelemetryRecord;
-import iu.edu.indycar.streamer.records.WeatherRecord;
+import iu.edu.indycar.streamer.records.*;
+import iu.edu.indycar.streamer.records.parsers.CompletedLapRecordParser;
 import iu.edu.indycar.streamer.records.parsers.EntryRecordParser;
 import iu.edu.indycar.streamer.records.parsers.TelemetryRecordParser;
 import iu.edu.indycar.streamer.records.parsers.WeatherRecordParser;
@@ -29,6 +27,7 @@ public class RecordStreamer {
     private RecordListener<WeatherRecord> weatherRecordListener;
     private RecordListener<TelemetryRecord> telemetryRecordListener;
     private RecordListener<EntryRecord> entryRecordRecordListener;
+    private RecordListener<CompleteLapRecord> completeLapRecordRecordListener;
 
     private File file;
     private boolean realTiming;
@@ -72,6 +71,10 @@ public class RecordStreamer {
         this.entryRecordRecordListener = entryRecordRecordListener;
     }
 
+    public void setCompleteLapRecordRecordListener(RecordListener<CompleteLapRecord> completeLapRecordRecordListener) {
+        this.completeLapRecordRecordListener = completeLapRecordRecordListener;
+    }
+
     public void start() {
         new Thread(() -> {
             try {
@@ -112,6 +115,8 @@ public class RecordStreamer {
             this.weatherRecordListener.onRecord((WeatherRecord) indycarRecord);
         } else if (this.entryRecordRecordListener != null && indycarRecord instanceof EntryRecord) {
             this.entryRecordRecordListener.onRecord((EntryRecord) indycarRecord);
+        } else if (this.completeLapRecordRecordListener != null && indycarRecord instanceof CompleteLapRecord) {
+            this.completeLapRecordRecordListener.onRecord((CompleteLapRecord) indycarRecord);
         }
     }
 
@@ -130,6 +135,7 @@ public class RecordStreamer {
         TelemetryRecordParser telemetryRecordParser = new TelemetryRecordParser("�");
         WeatherRecordParser weatherRecordParser = new WeatherRecordParser("�");
         EntryRecordParser entryRecordParser = new EntryRecordParser("�");
+        CompletedLapRecordParser completedLapRecordParser = new CompletedLapRecordParser("�");
 
         while (line != null) {
             try {
@@ -142,6 +148,8 @@ public class RecordStreamer {
                     record = weatherRecordParser.parse(line);
                 } else if (line.startsWith("$E")) {
                     record = entryRecordParser.parse(line);
+                } else if (line.startsWith("$C")) {
+                    record = completedLapRecordParser.parse(line);
                 }
                 if (record != null && this.recordAcceptPolicies.getOrDefault(
                         record.getClass(), DefaultRecordAcceptPolicy.getInstance()).evaluate(record)) {
@@ -151,7 +159,6 @@ public class RecordStreamer {
                 if (e.isLog()) {
                     LOG.warn("Couldn't parse a record", e);
                 }
-                //couldn't parse
             } finally {
                 line = br.readLine();
             }
