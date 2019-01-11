@@ -108,6 +108,8 @@ export default class TrackComponent extends React.Component {
         this.cars = {};
 
         this.pastRecords = {};
+
+        this.realTimeStamp = {};
     }
 
     componentDidMount() {
@@ -189,19 +191,19 @@ export default class TrackComponent extends React.Component {
         let startLine = this.draw.rect(20 * scale, longStraightWay.width).fill(pattern).move(this.path.pointAt(0).x - 20 * scale/*x2 + 20 * scale*/, longStraightWay.width / 2/*y1 - (longStraightWay.width / 2) */);
 
 
-        let trackOffsets = [-1.5, 1.5, 5];
-        let index = 0;
-        CarInformationService.getCarList().then(response => {
-            response.data.forEach(carNumber => {
-                console.log(`img/cars/car_${('' + carNumber).padStart(2, '0')}.png`)
-                this.addCar(`img/cars/car_${('' + carNumber).padStart(2, '0')}.png`, trackOffsets[index++], carNumber);
-                if (index === 3) {
-                    index = 0;
-                }
-            })
-        });
-
-        window.addCar = this.addCar;
+        // let trackOffsets = [-1.5, 1.5, 5];
+        // let index = 0;
+        // CarInformationService.getCarList().then(response => {
+        //     response.data.forEach(carNumber => {
+        //         console.log(`img/cars/car_${('' + carNumber).padStart(2, '0')}.png`)
+        //         this.addCar(`img/cars/car_${('' + carNumber).padStart(2, '0')}.png`, trackOffsets[index++], carNumber);
+        //         if (index === 3) {
+        //             index = 0;
+        //         }
+        //     })
+        // });
+        //
+        // window.addCar = this.addCar;
 
 
         //this.addCar(car2, 11000, 1.8, 2);
@@ -242,6 +244,10 @@ export default class TrackComponent extends React.Component {
     animateCar = (carNumber, carContainer, car, newRecord, cb) => {
         if (!this.pastRecords[carNumber]) {
             this.pastRecords[carNumber] = newRecord;
+            cb();
+            return;
+        } else if (Date.now() - newRecord.time - this.realTimeStamp[carNumber] > 100) {
+            //skip frame
             cb();
             return;
         }
@@ -286,6 +292,7 @@ export default class TrackComponent extends React.Component {
                 car.rotate(angle);
             }).after(() => {
             this.pastRecords[carNumber] = newRecord;
+            console.log("Animation Completed");
             cb();
         });
 
@@ -308,18 +315,18 @@ export default class TrackComponent extends React.Component {
         //     console.log(carNumber, "finished one lap");
         // });
 
-        CarInformationService.getCarLapTimes(carNumber).then(response => {
-            let lapTimes = response.data;
-            let startIndex = 0;
-
-            let animationCallback = () => {
-                if (startIndex < lapTimes.length) {
-                    this.animateLap(carContainer, car, carNumber, lapTimes[startIndex].lap_num, lapTimes[startIndex].lap_time * 500, length, animationCallback);
-                    startIndex++;
-                }
-            };
-            animationCallback();
-        });
+        // CarInformationService.getCarLapTimes(carNumber).then(response => {
+        //     let lapTimes = response.data;
+        //     let startIndex = 0;
+        //
+        //     let animationCallback = () => {
+        //         if (startIndex < lapTimes.length) {
+        //             this.animateLap(carContainer, car, carNumber, lapTimes[startIndex].lap_num, lapTimes[startIndex].lap_time * 500, length, animationCallback);
+        //             startIndex++;
+        //         }
+        //     };
+        //     animationCallback();
+        // });
 
         let frameBuffer = new CBuffer(24 * 5);//buffer 5 seconds, assuming 24 fps
 
@@ -338,6 +345,7 @@ export default class TrackComponent extends React.Component {
         frameBuffer.overflow = (data) => {
             if (firstTime) {
                 firstTime = false;
+                this.realTimeStamp[carNumber] = Date.now() - data.time;
                 animationCallback(data);
             }
         };
