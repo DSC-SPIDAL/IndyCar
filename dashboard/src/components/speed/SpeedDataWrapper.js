@@ -16,23 +16,23 @@ export default class SpeedDataWrapper extends React.Component {
     }
 
     componentDidMount() {
-        CarInformationService.getCarList().then(response => {
-            console.log(response.data);
-            Promise.all(response.data.map(CarInformationService.getCarRank)).then(response => {
-                console.log("R", response);
-            });
-        });
-
-        let currentDistances = {};
-        CarInformationService.subscribeToRankChanges((carDistances) => {
-            currentDistances = carDistances;
-        });
-
-        setInterval(() => {
-            this.setState({
-                carDistances: Object.values(currentDistances)
-            })
-        }, 5000);
+        // CarInformationService.getCarList().then(response => {
+        //     console.log(response.data);
+        //     Promise.all(response.data.map(CarInformationService.getCarRank)).then(response => {
+        //         console.log("R", response);
+        //     });
+        // });
+        //
+        // let currentDistances = {};
+        // CarInformationService.subscribeToRankChanges((carDistances) => {
+        //     currentDistances = carDistances;
+        // });
+        //
+        // setInterval(() => {
+        //     this.setState({
+        //         carDistances: Object.values(currentDistances)
+        //     })
+        // }, 5000);
     }
 
     render() {

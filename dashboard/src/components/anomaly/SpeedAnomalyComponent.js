@@ -27,8 +27,6 @@ export default class SpeedAnomalyComponent extends React.Component {
     }
 
     onReceiveChartData = (data) => {
-        console.log("Received data", data);
-
         let chartData = this.state.chartData;
 
         let speedData = chartData.speedData;

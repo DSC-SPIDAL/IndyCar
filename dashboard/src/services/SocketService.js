@@ -27,6 +27,10 @@ export class SocketService {
 
         this.socket.on('connect', () => {
             console.log("Connected to server", this.socket);
+            this.socket.on("reload", () => {
+                console.log("Reloading page in 5 seconds...");
+                setTimeout(window.location.reload, 5000);
+            });
             CarInformationService.init(this);
             cb();
         });

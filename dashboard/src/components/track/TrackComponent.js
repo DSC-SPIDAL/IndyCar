@@ -110,18 +110,29 @@ export default class TrackComponent extends React.Component {
         this.pastRecords = {};
 
         this.realTimeStamp = {};
+
+        this.lastE = Date.now();
+
+        this.bufferSize = 1000;
     }
 
     componentDidMount() {
+        console.log("Track component mounting...");
         this.drawTrack(this.trackWrapper);
         this.socketService.subscribe("position", this.positionEventReceiver);
     }
 
     componentWillUnmount() {
+        console.log("Track Component Un-mounting...");
         this.socketService.unsubscribe("position", this.positionEventReceiver);
+        this.cars = {};
+        this.pastRecords = {};
+        this.realTimeStamp = {};
     }
 
     positionEventReceiver = (e) => {
+        //console.error("Event received", 1000 / (Date.now() - this.lastE));
+        //this.lastE = Date.now();
         this.positionCars(e);
     };
 
@@ -246,7 +257,7 @@ export default class TrackComponent extends React.Component {
             this.pastRecords[carNumber] = newRecord;
             cb();
             return;
-        } else if (Date.now() - newRecord.time - this.realTimeStamp[carNumber] > 100) {
+        } else if (this.cars[carNumber].length > this.bufferSize / 10 && Date.now() - newRecord.time - this.realTimeStamp[carNumber] > 100) {//drop only if buffer has enough data
             //skip frame
             cb();
             return;
@@ -292,7 +303,6 @@ export default class TrackComponent extends React.Component {
                 car.rotate(angle);
             }).after(() => {
             this.pastRecords[carNumber] = newRecord;
-            console.log("Animation Completed");
             cb();
         });
 
@@ -328,7 +338,7 @@ export default class TrackComponent extends React.Component {
         //     animationCallback();
         // });
 
-        let frameBuffer = new CBuffer(24 * 5);//buffer 5 seconds, assuming 24 fps
+        let frameBuffer = new CBuffer(this.bufferSize);//buffer 5 seconds, assuming 24 fps
 
         let firstTime = true;
 
@@ -337,12 +347,14 @@ export default class TrackComponent extends React.Component {
                 this.animateCar(carNumber, carContainer, car, data, animationCallback);
             } else {
                 //could be because it has run out of buffer
+                console.log("No records in buffer", carNumber);
                 firstTime = true;
             }
         };
 
         //wait till overflow to start
         frameBuffer.overflow = (data) => {
+            console.log("Buffer overflow", carNumber);
             if (firstTime) {
                 firstTime = false;
                 this.realTimeStamp[carNumber] = Date.now() - data.time;

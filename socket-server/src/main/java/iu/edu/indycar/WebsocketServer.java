@@ -1,23 +1,25 @@
 package iu.edu.indycar;
 
+import iu.edu.indycar.tmp.RecordPublisher;
 import org.eclipse.paho.client.mqttv3.MqttException;
-
-import java.util.concurrent.ForkJoinPool;
-import java.util.concurrent.ForkJoinTask;
-import java.util.concurrent.RecursiveTask;
 
 public class WebsocketServer {
 
     public static void main(String[] args) throws MqttException {
 
 
-        ServerBoot serverBoot = new ServerBoot("localhost", 9092);
-        MQTTAnomalyListener mqttAnomalyListener = new MQTTAnomalyListener(serverBoot);
-        PositionStreamer positionStreamer = new PositionStreamer(serverBoot);
+        ServerBoot serverBoot = new ServerBoot("0.0.0.0", 5000);
+
+        RecordPublisher recordPublisher = new RecordPublisher();
+        recordPublisher.connectToBroker();
+
+        MQTTTelemetryListener mqttAnomalyListener = new MQTTTelemetryListener(serverBoot);
+        PositionStreamer positionStreamer = new PositionStreamer(serverBoot, recordPublisher);
 
         serverBoot.start();
-        //mqttAnomalyListener.start();
-        positionStreamer.start();
+        String filePath = args.length == 0 ? "/home/chathura/Downloads/indy_data/IPBroadcaster_Input_2018-05-27_0.log" : args[0];
+        positionStreamer.start(filePath);
+        mqttAnomalyListener.start();
 //
 //    TimerTask tt = new TimerTask() {
 //      @Override

@@ -6,13 +6,13 @@ import com.corundumstudio.socketio.SocketIOServer;
 import iu.edu.indycar.models.AnomalyMessage;
 import iu.edu.indycar.models.CarPositionMessage;
 import iu.edu.indycar.models.JoinRoomMessage;
+import iu.edu.indycar.streamer.records.CompleteLapRecord;
 import iu.edu.indycar.streamer.records.EntryRecord;
 import iu.edu.indycar.streamer.records.WeatherRecord;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.util.HashSet;
-import java.util.Set;
+import java.util.*;
 
 public class ServerBoot {
 
@@ -28,6 +28,8 @@ public class ServerBoot {
 
     //initial set of entries for newly connected clients
     private Set<EntryRecord> entryRecordSet = new HashSet<>();
+
+    private HashMap<String, List<CompleteLapRecord>> lapRecords = new HashMap<>();
 
     public ServerBoot(String host, int port) {
 
@@ -45,7 +47,7 @@ public class ServerBoot {
 
     public void publishAnomalyEvent(AnomalyMessage anomalyMessage) {
         String room = anomalyMessage.getCarNumber() + anomalyMessage.getAnomalyType();
-        LOG.info("Sending event to room {}", room);
+        //LOG.info("Sending event to room {}", room);
         this.server.getRoomOperations(room).sendEvent("anomaly", anomalyMessage);
     }
 
@@ -65,6 +67,18 @@ public class ServerBoot {
         }
     }
 
+    public void publishCompletedLapRecord(CompleteLapRecord completeLapRecord) {
+        lapRecords.computeIfAbsent(
+                completeLapRecord.getCarNumber(),
+                (s) -> new ArrayList<>()
+        ).add(completeLapRecord);
+        this.server.getBroadcastOperations().sendEvent("lap-record", completeLapRecord);
+    }
+
+    public void sendReloadEvent() {
+        this.server.getBroadcastOperations().sendEvent("reload");
+    }
+
     public void start() {
 
         server.addConnectListener(socketIOClient -> {
@@ -79,6 +93,9 @@ public class ServerBoot {
                 LOG.info("Sending initial entries to {}", socketIOClient.getRemoteAddress().toString());
                 socketIOClient.sendEvent("entries", this.entryRecordSet);
             }
+
+            //broadcast lap records
+            socketIOClient.sendEvent("lap-records", this.lapRecords);
         });
 
         server.addDisconnectListener(socketIOClient ->
