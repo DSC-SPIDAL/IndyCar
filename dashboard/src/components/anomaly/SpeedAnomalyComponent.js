@@ -12,7 +12,8 @@ export default class SpeedAnomalyComponent extends React.Component {
                 speedData: [],
                 anomalyData: [],
                 labels: []
-            }
+            },
+            windowSize: 100
         };
 
         this.anamolySubscriber = new AnomalySubscriber();
@@ -31,15 +32,15 @@ export default class SpeedAnomalyComponent extends React.Component {
 
         let speedData = chartData.speedData;
         speedData.push(data.rawData);
-        speedData.length > 300 && speedData.splice(0, speedData.length - 300);
+        speedData.length > this.state.windowSize && speedData.splice(0, speedData.length - this.state.windowSize);
 
         let anomalyData = chartData.anomalyData;
         anomalyData.push(parseFloat(data.anomaly));
-        anomalyData.length > 300 && anomalyData.splice(0, anomalyData.length - 300);
+        anomalyData.length > this.state.windowSize && anomalyData.splice(0, anomalyData.length - this.state.windowSize);
 
         let labels = chartData.labels;
         labels.push(data.index);
-        labels.length > 300 && labels.splice(0, labels.length - 300);
+        labels.length > this.state.windowSize && labels.splice(0, labels.length - this.state.windowSize);
 
         this.needChartUpdate = true;
     };
@@ -56,7 +57,7 @@ export default class SpeedAnomalyComponent extends React.Component {
                 this.chart.chartInstance.update();
                 this.needChartUpdate = false;
             }
-        }, 500);
+        }, 1000 / 60);//24 frames per second
     }
 
     componentWillUnmount() {
@@ -83,7 +84,7 @@ export default class SpeedAnomalyComponent extends React.Component {
                         fill: false,
                         borderColor: "#1565C0",
                         backgroundColor: "#1565C0",
-                        borderWidth: 1,
+                        borderWidth: 3,
                         pointRadius: 0
                     }, {
                         label: "Anomaly",
@@ -92,7 +93,7 @@ export default class SpeedAnomalyComponent extends React.Component {
                         fill: false,
                         borderColor: "#c62828",
                         backgroundColor: "#c62828",
-                        borderWidth: 1,
+                        borderWidth: 3,
                         pointRadius: 0,
                         steppedLine: true
                     }],
@@ -103,7 +104,7 @@ export default class SpeedAnomalyComponent extends React.Component {
                     scales: {
                         xAxes: [{
                             ticks: {
-                                display: false
+                                display: true
                             }
                         }],
                         yAxes: [{

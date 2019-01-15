@@ -86,7 +86,7 @@ public class MQTTTelemetryListener {
                     }
 
                     AnomalyMessage speedAnomaly = new AnomalyMessage();
-                    speedAnomaly.setIndex(0);
+                    speedAnomaly.setIndex(timeOfDayLong);
                     speedAnomaly.setAnomalyType("SPEED");
                     speedAnomaly.setCarNumber(carNumberInt);
                     speedAnomaly.setRawData(Double.valueOf(jsonObject.getString("vehicleSpeed")));
@@ -94,14 +94,14 @@ public class MQTTTelemetryListener {
 
 
                     AnomalyMessage throttleAnomaly = new AnomalyMessage();
-                    throttleAnomaly.setIndex(0);
+                    throttleAnomaly.setIndex(timeOfDayLong);
                     throttleAnomaly.setAnomalyType("THROTTLE");
                     throttleAnomaly.setCarNumber(carNumberInt);
                     throttleAnomaly.setRawData(Double.valueOf(jsonObject.getString("throttle")));
                     throttleAnomaly.setAnomaly(jsonObject.getDouble("throttleAnomaly"));
 
                     AnomalyMessage rpmAnomaly = new AnomalyMessage();
-                    rpmAnomaly.setIndex(0);
+                    rpmAnomaly.setIndex(timeOfDayLong);
                     rpmAnomaly.setAnomalyType("RPM");
                     rpmAnomaly.setCarNumber(carNumberInt);
                     rpmAnomaly.setRawData(Double.valueOf(jsonObject.getString("engineSpeed")));

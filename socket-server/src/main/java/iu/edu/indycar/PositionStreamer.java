@@ -2,7 +2,6 @@ package iu.edu.indycar;
 
 import iu.edu.indycar.models.CarPositionMessage;
 import iu.edu.indycar.streamer.RecordStreamer;
-import iu.edu.indycar.streamer.TimeUtils;
 import iu.edu.indycar.streamer.records.TelemetryRecord;
 import iu.edu.indycar.streamer.records.policy.AbstractRecordAcceptPolicy;
 import iu.edu.indycar.tmp.RecordPublisher;

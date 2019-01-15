@@ -3,7 +3,7 @@ package iu.edu.indycar.models;
 public class AnomalyMessage {
 
   private int carNumber;
-  private int index;
+  private long index;
   private double anomaly;
   private double rawData;
   private String anomalyType;
@@ -32,11 +32,11 @@ public class AnomalyMessage {
     this.carNumber = carNumber;
   }
 
-  public int getIndex() {
+  public long getIndex() {
     return index;
   }
 
-  public void setIndex(int index) {
+  public void setIndex(long index) {
     this.index = index;
   }
 

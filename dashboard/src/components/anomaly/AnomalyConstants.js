@@ -1,4 +1,8 @@
 export const ANOMALY_METRIC = {
+    RPM: {
+        id: "RPM",
+        text: "RPM"
+    },
     SPEED: {
         id: "SPEED",
         text: "Speed"
@@ -6,9 +10,5 @@ export const ANOMALY_METRIC = {
     THROTTLE: {
         id: "THROTTLE",
         text: "Throttle"
-    },
-    RPM: {
-        id: "RPM",
-        text: "RPM"
-    },
+    }
 };

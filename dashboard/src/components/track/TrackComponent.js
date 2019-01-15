@@ -221,37 +221,6 @@ export default class TrackComponent extends React.Component {
         //this.addCar(car3, 13000, 3.6, 3);
     };
 
-    animateLap = (carContainer, car, carNumber, lapNumber, animationTime, length, callback) => {
-        carContainer.animate(animationTime).during((pos, morph, eased) => {
-            let p = this.path.pointAt(eased * length);
-            carContainer.center(p.x, p.y);
-
-            //distance travelled
-            let distance = length * pos;
-            //handling car rotation at arcs and long runways
-            let angle;
-            if (distance < twoToOne) {
-                angle = 180;
-            } else if (distance < oneToEight) {
-                angle = 180 - (distance - twoToOne) / scalledTurnArc * 90;
-            } else if (distance < eightToSeven) {
-                angle = 90;
-            } else if (distance < sevenToSix) {
-                angle = 90 - (distance - eightToSeven) / scalledTurnArc * 90;
-            } else if (distance < sixToFive) {
-                angle = 0;
-            } else if (distance < fiveToFour) {
-                angle = (distance - sixToFive) / scalledTurnArc * -90;
-            } else if (distance < fourToThree) {
-                angle = 270;
-            } else if (distance < threeToTwo) {
-                angle = 270 + (distance - fourToThree) / scalledTurnArc * -90;
-            }
-            car.rotate(angle);
-            CarInformationService.reportDistance(carNumber, distance + (lapNumber - 1) * length, lapNumber);
-        }).after(callback);
-    };
-
     animateCar = (carNumber, carContainer, car, newRecord, cb) => {
         if (!this.pastRecords[carNumber]) {
             this.pastRecords[carNumber] = newRecord;
@@ -267,10 +236,21 @@ export default class TrackComponent extends React.Component {
         let deltaDistance = (newRecord.distance - pastRecord.distance) * scale;
         let deltaTime = newRecord.time - pastRecord.time;
 
+
         if (deltaDistance < 0) {
             //sometimes recorded distance is larger than totalTrack length
             deltaDistance = ((this.path.length() / scale) - pastRecord.distance + newRecord.distance) * scale;
         }
+
+        if (window.debugCar === carNumber) {
+            console.log("Delta distance", deltaDistance, "in time", deltaTime, pastRecord, newRecord);
+        }
+
+        //lagging fix
+        // if (deltaDistance === 0 && deltaTime === 0) {
+        //     cb();
+        //     return;
+        // }
 
         carContainer
             .animate(deltaTime)
@@ -354,7 +334,6 @@ export default class TrackComponent extends React.Component {
 
         //wait till overflow to start
         frameBuffer.overflow = (data) => {
-            console.log("Buffer overflow", carNumber);
             if (firstTime) {
                 firstTime = false;
                 this.realTimeStamp[carNumber] = Date.now() - data.time;
