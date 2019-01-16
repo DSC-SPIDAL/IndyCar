@@ -79,6 +79,12 @@ public class ServerBoot {
         this.server.getBroadcastOperations().sendEvent("reload");
     }
 
+    public void reset() {
+        this.lastWeatherRecord = null;
+        this.entryRecordSet = new HashSet<>();
+        this.lapRecords = new HashMap<>();
+    }
+
     public void start() {
 
         server.addConnectListener(socketIOClient -> {
@@ -120,46 +126,7 @@ public class ServerBoot {
                     ackRequest.sendAckData();
                 }
         );
-//    final Random random = new Random();
-//
-//    final AtomicInteger atomicInteger = new AtomicInteger(0);
-//
-//    File file = new File("/home/chathura/Downloads/indy_data/IPBroadcaster_Input_2018-05-16_0.log");
-//
-//    RecordStreamer recordStreamer = new RecordStreamer(
-//            file, true, 1, s -> s.split("_")[2]);
-//
-//    recordStreamer.setTelemetryRecordListener(telemetryRecord -> {
-//      if (telemetryRecord.getCarNumber().equals("10")) {
-//        AnomalyMessage anomalyMessage = new AnomalyMessage();
-//        anomalyMessage.setCarNumber(9);
-//        anomalyMessage.setAnomaly(random.nextDouble());
-//        anomalyMessage.setRawData(Double.valueOf(telemetryRecord.getVehicleSpeed()));
-//        anomalyMessage.setIndex(atomicInteger.incrementAndGet());
-//        server.getBroadcastOperations().sendEvent("anomaly", anomalyMessage);
-//      }
-//    });
-//
-//    recordStreamer.addRecordAcceptPolicy(TelemetryRecord.class,
-//            new AbstractRecordAcceptPolicy<TelemetryRecord>() {
-//
-//              HashMap<String, Boolean> metFirstNonZero = new HashMap<>();
-//
-//              @Override
-//              public boolean evaluate(TelemetryRecord record) {
-//                if (metFirstNonZero.getOrDefault(record.getCarNumber(), false)) {
-//                  return true;
-//                } else if (Double.valueOf(record.getVehicleSpeed()) > 10) {
-//                  metFirstNonZero.put(record.getCarNumber(), true);
-//                  return true;
-//                }
-//                return false;
-//              }
-//            });
-//
-//    System.out.println("Starting record streamer...");
-//
-//    //recordStreamer.start();
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOG.info("Stopping Server");
             server.stop();

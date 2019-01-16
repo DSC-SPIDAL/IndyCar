@@ -3,8 +3,6 @@ package iu.edu.indycar;
 import iu.edu.indycar.models.AnomalyMessage;
 import iu.edu.indycar.models.CarPositionMessage;
 import iu.edu.indycar.streamer.TimeUtils;
-import iu.edu.indycar.streamer.records.TelemetryRecord;
-import iu.edu.indycar.streamer.records.parsers.TelemetryRecordParser;
 import iu.edu.indycar.tmp.RecordWriter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -25,7 +23,7 @@ public class MQTTTelemetryListener {
 
     private final long rate = 1000 / 60;// fps
 
-    private long lastPublishedTime = 0;
+    private long lastRecordTime = 0;
 
     private final CarPositionMessage carPositionMessage = new CarPositionMessage();
 
@@ -40,6 +38,11 @@ public class MQTTTelemetryListener {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    public void reset() {
+        this.carPositionMessage.clear();
+        this.lastRecordTime = 0;
     }
 
     public void start() throws MqttException {
@@ -68,21 +71,21 @@ public class MQTTTelemetryListener {
                     String carNumber = jsonObject.getString("carNumber");
                     int carNumberInt = Integer.parseInt(carNumber);
 
+                    carPositionMessage.recordPosition(
+                            carNumber,
+                            jsonObject.getDouble("lapDistance"),
+                            timeOfDayLong,
+                            timeOfDayLong - lastTimes.getOrDefault(
+                                    carNumber, timeOfDayLong
+                            )
+                    );
+                    carPositionMessage.incrementSequence();
 
-                    if (System.currentTimeMillis() - lastPublishedTime >= rate) {
-                        carPositionMessage.recordPosition(
-                                carNumber,
-                                jsonObject.getDouble("lapDistance"),
-                                timeOfDayLong,
-                                timeOfDayLong - lastTimes.getOrDefault(
-                                        carNumber, timeOfDayLong
-                                )
-                        );
+                    lastTimes.put(carNumber, timeOfDayLong);
 
-                        carPositionMessage.incrementSequence();
+                    if (System.currentTimeMillis() - lastRecordTime >= rate) {
                         serverBoot.publishPositionEvent(carPositionMessage);
-                        lastPublishedTime = System.currentTimeMillis();
-                        lastTimes.put(carNumber, timeOfDayLong);
+                        lastRecordTime = System.currentTimeMillis();
                     }
 
                     AnomalyMessage speedAnomaly = new AnomalyMessage();
@@ -111,7 +114,7 @@ public class MQTTTelemetryListener {
                     serverBoot.publishAnomalyEvent(throttleAnomaly);
                     serverBoot.publishAnomalyEvent(rpmAnomaly);
 
-                    recordWriter.write(jsonObject.getString("UUID"));
+                    //recordWriter.write(jsonObject.getString("UUID"));
                 } catch (Exception ex) {
                     System.out.println("Skipping record due to " + ex.getMessage());
                 }
