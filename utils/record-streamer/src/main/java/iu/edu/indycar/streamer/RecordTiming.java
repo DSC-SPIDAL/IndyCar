@@ -9,15 +9,24 @@ import java.util.concurrent.TimeUnit;
 public class RecordTiming implements Runnable {
 
     private final int speed;
+    private final StreamEndListener streamEndListener;
     private long lastRecordTime = -1;
     private long lastRecordSubmittedTime = -1;
 
     private BlockingQueue<IndycarRecord> queue = new LinkedBlockingQueue<>();
     private RecordListener<IndycarRecord> recordListener;
 
-    public RecordTiming(String tag, RecordListener<IndycarRecord> recordListener, int speed) {
+    private boolean run = true;
+
+    private int idleCounter = 0;
+
+    public RecordTiming(String tag,
+                        RecordListener<IndycarRecord> recordListener,
+                        int speed,
+                        StreamEndListener streamEndListener) {
         this.recordListener = recordListener;
         this.speed = speed;
+        this.streamEndListener = streamEndListener;
         new Thread(this, tag).start();
     }
 
@@ -51,12 +60,21 @@ public class RecordTiming implements Runnable {
         this.setLastRecordSubmittedTime(System.currentTimeMillis());
     }
 
+    public void stop() {
+        this.run = false;
+    }
+
     @Override
     public void run() {
-        while (true) {
+        while (this.run) {
             try {
                 IndycarRecord indycarRecord = this.queue.poll(1, TimeUnit.MINUTES);
                 if (indycarRecord == null) {
+                    this.idleCounter++;
+                    if (this.idleCounter == 5) {
+                        this.streamEndListener.onStreamEnd();
+                        break;
+                    }
                     continue;
                 }
                 long now = System.currentTimeMillis();

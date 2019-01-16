@@ -17,8 +17,9 @@ import java.io.FileReader;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
-public class RecordStreamer {
+public class RecordStreamer implements StreamEndListener {
 
     private final static Logger LOG = LogManager.getLogger(RecordStreamer.class);
 
@@ -29,6 +30,8 @@ public class RecordStreamer {
     private RecordListener<EntryRecord> entryRecordRecordListener;
     private RecordListener<CompleteLapRecord> completeLapRecordRecordListener;
 
+    private StreamEndListener streamEndListener;
+
     private File file;
     private boolean realTiming;
     private int speed = 1;
@@ -37,10 +40,14 @@ public class RecordStreamer {
 
     private FileNameDateExtractor dateExtractor;
 
+    private boolean run = true;
+
     private ConcurrentHashMap<String, RecordTiming> records = new ConcurrentHashMap<>();
 
     private HashMap<Class<? extends IndycarRecord>,
             AbstractRecordAcceptPolicy> recordAcceptPolicies = new HashMap<>();
+
+    private AtomicInteger timersCount = new AtomicInteger(0);
 
     public RecordStreamer(File file, boolean realTiming, FileNameDateExtractor dateExtractor) {
         this.file = file;
@@ -75,6 +82,10 @@ public class RecordStreamer {
         this.completeLapRecordRecordListener = completeLapRecordRecordListener;
     }
 
+    public void setStreamEndListener(StreamEndListener streamEndListener) {
+        this.streamEndListener = streamEndListener;
+    }
+
     public void start() {
         new Thread(() -> {
             try {
@@ -85,16 +96,24 @@ public class RecordStreamer {
         }, "file-reader").start();
     }
 
+    public void stop() {
+        this.run = false;
+        this.records.forEachValue(10, RecordTiming::stop);
+    }
+
     private void queueEvent(IndycarRecord indycarRecord) {
         if (!realTiming || !indycarRecord.isTimeSensitive()) {
             this.publishEvent(indycarRecord);
         } else {
             try {
+                if (!this.records.containsKey(indycarRecord.getGroupTag())) {
+                    this.timersCount.incrementAndGet();
+                }
                 this.records.computeIfAbsent(indycarRecord.getGroupTag(),
                         (s) -> new RecordTiming(
                                 indycarRecord.getGroupTag(),
                                 this::publishEvent,
-                                this.speed)
+                                this.speed, this)
                 ).enqueue(indycarRecord);
             } catch (InterruptedException e) {
                 e.printStackTrace();
@@ -137,7 +156,7 @@ public class RecordStreamer {
         EntryRecordParser entryRecordParser = new EntryRecordParser("�");
         CompletedLapRecordParser completedLapRecordParser = new CompletedLapRecordParser("�");
 
-        while (line != null) {
+        while (line != null && this.run) {
             try {
                 IndycarRecord record = null;
                 if (line.startsWith("$P")) {
@@ -166,5 +185,15 @@ public class RecordStreamer {
         br.close();
         this.fileEnded = true;
         System.out.println("End of File : " + file.getName());
+    }
+
+    @Override
+    public void onStreamEnd(String tag) {
+        if (this.timersCount.decrementAndGet() == 0) {
+            if (this.streamEndListener != null) {
+                this.streamEndListener.onStreamEnd();
+            }
+            this.stop();
+        }
     }
 }

@@ -13,7 +13,7 @@ public class StreamerTest {
         File file = new File("/home/chathura/Downloads/indy_data/IPBroadcaster_Input_2018-05-27_0.log");
 
         RecordStreamer recordStreamer = new RecordStreamer(
-                file, true, 1, s -> s.split("_")[2]);
+                file, true, 100000, s -> s.split("_")[2]);
 
         recordStreamer.setTelemetryRecordListener(record -> {
 
@@ -37,7 +37,7 @@ public class StreamerTest {
         });
 
         recordStreamer.setCompleteLapRecordRecordListener(cr -> {
-            System.out.println(cr.getCarNumber() + "," + cr.getRank() + "," + cr.getElapsedTime());
+            //System.out.println(cr.getCarNumber() + "," + cr.getRank() + "," + cr.getElapsedTime());
         });
 
         recordStreamer.addRecordAcceptPolicy(CompleteLapRecord.class, new AbstractRecordAcceptPolicy<CompleteLapRecord>() {
@@ -45,6 +45,10 @@ public class StreamerTest {
             public boolean evaluate(CompleteLapRecord record) {
                 return record.getElapsedTime() != 0;
             }
+        });
+
+        recordStreamer.setStreamEndListener(tag -> {
+            System.out.println("End of stream");
         });
 
 
