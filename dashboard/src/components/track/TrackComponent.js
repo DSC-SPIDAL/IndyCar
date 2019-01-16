@@ -318,7 +318,7 @@ export default class TrackComponent extends React.Component {
         //     animationCallback();
         // });
 
-        let frameBuffer = new CBuffer(this.bufferSize);//buffer 5 seconds, assuming 24 fps
+        let frameBuffer = new CBuffer(this.bufferSize);
 
         let firstTime = true;
 

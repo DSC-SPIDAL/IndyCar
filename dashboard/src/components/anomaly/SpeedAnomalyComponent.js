@@ -87,7 +87,7 @@ export default class SpeedAnomalyComponent extends React.Component {
                         borderWidth: 3,
                         pointRadius: 0
                     }, {
-                        label: "Anomaly",
+                        label: "Anomaly Score",
                         yAxisID: "Anomaly",
                         data: this.state.chartData.anomalyData,
                         fill: false,
@@ -105,6 +105,10 @@ export default class SpeedAnomalyComponent extends React.Component {
                         xAxes: [{
                             ticks: {
                                 display: true
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Time of Day (ms)"
                             }
                         }],
                         yAxes: [{
@@ -113,6 +117,10 @@ export default class SpeedAnomalyComponent extends React.Component {
                             position: 'left',
                             ticks: {
                                 min: 0
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: this.props.metric
                             }
                         }, {
                             id: 'Anomaly',
@@ -121,6 +129,10 @@ export default class SpeedAnomalyComponent extends React.Component {
                             ticks: {
                                 max: 1,
                                 min: 0
+                            },
+                            scaleLabel: {
+                                display: true,
+                                labelString: "Anomaly Score"
                             }
                         }]
                     }

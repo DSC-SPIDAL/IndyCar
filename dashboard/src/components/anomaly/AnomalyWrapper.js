@@ -34,6 +34,7 @@ export default class AnomalyWrapper extends React.Component {
         return (
             <div className="ic-section ic-anomaly-wrapper">
                 <Card>
+                    <h5>Anomaly Scores</h5>
                     <div className="ic-anomaly-selection">
                         <label className="pt-label">
                             Car
