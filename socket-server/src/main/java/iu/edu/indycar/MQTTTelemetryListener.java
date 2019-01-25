@@ -17,7 +17,7 @@ public class MQTTTelemetryListener {
     private final static Logger LOG = LogManager.getLogger(MQTTTelemetryListener.class);
 
     private static final String CONNECTION_URL = "tcp://j-093.juliet.futuresystems.org:61613";
-    private static final String SUBSCRIPTION = "streaming_output";
+    private final String topic;
     private static final String USERNAME = "admin";
     private static final String PASSWORD = "xyi5b2YUcw8CHhAE";
 
@@ -31,10 +31,17 @@ public class MQTTTelemetryListener {
 
     private RecordWriter recordWriter;
 
-    public MQTTTelemetryListener(ServerBoot serverBoot) {
+    private int rests = 0;//keeps number of rests
+
+    public MQTTTelemetryListener(ServerBoot serverBoot, String subscription) {
         this.serverBoot = serverBoot;
+        this.topic = subscription;
+        this.initRecordWriter();
+    }
+
+    private void initRecordWriter() {
         try {
-            this.recordWriter = new RecordWriter("/tmp/records_out");
+            this.recordWriter = new RecordWriter("/tmp/records_out_" + rests++);
         } catch (IOException e) {
             e.printStackTrace();
         }
@@ -43,6 +50,8 @@ public class MQTTTelemetryListener {
     public void reset() {
         this.carPositionMessage.clear();
         this.lastRecordTime = 0;
+        this.recordWriter.close();
+        this.initRecordWriter();
     }
 
     public void start() throws MqttException {
@@ -71,9 +80,11 @@ public class MQTTTelemetryListener {
                     String carNumber = jsonObject.getString("carNumber");
                     int carNumberInt = Integer.parseInt(carNumber);
 
+                    double lapDistance = jsonObject.getDouble("lapDistance");
+
                     carPositionMessage.recordPosition(
                             carNumber,
-                            jsonObject.getDouble("lapDistance"),
+                            lapDistance,
                             timeOfDayLong,
                             timeOfDayLong - lastTimes.getOrDefault(
                                     carNumber, timeOfDayLong
@@ -88,11 +99,15 @@ public class MQTTTelemetryListener {
                         lastRecordTime = System.currentTimeMillis();
                     }
 
+                    double vehicleSpeed = Double.valueOf(jsonObject.getString("vehicleSpeed"));
+                    double throttle = Double.valueOf(jsonObject.getString("throttle"));
+                    double rpm = Double.valueOf(jsonObject.getString("engineSpeed"));
+
                     AnomalyMessage speedAnomaly = new AnomalyMessage();
                     speedAnomaly.setIndex(timeOfDayLong);
                     speedAnomaly.setAnomalyType("SPEED");
                     speedAnomaly.setCarNumber(carNumberInt);
-                    speedAnomaly.setRawData(Double.valueOf(jsonObject.getString("vehicleSpeed")));
+                    speedAnomaly.setRawData(vehicleSpeed);
                     speedAnomaly.setAnomaly(jsonObject.getDouble("vehicleSpeedAnomaly"));
 
 
@@ -100,23 +115,39 @@ public class MQTTTelemetryListener {
                     throttleAnomaly.setIndex(timeOfDayLong);
                     throttleAnomaly.setAnomalyType("THROTTLE");
                     throttleAnomaly.setCarNumber(carNumberInt);
-                    throttleAnomaly.setRawData(Double.valueOf(jsonObject.getString("throttle")));
+                    throttleAnomaly.setRawData(throttle);
                     throttleAnomaly.setAnomaly(jsonObject.getDouble("throttleAnomaly"));
 
                     AnomalyMessage rpmAnomaly = new AnomalyMessage();
                     rpmAnomaly.setIndex(timeOfDayLong);
                     rpmAnomaly.setAnomalyType("RPM");
                     rpmAnomaly.setCarNumber(carNumberInt);
-                    rpmAnomaly.setRawData(Double.valueOf(jsonObject.getString("engineSpeed")));
+                    rpmAnomaly.setRawData(rpm);
                     rpmAnomaly.setAnomaly(jsonObject.getDouble("engineSpeedAnomaly"));
 
                     serverBoot.publishAnomalyEvent(speedAnomaly);
                     serverBoot.publishAnomalyEvent(throttleAnomaly);
                     serverBoot.publishAnomalyEvent(rpmAnomaly);
 
-                    //recordWriter.write(jsonObject.getString("UUID"));
+                    String counter = jsonObject.getString("UUID");
+
+                    try {
+                        counter = counter.split("_")[1];
+                    } catch (Exception e) {
+                        LOG.error("Failed to parse counter", e);
+                    }
+
+                    recordWriter.write(
+                            carNumber,
+                            counter,
+                            lapDistance,
+                            timeOfDay,
+                            vehicleSpeed,
+                            rpm,
+                            throttle
+                    );
                 } catch (Exception ex) {
-                    System.out.println("Skipping record due to " + ex.getMessage());
+                    LOG.error("Skipping a record from pub/sub", ex);
                 }
                 //LOG.info("Message arrived {} : {}", s, new String(mqttMessage.getPayload()));
             }
@@ -128,7 +159,7 @@ public class MQTTTelemetryListener {
         });
         client.connect(connOpts);
 
-        client.subscribe(SUBSCRIPTION);
+        client.subscribe(topic);
     }
 
     private static MqttConnectOptions setUpConnectionOptions(String username, String password) {

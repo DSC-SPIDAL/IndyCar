@@ -39,7 +39,7 @@ public class WebsocketServer {
         RecordPublisher recordPublisher = new RecordPublisher();
         recordPublisher.connectToBroker();
 
-        MQTTTelemetryListener mqttAnomalyListener = new MQTTTelemetryListener(serverBoot);
+        MQTTTelemetryListener mqttAnomalyListener = new MQTTTelemetryListener(serverBoot, "streaming_output");
         serverBoot.start();
         mqttAnomalyListener.start();
         startPositionStreamer(serverBoot, recordPublisher, mqttAnomalyListener, filePath);

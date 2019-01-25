@@ -13,7 +13,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class PositionStreamer {
 
@@ -28,21 +28,31 @@ public class PositionStreamer {
 
     private HashMap<String, Boolean> foundFirstNonZero = new HashMap<>();
 
-    private HashMap<String, AtomicInteger> carCounter = new HashMap<>();
+    private HashMap<String, AtomicLong> carCounter = new HashMap<>();
+
+    private static int resets = 0;
 
     public PositionStreamer(ServerBoot serverBoot,
                             RecordPublisher recordPublisher,
                             StreamEndListener streamEndListener) {
         this.serverBoot = serverBoot;
         this.recordPublisher = recordPublisher;
-        this.streamEndlistener = streamEndListener;
+
+        this.streamEndlistener = s -> {
+            this.stop();
+            streamEndListener.onStreamEnd();
+        };
+
         try {
-            this.recordWriter = new RecordWriter("/tmp/records_in");
+            this.recordWriter = new RecordWriter("/tmp/records_in_" + resets++);
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
+    public void stop() {
+        this.recordWriter.close();
+    }
 
     public void start(String filePath) {
         RecordStreamer recordStreamer = new RecordStreamer(
@@ -67,10 +77,10 @@ public class PositionStreamer {
 
         recordStreamer.setTelemetryRecordListener(telemetryRecord -> {
 
-            AtomicInteger atomicInteger = carCounter.computeIfAbsent(
-                    telemetryRecord.getCarNumber(), (s) -> new AtomicInteger());
+            AtomicLong atomicInteger = carCounter.computeIfAbsent(
+                    telemetryRecord.getCarNumber(), (s) -> new AtomicLong());
             try {
-                int counter = atomicInteger.getAndIncrement();
+                long counter = atomicInteger.getAndIncrement();
                 this.recordPublisher.publishRecord(telemetryRecord.getCarNumber(),
                         String.format("%f,%f,%f,%d,%f,%s",
                                 telemetryRecord.getVehicleSpeed(),
@@ -80,9 +90,19 @@ public class PositionStreamer {
                                 telemetryRecord.getLapDistance(),
                                 "5/27/18 " + telemetryRecord.getTimeOfDay()
                         ));
-                //this.recordWriter.write(telemetryRecord.getCarNumber() + "_" + counter);
+                this.recordWriter.write(
+                        telemetryRecord.getCarNumber(),
+                        String.valueOf(counter),
+                        telemetryRecord.getLapDistance(),
+                        telemetryRecord.getTimeOfDay(),
+                        telemetryRecord.getVehicleSpeed(),
+                        telemetryRecord.getEngineSpeed(),
+                        telemetryRecord.getThrottle()
+                );
             } catch (MqttException e) {
-                e.printStackTrace();
+                LOG.error("Error occurred when publishing telemetry data", e);
+            } catch (IOException e) {
+                LOG.error("Error in writing to CSV logs", e);
             }
         });
 

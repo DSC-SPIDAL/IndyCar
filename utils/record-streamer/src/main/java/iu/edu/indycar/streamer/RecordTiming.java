@@ -20,6 +20,8 @@ public class RecordTiming implements Runnable {
 
     private int idleCounter = 0;
 
+    private final String tag;
+
     public RecordTiming(String tag,
                         RecordListener<IndycarRecord> recordListener,
                         int speed,
@@ -27,6 +29,7 @@ public class RecordTiming implements Runnable {
         this.recordListener = recordListener;
         this.speed = speed;
         this.streamEndListener = streamEndListener;
+        this.tag = tag;
         new Thread(this, tag).start();
     }
 
@@ -71,11 +74,13 @@ public class RecordTiming implements Runnable {
                 IndycarRecord indycarRecord = this.queue.poll(1, TimeUnit.MINUTES);
                 if (indycarRecord == null) {
                     this.idleCounter++;
-                    if (this.idleCounter == 5) {
-                        this.streamEndListener.onStreamEnd();
+                    if (this.idleCounter == 2) {
+                        this.streamEndListener.onStreamEnd(this.tag);
                         break;
                     }
                     continue;
+                } else {
+                    this.idleCounter = 0;
                 }
                 long now = System.currentTimeMillis();
 

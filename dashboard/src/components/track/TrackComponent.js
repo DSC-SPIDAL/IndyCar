@@ -247,10 +247,11 @@ export default class TrackComponent extends React.Component {
         }
 
         //lagging fix
-        // if (deltaDistance === 0 && deltaTime === 0) {
-        //     cb();
-        //     return;
-        // }
+        if (deltaDistance === 0 && deltaTime === 0) {
+            console.log("Recturn");
+            cb();
+            return;
+        }
 
         carContainer
             .animate(deltaTime)

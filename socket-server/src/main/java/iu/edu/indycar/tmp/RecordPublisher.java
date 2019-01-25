@@ -1,8 +1,12 @@
 package iu.edu.indycar.tmp;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.*;
 
 public class RecordPublisher implements MqttCallback {
+
+    private final Logger LOG = LogManager.getLogger(RecordPublisher.client);
 
     private static MqttClient client;
 
@@ -16,6 +20,7 @@ public class RecordPublisher implements MqttCallback {
         conn.setCleanSession(true);
         conn.setConnectionTimeout(30);
         conn.setKeepAliveInterval(30);
+        conn.setMaxInflight(1000);
         conn.setUserName("admin");
         conn.setPassword("xyi5b2YUcw8CHhAE".toCharArray());
 
@@ -31,7 +36,8 @@ public class RecordPublisher implements MqttCallback {
     public void publishRecord(String carNumber, String record) throws MqttException {
         MqttMessage mqttMessage = new MqttMessage();
         mqttMessage.setPayload(record.getBytes());
-        mqttMessage.setQos(2);
+        mqttMessage.setQos(0);
+        LOG.info("Publishing {} to {}", record, carNumber);
         client.publish(carNumber, mqttMessage);
     }
 

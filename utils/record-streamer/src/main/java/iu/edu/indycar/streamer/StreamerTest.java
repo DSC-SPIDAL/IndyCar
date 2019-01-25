@@ -16,7 +16,6 @@ public class StreamerTest {
                 file, true, 100000, s -> s.split("_")[2]);
 
         recordStreamer.setTelemetryRecordListener(record -> {
-
             //System.out.println(record.getCarNumber() + ":" + record.getVehicleSpeed());
 //      System.out.println(record.getCarNumber());
 //      System.out.println(record.getTimeOfDay());
@@ -64,7 +63,7 @@ public class StreamerTest {
                     public boolean evaluate(TelemetryRecord record) {
                         if (metFirstNonZero.getOrDefault(record.getCarNumber(), false)) {
                             return true;
-                        } else if (Double.valueOf(record.getVehicleSpeed()) > 10) {
+                        } else if (record.getVehicleSpeed() > 10) {
                             metFirstNonZero.put(record.getCarNumber(), true);
                             return true;
                         }

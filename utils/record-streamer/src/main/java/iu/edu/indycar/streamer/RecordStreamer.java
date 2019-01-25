@@ -97,6 +97,7 @@ public class RecordStreamer implements StreamEndListener {
     }
 
     public void stop() {
+        LOG.info("Stopping record streamer...");
         this.run = false;
         this.records.forEachValue(10, RecordTiming::stop);
     }
@@ -184,12 +185,14 @@ public class RecordStreamer implements StreamEndListener {
         }
         br.close();
         this.fileEnded = true;
-        System.out.println("End of File : " + file.getName());
+        LOG.info("End of File : {}", file.getName());
     }
 
     @Override
     public void onStreamEnd(String tag) {
-        if (this.timersCount.decrementAndGet() == 0) {
+        LOG.info("Stream ended for {}. Streams left : {}", tag, this.timersCount.get());
+        if (this.timersCount.decrementAndGet() == 5) {
+            LOG.info("All streams ended");
             if (this.streamEndListener != null) {
                 this.streamEndListener.onStreamEnd();
             }
