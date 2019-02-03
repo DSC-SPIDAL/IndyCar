@@ -3,9 +3,9 @@ package iu.edu.indycar;
 //todo move to a config file
 public class ServerConstants {
 
-    public static final String CONNECTION_URL = "tcp://j-093.juliet.futuresystems.org:61613";
+    public static final String CONNECTION_URL = "";
     public static final String USERNAME = "admin";
-    public static final String PASSWORD = "xyi5b2YUcw8CHhAE";
+    public static final String PASSWORD = "";
 
     public static final String ANOMALY_TOPIC = "streaming_output";
 
