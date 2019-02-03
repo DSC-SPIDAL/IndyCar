@@ -4,8 +4,13 @@ public class CarPositionRecord {
 
     private double distance;
     private double time;
-    private long deltaTime = 0;
-    private double deltaDistance = 0;
+    private String carNumber;
+
+    public CarPositionRecord(double distance, double time, String carNumber) {
+        this.distance = distance;
+        this.time = time;
+        this.carNumber = carNumber;
+    }
 
     public double getDistance() {
         return distance;
@@ -15,20 +20,12 @@ public class CarPositionRecord {
         this.distance = distance;
     }
 
-    public long getDeltaTime() {
-        return deltaTime;
+    public String getCarNumber() {
+        return carNumber;
     }
 
-    public void setDeltaTime(long deltaTime) {
-        this.deltaTime = deltaTime;
-    }
-
-    public double getDeltaDistance() {
-        return deltaDistance;
-    }
-
-    public void setDeltaDistance(double deltaDistance) {
-        this.deltaDistance = deltaDistance;
+    public void setCarNumber(String carNumber) {
+        this.carNumber = carNumber;
     }
 
     public double getTime() {
@@ -37,13 +34,5 @@ public class CarPositionRecord {
 
     public void setTime(double time) {
         this.time = time;
-    }
-
-    @Override
-    public String toString() {
-        return "CarPositionRecord{" +
-                "distance=" + distance +
-                ", deltaTime=" + deltaTime +
-                '}';
     }
 }

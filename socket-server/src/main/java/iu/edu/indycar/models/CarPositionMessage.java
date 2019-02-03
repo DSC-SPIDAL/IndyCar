@@ -19,12 +19,19 @@ public class CarPositionMessage extends HashMap<String, CarPositionRecord> {
         this.sequenceNumber = 0;
     }
 
-    public void recordPosition(String carNumber, double distance, long time, long deltaTime) {
+    public synchronized void recordPosition(String carNumber, double distance, long time) {
         CarPositionRecord carPositionRecord = this.computeIfAbsent(
-                carNumber, cp -> new CarPositionRecord());
+                carNumber, cp -> new CarPositionRecord(distance, time, carNumber));
         carPositionRecord.setDistance(distance);
         carPositionRecord.setTime(time);
-        carPositionRecord.setDeltaTime(deltaTime);
-        carPositionRecord.setDeltaDistance(distance - carPositionRecord.getDistance());
+        //carPositionRecord.setDeltaTime(deltaTime);
+        //carPositionRecord.setDeltaDistance(distance - carPositionRecord.getDistance());
+    }
+
+    public synchronized CarPositionMessage buildMessage() {
+        CarPositionMessage carPositionMessage = new CarPositionMessage();
+        carPositionMessage.putAll(this);
+        this.clear();
+        return carPositionMessage;
     }
 }

@@ -4,7 +4,7 @@ import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketConfig;
 import com.corundumstudio.socketio.SocketIOServer;
 import iu.edu.indycar.models.AnomalyMessage;
-import iu.edu.indycar.models.CarPositionMessage;
+import iu.edu.indycar.models.CarPositionRecord;
 import iu.edu.indycar.models.JoinRoomMessage;
 import iu.edu.indycar.streamer.records.CompleteLapRecord;
 import iu.edu.indycar.streamer.records.EntryRecord;
@@ -39,6 +39,7 @@ public class ServerBoot {
 
         SocketConfig socketConfig = new SocketConfig();
         socketConfig.setReuseAddress(true);
+        socketConfig.setTcpNoDelay(true);
 
         config.setSocketConfig(socketConfig);
 
@@ -51,8 +52,8 @@ public class ServerBoot {
         this.server.getRoomOperations(room).sendEvent("anomaly", anomalyMessage);
     }
 
-    public void publishPositionEvent(CarPositionMessage carPositionMessage) {
-        this.server.getBroadcastOperations().sendEvent("position", carPositionMessage);
+    public void publishPositionEvent(CarPositionRecord carPositionRecord) {
+        this.server.getBroadcastOperations().sendEvent("position", carPositionRecord);
     }
 
     public void publishWeatherEvent(WeatherRecord weatherRecord) {

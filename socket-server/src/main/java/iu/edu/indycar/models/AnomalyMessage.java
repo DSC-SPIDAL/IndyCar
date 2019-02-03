@@ -2,49 +2,58 @@ package iu.edu.indycar.models;
 
 public class AnomalyMessage {
 
-  private int carNumber;
-  private long index;
-  private double anomaly;
-  private double rawData;
-  private String anomalyType;
+    private int carNumber;
+    private long index;
+    private double anomaly;
+    private double rawData;
+    private String anomalyType;
+    private String timeOfDayString;
 
-  public String getAnomalyType() {
-    return anomalyType;
-  }
+    public String getTimeOfDayString() {
+        return timeOfDayString;
+    }
 
-  public void setAnomalyType(String anomalyType) {
-    this.anomalyType = anomalyType;
-  }
+    public void setTimeOfDayString(String timeOfDayString) {
+        this.timeOfDayString = timeOfDayString;
+    }
 
-  public double getRawData() {
-    return rawData;
-  }
+    public String getAnomalyType() {
+        return anomalyType;
+    }
 
-  public void setRawData(double rawData) {
-    this.rawData = rawData;
-  }
+    public void setAnomalyType(String anomalyType) {
+        this.anomalyType = anomalyType;
+    }
 
-  public int getCarNumber() {
-    return carNumber;
-  }
+    public double getRawData() {
+        return rawData;
+    }
 
-  public void setCarNumber(int carNumber) {
-    this.carNumber = carNumber;
-  }
+    public void setRawData(double rawData) {
+        this.rawData = rawData;
+    }
 
-  public long getIndex() {
-    return index;
-  }
+    public int getCarNumber() {
+        return carNumber;
+    }
 
-  public void setIndex(long index) {
-    this.index = index;
-  }
+    public void setCarNumber(int carNumber) {
+        this.carNumber = carNumber;
+    }
 
-  public double getAnomaly() {
-    return anomaly;
-  }
+    public long getIndex() {
+        return index;
+    }
 
-  public void setAnomaly(double anomaly) {
-    this.anomaly = anomaly;
-  }
+    public void setIndex(long index) {
+        this.index = index;
+    }
+
+    public double getAnomaly() {
+        return anomaly;
+    }
+
+    public void setAnomaly(double anomaly) {
+        this.anomaly = anomaly;
+    }
 }

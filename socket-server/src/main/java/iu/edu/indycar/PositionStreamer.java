@@ -4,6 +4,7 @@ import iu.edu.indycar.streamer.RecordStreamer;
 import iu.edu.indycar.streamer.StreamEndListener;
 import iu.edu.indycar.streamer.records.TelemetryRecord;
 import iu.edu.indycar.streamer.records.policy.AbstractRecordAcceptPolicy;
+import iu.edu.indycar.tmp.LatencyCalculator;
 import iu.edu.indycar.tmp.RecordPublisher;
 import iu.edu.indycar.tmp.RecordWriter;
 import org.apache.logging.log4j.LogManager;
@@ -90,19 +91,18 @@ public class PositionStreamer {
                                 telemetryRecord.getLapDistance(),
                                 "5/27/18 " + telemetryRecord.getTimeOfDay()
                         ));
-                this.recordWriter.write(
-                        telemetryRecord.getCarNumber(),
-                        String.valueOf(counter),
-                        telemetryRecord.getLapDistance(),
-                        telemetryRecord.getTimeOfDay(),
-                        telemetryRecord.getVehicleSpeed(),
-                        telemetryRecord.getEngineSpeed(),
-                        telemetryRecord.getThrottle()
-                );
+                LatencyCalculator.addSent(telemetryRecord.getCarNumber() + "_" + counter);
+//                this.recordWriter.write(
+//                        telemetryRecord.getCarNumber(),
+//                        String.valueOf(counter),
+//                        telemetryRecord.getLapDistance(),
+//                        telemetryRecord.getTimeOfDay(),
+//                        telemetryRecord.getVehicleSpeed(),
+//                        telemetryRecord.getEngineSpeed(),
+//                        telemetryRecord.getThrottle()
+//                );
             } catch (MqttException e) {
                 LOG.error("Error occurred when publishing telemetry data", e);
-            } catch (IOException e) {
-                LOG.error("Error in writing to CSV logs", e);
             }
         });
 

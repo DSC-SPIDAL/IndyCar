@@ -1,5 +1,6 @@
 package iu.edu.indycar.tmp;
 
+import iu.edu.indycar.ServerConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.*;
@@ -21,11 +22,14 @@ public class RecordPublisher implements MqttCallback {
         conn.setConnectionTimeout(30);
         conn.setKeepAliveInterval(30);
         conn.setMaxInflight(1000);
-        conn.setUserName("admin");
-        conn.setPassword("xyi5b2YUcw8CHhAE".toCharArray());
+        conn.setUserName(ServerConstants.USERNAME);
+        conn.setPassword(ServerConstants.PASSWORD.toCharArray());
 
         try {
-            client = new MqttClient("tcp://j-093.juliet.futuresystems.org:61613", MqttClient.generateClientId());
+            client = new MqttClient(
+                    ServerConstants.CONNECTION_URL,
+                    MqttClient.generateClientId()
+            );
             client.setCallback(this);
             client.connect(conn);
         } catch (MqttException m) {
