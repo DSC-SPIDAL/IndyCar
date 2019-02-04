@@ -9,9 +9,11 @@ import iu.edu.indycar.models.JoinRoomMessage;
 import iu.edu.indycar.streamer.records.CompleteLapRecord;
 import iu.edu.indycar.streamer.records.EntryRecord;
 import iu.edu.indycar.streamer.records.WeatherRecord;
+import iu.edu.indycar.tmp.PingLatency;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.net.SocketAddress;
 import java.util.*;
 
 public class ServerBoot {
@@ -31,6 +33,12 @@ public class ServerBoot {
 
     private HashMap<String, List<CompleteLapRecord>> lapRecords = new HashMap<>();
 
+    private TimerTask pingTask;
+    private Timer timer = new Timer();
+    private long lastPingTime = 0;
+
+    private HashMap<SocketAddress, PingLatency> latency = new HashMap<>();
+
     public ServerBoot(String host, int port) {
 
         Configuration config = new Configuration();
@@ -39,11 +47,18 @@ public class ServerBoot {
 
         SocketConfig socketConfig = new SocketConfig();
         socketConfig.setReuseAddress(true);
-        socketConfig.setTcpNoDelay(true);
+        socketConfig.setTcpNoDelay(false);
 
         config.setSocketConfig(socketConfig);
 
         this.server = new SocketIOServer(config);
+        this.pingTask = new TimerTask() {
+            @Override
+            public void run() {
+                server.getBroadcastOperations().sendEvent("ping", "");
+                latency.values().forEach(PingLatency::pingSent);
+            }
+        };
     }
 
     public void publishAnomalyEvent(AnomalyMessage anomalyMessage) {
@@ -53,6 +68,7 @@ public class ServerBoot {
     }
 
     public void publishPositionEvent(CarPositionRecord carPositionRecord) {
+        carPositionRecord.setSentTime(System.currentTimeMillis());
         this.server.getBroadcastOperations().sendEvent("position", carPositionRecord);
     }
 
@@ -84,6 +100,7 @@ public class ServerBoot {
         this.lastWeatherRecord = null;
         this.entryRecordSet = new HashSet<>();
         this.lapRecords = new HashMap<>();
+        this.pingTask.cancel();
     }
 
     public void start() {
@@ -103,10 +120,17 @@ public class ServerBoot {
 
             //broadcast lap records
             socketIOClient.sendEvent("lap-records", this.lapRecords);
+
+            latency.put(
+                    socketIOClient.getRemoteAddress(),
+                    new PingLatency(socketIOClient.getRemoteAddress().toString())
+            );
         });
 
-        server.addDisconnectListener(socketIOClient ->
-                LOG.info("Client {} disconnected", socketIOClient.getRemoteAddress()));
+        server.addDisconnectListener(socketIOClient -> {
+            LOG.info("Client {} disconnected", socketIOClient.getRemoteAddress());
+            latency.remove(socketIOClient.getRemoteAddress());
+        });
 
         server.addEventListener(
                 EVENT_SUB, JoinRoomMessage.class,
@@ -128,6 +152,16 @@ public class ServerBoot {
                 }
         );
 
+
+        server.addEventListener("pongi", String.class,
+                (socketIOClient, message, ackRequest) -> {
+                    PingLatency pingLatency = latency.get(socketIOClient.getRemoteAddress());
+                    if (pingLatency != null) {
+                        pingLatency.pongReceived();
+                    }
+                }
+        );
+
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOG.info("Stopping Server");
             server.stop();
@@ -135,5 +169,6 @@ public class ServerBoot {
 
         LOG.info("Starting server...");
         server.start();
+        timer.schedule(this.pingTask, 0, 1000);
     }
 }

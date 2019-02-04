@@ -63,18 +63,21 @@ public class PositionStreamer {
                 s -> s.split("_")[2]
         );
 
-        recordStreamer.addRecordAcceptPolicy(TelemetryRecord.class, new AbstractRecordAcceptPolicy<TelemetryRecord>() {
-            @Override
-            public boolean evaluate(TelemetryRecord indycarRecord) {
-                if (foundFirstNonZero.containsKey(indycarRecord.getCarNumber())) {
-                    return true;
-                } else if (indycarRecord.getLapDistance() != 0) {
-                    foundFirstNonZero.put(indycarRecord.getCarNumber(), true);
-                    return true;
+        recordStreamer.addRecordAcceptPolicy(
+                TelemetryRecord.class,
+                new AbstractRecordAcceptPolicy<TelemetryRecord>() {
+                    @Override
+                    public boolean evaluate(TelemetryRecord indycarRecord) {
+                        if (foundFirstNonZero.containsKey(indycarRecord.getCarNumber())) {
+                            return true;
+                        } else if (indycarRecord.getLapDistance() != 0) {
+                            foundFirstNonZero.put(indycarRecord.getCarNumber(), true);
+                            return true;
+                        }
+                        return false;
+                    }
                 }
-                return false;
-            }
-        });
+        );
 
         recordStreamer.setTelemetryRecordListener(telemetryRecord -> {
 

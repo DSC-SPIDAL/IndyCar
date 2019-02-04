@@ -1,9 +1,9 @@
 package iu.edu.indycar;
 
 import iu.edu.indycar.models.AnomalyMessage;
-import iu.edu.indycar.models.CarPositionMessage;
 import iu.edu.indycar.models.CarPositionRecord;
 import iu.edu.indycar.streamer.TimeUtils;
+import iu.edu.indycar.tmp.LatencyCalculator;
 import iu.edu.indycar.tmp.RecordWriter;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -17,10 +17,6 @@ public class MQTTTelemetryListener {
     private final static Logger LOG = LogManager.getLogger(MQTTTelemetryListener.class);
 
     private final String topic;
-
-    private long lastRecordTime = 0;
-
-    private final CarPositionMessage carPositionMessage = new CarPositionMessage();
 
     private ServerBoot serverBoot;
 
@@ -43,14 +39,19 @@ public class MQTTTelemetryListener {
     }
 
     public void reset() {
-        this.lastRecordTime = 0;
         this.recordWriter.close();
         this.initRecordWriter();
     }
 
     public void start() throws MqttException {
-        MqttClient client = new MqttClient(ServerConstants.CONNECTION_URL, MqttClient.generateClientId());
-        MqttConnectOptions connOpts = setUpConnectionOptions(ServerConstants.USERNAME, ServerConstants.PASSWORD);
+        MqttClient client = new MqttClient(
+                ServerConstants.CONNECTION_URL,
+                MqttClient.generateClientId()
+        );
+        MqttConnectOptions connOpts = setUpConnectionOptions(
+                ServerConstants.USERNAME,
+                ServerConstants.PASSWORD
+        );
 
         client.setCallback(new MqttCallback() {
 
@@ -68,6 +69,10 @@ public class MQTTTelemetryListener {
                     //System.out.println("Received " + csv);
 
                     JSONObject jsonObject = new JSONObject(csv);
+
+                    String counter = jsonObject.getString("UUID");
+
+                    LatencyCalculator.addRecv(counter);
 
                     String timeOfDay = jsonObject.getString("timeOfDay");
                     long timeOfDayLong = TimeUtils.convertTimestampToLong(timeOfDay);
@@ -113,8 +118,6 @@ public class MQTTTelemetryListener {
                     serverBoot.publishAnomalyEvent(throttleAnomaly);
                     serverBoot.publishAnomalyEvent(rpmAnomaly);
 
-                    String counter = jsonObject.getString("UUID");
-
 
 //                    recordWriter.write(
 //                            carNumber,
@@ -146,6 +149,7 @@ public class MQTTTelemetryListener {
         connOpts.setCleanSession(true);
         connOpts.setUserName(username);
         connOpts.setPassword(password.toCharArray());
+        connOpts.setAutomaticReconnect(true);
         return connOpts;
     }
 }
