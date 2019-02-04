@@ -54,6 +54,6 @@ public class WebsocketServer {
         );
         serverBoot.start();
         mqttAnomalyListener.start();
-        //startPositionStreamer(serverBoot, recordPublisher, mqttAnomalyListener, filePath);
+        startPositionStreamer(serverBoot, recordPublisher, mqttAnomalyListener, filePath);
     }
 }

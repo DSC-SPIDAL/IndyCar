@@ -264,7 +264,7 @@ export default class TrackComponent extends React.Component {
                 car.rotate(angle);
             }).after(() => {
             this.pastRecords[carNumber] = newRecord;
-            if (carNumber === "20") {
+            if (window.debug && carNumber === "20") {
                 console.log("Completed animation", deltaTime, Date.now() - animationStart);
             }
             cb();

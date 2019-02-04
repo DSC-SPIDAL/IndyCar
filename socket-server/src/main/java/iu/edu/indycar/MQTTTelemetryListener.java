@@ -58,7 +58,13 @@ public class MQTTTelemetryListener {
 
             @Override
             public void connectionLost(Throwable throwable) {
-
+                LOG.error("Telemetry Listener's Connection lost", throwable);
+                try {
+                    LOG.info("Trying to reconnect...");
+                    client.reconnect();
+                } catch (MqttException e) {
+                    LOG.error("Error in reconnecting", e);
+                }
             }
 
             @Override

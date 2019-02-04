@@ -41,14 +41,13 @@ public class RecordPublisher implements MqttCallback {
         MqttMessage mqttMessage = new MqttMessage();
         mqttMessage.setPayload(record.getBytes());
         mqttMessage.setQos(0);
-        LOG.info("Publishing {} to {}", record, carNumber);
+        //LOG.info("Publishing {} to {}", record, carNumber);
         client.publish(carNumber, mqttMessage);
     }
 
     @Override
     public void connectionLost(Throwable cause) {
-        // TODO Auto-generated method stub
-        System.out.println("lost connection...");
+        LOG.error("lost connection to broker...", cause);
     }
 
     @Override

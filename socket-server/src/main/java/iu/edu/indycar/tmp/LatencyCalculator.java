@@ -1,9 +1,14 @@
 package iu.edu.indycar.tmp;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+
 import java.math.BigInteger;
 import java.util.HashMap;
 
 public class LatencyCalculator {
+
+    private final static Logger LOG = LogManager.getLogger(LatencyCalculator.class);
 
     private static HashMap<String, Long> records = new HashMap<>();
 
@@ -21,13 +26,13 @@ public class LatencyCalculator {
             long latency = System.currentTimeMillis() - submittedTime;
             if (latency > maxLatency) {
                 maxLatency = latency;
-                System.out.println("Max Latency : " + maxLatency + "ms");
+                LOG.info("Max Latency : " + maxLatency + "ms");
             }
             totalRecords++;
             totalLatency = totalLatency.add(BigInteger.valueOf(latency));
             if (totalRecords % 10000 == 0) {
-                System.out.println("Max Latency : " + maxLatency + "ms");
-                System.out.println("Average Latency : " + (totalLatency.divide(BigInteger.valueOf(totalRecords))) + "ms");
+                LOG.info("Max Latency : " + maxLatency + "ms");
+                LOG.info("Average Latency : " + (totalLatency.divide(BigInteger.valueOf(totalRecords))) + "ms");
             }
             return true;
         } else {

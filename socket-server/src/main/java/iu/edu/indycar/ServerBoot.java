@@ -35,7 +35,6 @@ public class ServerBoot {
 
     private TimerTask pingTask;
     private Timer timer = new Timer();
-    private long lastPingTime = 0;
 
     private HashMap<SocketAddress, PingLatency> latency = new HashMap<>();
 
@@ -47,7 +46,6 @@ public class ServerBoot {
 
         SocketConfig socketConfig = new SocketConfig();
         socketConfig.setReuseAddress(true);
-        socketConfig.setTcpNoDelay(false);
 
         config.setSocketConfig(socketConfig);
 
