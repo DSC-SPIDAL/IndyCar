@@ -1,7 +1,7 @@
 import React from "react";
 import SpeedDataComponent from "./SpeedDataComponent";
 import "./SpeedDataWrapper.css";
-import CarInformationService from "../../services/CarInformationService";
+import CarInformationService, {CAR_INFO_LISTENER} from "../../services/CarInformationService";
 
 /**
  * @author Chathura Widanage
@@ -11,11 +11,24 @@ export default class SpeedDataWrapper extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            carDistances: []
+            carDistances: [],
+            carsList: {}
         };
     }
 
     componentDidMount() {
+        CarInformationService.addEventListener(CAR_INFO_LISTENER, (info) => {
+            let carsList = this.state.carsList;
+            carsList[info.carNumber] = info;
+            this.setState({
+                carsList
+            })
+        });
+
+        let carsList = CarInformationService.getCarList();
+        this.setState({
+            carsList
+        });
         // CarInformationService.getCarList().then(response => {
         //     console.log(response.data);
         //     Promise.all(response.data.map(CarInformationService.getCarRank)).then(response => {
@@ -37,20 +50,24 @@ export default class SpeedDataWrapper extends React.Component {
 
     render() {
 
-        let sorted = this.state.carDistances.sort((a, b) => {
-            return b.distance - a.distance;
-        });
+        // let sorted = this.state.carDistances.sort((a, b) => {
+        //     return b.distance - a.distance;
+        // });
+        //
+        // if (sorted.length < 3) {
+        //     return null;
+        // }
 
-        if (sorted.length < 3) {
-            return null;
-        }
+        let selectedCars = Object.keys(this.state.carsList);
 
-        let speedDataComponents = sorted.slice(0, 3).map((carDistanceData, index) => {
-            return <SpeedDataComponent carNumber={carDistanceData.carNumber}
-                                       carData={carDistanceData}
-                                       key={index + 1}
+        selectedCars = selectedCars.slice(0, Math.min(3, selectedCars.length));
+
+        let speedDataComponents = []/*selectedCars.map((carNumber, index) => {
+            return <SpeedDataComponent carNumber={carNumber}
+                                       carData={{}}
+                                       key={carNumber}
                                        rank={index + 1}/>
-        });
+        });*/
 
         return (
             <div className="speed-data-wrapper">

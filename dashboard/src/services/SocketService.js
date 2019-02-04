@@ -33,6 +33,11 @@ export class SocketService {
                     window.location.reload(true);
                 }, 5000);
             });
+
+            //for latency calculation
+            this.socket.on('ping', () => {
+                this.send('pongi');
+            });
             CarInformationService.init(this);
             cb();
         });

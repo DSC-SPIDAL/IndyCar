@@ -14,7 +14,8 @@ export default class SpeedDataComponent extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            x: []
+            x: [],
+            carInfo: {}
         };
 
         // for (let i = 0; i < 18; i++) {
@@ -24,20 +25,19 @@ export default class SpeedDataComponent extends React.Component {
 
     updateCarInformation = (props = this.props) => {
         //get car information
-        CarInformationService.getCarInformation(props.carNumber).then(response => {
-            this.setState({
-                ...response.data.entry_info_data
-            });
-        });
+        let carInfo = CarInformationService.getCarInformation(props.carNumber);
+        this.setState({
+            carInfo
+        })
     };
 
     updateSectionTiming(props = this.props) {
-        CarInformationService.getSectionTiming(props.carNumber, props.carData.currentLap).then(response => {
-            let times = response.data.map(sectionTime => 100 / parseFloat(sectionTime.last_section_time.split(":")[2]));
-            this.setState({
-                x: times
-            })
-        });
+        // CarInformationService.getSectionTiming(props.carNumber, props.carData.currentLap).then(response => {
+        //     let times = response.data.map(sectionTime => 100 / parseFloat(sectionTime.last_section_time.split(":")[2]));
+        //     this.setState({
+        //         x: times
+        //     })
+        // });
     }
 
     componentDidMount() {
@@ -70,21 +70,21 @@ export default class SpeedDataComponent extends React.Component {
                         <div className="speed-data-car-info">
                             <div className="speed-data-car-info-middle">
                                 <div className="speed-data-car-info-number">
-                                    {this.state.car_num}
+                                    {this.state.carInfo.carNumber}
                                 </div>
                                 <div className="speed-data-car-info-engine">
-                                    {this.state.engine}
+                                    {this.state.carInfo.engine}
                                 </div>
                             </div>
                         </div>
                         <div className="speed-data-driver-info">
                             <div className="speed-data-driver-info-bio">
-                                <div className='speed-data-driver-name'>{this.state.driver_name}</div>
+                                <div className='speed-data-driver-name'>{this.state.carInfo.driverName}</div>
                                 <div className='speed-data-driver-hometown'>
-                                    <Icon icon="map-marker"/>&nbsp;{this.state.home_town}
+                                    <Icon icon="map-marker"/>&nbsp;{this.state.carInfo.hometown}
                                 </div>
                                 <div className='speed-data-driver-team'>
-                                    <Icon icon="people"/>&nbsp;{this.state.team}
+                                    <Icon icon="people"/>&nbsp;{this.state.carInfo.team}
                                 </div>
                             </div>
                             <div className="speed-data-driver-info-other">
@@ -92,14 +92,15 @@ export default class SpeedDataComponent extends React.Component {
                                     <div>
                                         <Icon icon="id-number"/>
                                     </div>
-                                    <div className="speed-data-driver-info-other-licence">{this.state.license}</div>
+                                    <div
+                                        className="speed-data-driver-info-other-licence">{this.state.carInfo.license}</div>
                                 </div>
                                 <div className="speed-data-driver-info-other-col">
                                     <div>
                                         <Icon icon="drive-time"/>
                                     </div>
                                     <div
-                                        className="speed-data-driver-info-other-competitor-id">{this.state.competitor_identifier}</div>
+                                        className="speed-data-driver-info-other-competitor-id">{this.state.carInfo.uid}</div>
                                 </div>
                                 <div className="speed-data-driver-info-other-col">
                                     <div>

@@ -39,7 +39,7 @@ export default class SpeedAnomalyComponent extends React.Component {
         anomalyData.length > this.state.windowSize && anomalyData.splice(0, anomalyData.length - this.state.windowSize);
 
         let labels = chartData.labels;
-        labels.push(data.index);
+        labels.push(data.timeOfDayString);
         labels.length > this.state.windowSize && labels.splice(0, labels.length - this.state.windowSize);
 
         this.needChartUpdate = true;
@@ -108,7 +108,7 @@ export default class SpeedAnomalyComponent extends React.Component {
                             },
                             scaleLabel: {
                                 display: true,
-                                labelString: "Time of Day (ms)"
+                                labelString: "Time of Day"
                             }
                         }],
                         yAxes: [{

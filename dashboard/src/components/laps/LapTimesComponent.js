@@ -1,7 +1,7 @@
 import React from "react";
 import {Line} from "react-chartjs-2";
-import {Button, Card, Colors, Menu, Popover, Position, Switch} from "@blueprintjs/core";
-import CarInformationService, {CAR_INFO_LISTENER, CAR_LAP_LISTENER} from "../../services/CarInformationService";
+import {Card, Colors} from "@blueprintjs/core";
+import CarInformationService, {CAR_LAP_LISTENER} from "../../services/CarInformationService";
 import "./LapTimesComponent.css";
 
 function getRandomColor() {

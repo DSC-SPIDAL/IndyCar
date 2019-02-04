@@ -113,7 +113,7 @@ export default class TrackComponent extends React.Component {
 
         this.lastE = Date.now();
 
-        this.bufferSize = 1000;
+        this.bufferSize = 10000;
     }
 
     componentDidMount() {
@@ -133,37 +133,22 @@ export default class TrackComponent extends React.Component {
     positionEventReceiver = (e) => {
         //console.error("Event received", 1000 / (Date.now() - this.lastE));
         //this.lastE = Date.now();
+        if (window.debug) {
+            console.log("Event recvd", e);
+        }
+
         this.positionCars(e);
     };
 
-    positionCars = (carPositions) => {
+    positionCars = (carPosition) => {
         let trackOffsets = [-1.5, 1.5, 5];
-        Object.keys(carPositions).forEach(key => {
-            if (!this.cars[key]) {
-                this.cars[key] = this.addCar(`img/cars/car_${('' + key).padStart(2, '0')}.png`, trackOffsets[key % 3], key);
-            }
+        let key = carPosition.carNumber;
+        if (!this.cars[key]) {
+            this.cars[key] = this.addCar(`img/cars/car_${('' + key).padStart(2, '0')}.png`, trackOffsets[key % 3], key);
+        }
 
-            this.cars[key].push(carPositions[key]);
-
-            // if (this.path) {
-            //     let p = this.path.pointAt(carPositions[key].distance * scale);
-            //     this.cars[key].carContainer
-            //         .animate(carPositions[key].distance.deltaTime)
-            //         .center(p.x, p.y)
-            //         .after(cb => {
-            //             console.log(cb);
-            //         });
-            //
-            //     // this.animateLap(
-            //     //     this.cars[key].carContainer,
-            //     //     this.cars[key].car,
-            //     //     key,
-            //     //     0,
-            //     //     1000/60,
-            //     //     carPositions[key].distance
-            //     // )
-            // }
-        });
+        this.cars[key].push(carPosition);
+        this.cars[key].eventAdded(carPosition);
     };
 
     drawTrack = (ref) => {
@@ -200,25 +185,6 @@ export default class TrackComponent extends React.Component {
 
 //start line
         let startLine = this.draw.rect(20 * scale, longStraightWay.width).fill(pattern).move(this.path.pointAt(0).x - 20 * scale/*x2 + 20 * scale*/, longStraightWay.width / 2/*y1 - (longStraightWay.width / 2) */);
-
-
-        // let trackOffsets = [-1.5, 1.5, 5];
-        // let index = 0;
-        // CarInformationService.getCarList().then(response => {
-        //     response.data.forEach(carNumber => {
-        //         console.log(`img/cars/car_${('' + carNumber).padStart(2, '0')}.png`)
-        //         this.addCar(`img/cars/car_${('' + carNumber).padStart(2, '0')}.png`, trackOffsets[index++], carNumber);
-        //         if (index === 3) {
-        //             index = 0;
-        //         }
-        //     })
-        // });
-        //
-        // window.addCar = this.addCar;
-
-
-        //this.addCar(car2, 11000, 1.8, 2);
-        //this.addCar(car3, 13000, 3.6, 3);
     };
 
     animateCar = (carNumber, carContainer, car, newRecord, cb) => {
@@ -228,14 +194,17 @@ export default class TrackComponent extends React.Component {
             return;
         } else if (this.cars[carNumber].length > this.bufferSize / 10 && Date.now() - newRecord.time - this.realTimeStamp[carNumber] > 100) {//drop only if buffer has enough data
             //skip frame
+            //console.log("Drop frame");
             cb();
             return;
         }
+        let diffOfActualTime = Math.max(0, Date.now() - newRecord.time - this.realTimeStamp[carNumber]);
+
         let pastRecord = this.pastRecords[carNumber];
         let distanceFromStart = pastRecord.distance * scale;
         let deltaDistance = (newRecord.distance - pastRecord.distance) * scale;
-        let deltaTime = newRecord.time - pastRecord.time;
-
+        let deltaTime = Math.max(1, newRecord.time - pastRecord.time - diffOfActualTime);
+        //console.log("Diff", diffOfActualTime, deltaTime);
 
         if (deltaDistance < 0) {
             //sometimes recorded distance is larger than totalTrack length
@@ -248,15 +217,26 @@ export default class TrackComponent extends React.Component {
 
         //lagging fix
         if (deltaDistance === 0 && deltaTime === 0) {
-            console.log("Recturn");
             cb();
             return;
         }
 
+        let animationStart = Date.now();
+
+        let ended = false;
         carContainer
             .animate(deltaTime)
             .during((pos, morph, eased) => {
-                let distance = distanceFromStart + (eased * deltaDistance);
+                // if (ended) {
+                //     return;
+                // }
+                // if (Date.now() - newRecord.time - this.realTimeStamp[carNumber] > 500) {
+                //     console.log("Bad", carNumber, Date.now() - newRecord.time - this.realTimeStamp[carNumber], eased, pos, deltaTime, Date.now() - animationStart, Date.now() - newRecord.time, this.realTimeStamp[carNumber]);
+                //     ended = true;
+                //     pos = 1;
+                // }
+
+                let distance = distanceFromStart + (pos * deltaDistance);
                 if (distance >= (this.path.length())) {
                     distance = distance - (this.path.length());
                 }
@@ -284,12 +264,18 @@ export default class TrackComponent extends React.Component {
                 car.rotate(angle);
             }).after(() => {
             this.pastRecords[carNumber] = newRecord;
+            if (carNumber === "20") {
+                console.log("Completed animation", deltaTime, Date.now() - animationStart);
+            }
             cb();
         });
 
     };
 
     addCar = (image, trackOffset = 1.8, carNumber) => {
+        // if (carNumber !== "20") {
+        //     return;
+        // }
         let length = this.path.length();
         let carContainer = this.draw.group();
         let car = carContainer.image(image).size(4.8 * carScale, 1.8 * carScale);
@@ -322,6 +308,7 @@ export default class TrackComponent extends React.Component {
         let frameBuffer = new CBuffer(this.bufferSize);
 
         let firstTime = true;
+        let excessCount = 0;
 
         let animationCallback = (data = frameBuffer.shift()) => {
             if (data) {
@@ -330,15 +317,30 @@ export default class TrackComponent extends React.Component {
                 //could be because it has run out of buffer
                 console.log("No records in buffer", carNumber);
                 firstTime = true;
+                excessCount = 0;
             }
         };
 
         //wait till overflow to start
+        // frameBuffer.overflow = (data) => {
+        //     if (firstTime) {
+        //         firstTime = false;
+        //         this.realTimeStamp[carNumber] = Date.now() - data.time;
+        //         animationCallback(data);
+        //     }
+        // };
         frameBuffer.overflow = (data) => {
-            if (firstTime) {
-                firstTime = false;
+            console.log("DROPPED DUE TO BUFFER OVERFLOW");
+        };
+
+        frameBuffer.eventAdded = (data) => {
+            excessCount++;
+            if (!this.realTimeStamp[carNumber]) {
                 this.realTimeStamp[carNumber] = Date.now() - data.time;
-                animationCallback(data);
+            }
+            if (firstTime && excessCount === 10) {
+                firstTime = false;
+                animationCallback();
             }
         };
 
