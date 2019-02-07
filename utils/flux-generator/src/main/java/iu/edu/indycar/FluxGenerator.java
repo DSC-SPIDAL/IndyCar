@@ -92,7 +92,7 @@ public class FluxGenerator {
         for (int i = 0; i < NO_OF_CARS; i++) {
             bolts.append(("  - id: \"sink-#NO\"\n" +
                     "    className: \"com.dsc.iu.stream.app.Sink\"\n" +
-                    "    parallelism: 1\n"+ "\tconstructorArgs:\n" +
+                    "    parallelism: 1\n"+ "    constructorArgs:\n" +
             "      - \"#NO\"\n\n").replace("#NO", Integer.toString(i + 1)));
 
             spouts.append(
