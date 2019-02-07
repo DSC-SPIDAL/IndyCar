@@ -59,19 +59,19 @@ public class FluxGenerator {
             "     \n" +
             "  - name: \"RPMBolt-#NO --> sink\"\n" +
             "    from: \"RPMBolt-#NO\"\n" +
-            "    to: \"sink\"\n" +
+            "    to: \"sink-#NO\"\n" +
             "    grouping:\n" +
             "      type: SHUFFLE\n" +
             "      \n" +
             "  - name: \"SpeedBolt-#NO --> sink\"\n" +
             "    from: \"SpeedBolt-#NO\"\n" +
-            "    to: \"sink\"\n" +
+            "    to: \"sink-#NO\"\n" +
             "    grouping:\n" +
             "      type: SHUFFLE\n" +
             "      \n" +
             "  - name: \"ThrottleBolt-#NO --> sink\"\n" +
             "    from: \"ThrottleBolt-#NO\"\n" +
-            "    to: \"sink\"\n" +
+            "    to: \"sink-#NO\"\n" +
             "    grouping:\n" +
             "      type: SHUFFLE\n\n";
 
@@ -86,12 +86,14 @@ public class FluxGenerator {
 
         StringBuilder spouts = new StringBuilder("spouts:\n");
         StringBuilder bolts = new StringBuilder("bolts:\n");
-        bolts.append("  - id: \"sink\"\n" +
-                "    className: \"com.dsc.iu.stream.app.Sink\"\n" +
-                "    parallelism: 1\n\n");
+
         StringBuilder streams = new StringBuilder("streams:\n");
 
         for (int i = 0; i < NO_OF_CARS; i++) {
+            bolts.append("  - id: \"sink-#NO\"\n" +
+                    "    className: \"com.dsc.iu.stream.app.Sink\"\n" +
+                    "    parallelism: 1\n\n".replace("#NO", Integer.toString(i + 1)));
+
             spouts.append(
                     TEMPLATE_SPOUT.replaceAll("#NO", Integer.toString(i + 1))
             );

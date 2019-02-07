@@ -203,7 +203,7 @@ spouts:
 
 
 bolts:
-  - id: "sink"
+  - id: "sink-#NO"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -234,6 +234,10 @@ bolts:
       - "0"
       - "30"
 
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
+
   - id: "RPMBolt-2"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
     parallelism: 1
@@ -260,6 +264,10 @@ bolts:
       - "throttle"
       - "0"
       - "30"
+
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
 
   - id: "RPMBolt-3"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
@@ -288,6 +296,10 @@ bolts:
       - "0"
       - "30"
 
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
+
   - id: "RPMBolt-4"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
     parallelism: 1
@@ -314,6 +326,10 @@ bolts:
       - "throttle"
       - "0"
       - "30"
+
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
 
   - id: "RPMBolt-5"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
@@ -342,6 +358,10 @@ bolts:
       - "0"
       - "30"
 
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
+
   - id: "RPMBolt-6"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
     parallelism: 1
@@ -368,6 +388,10 @@ bolts:
       - "throttle"
       - "0"
       - "30"
+
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
 
   - id: "RPMBolt-7"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
@@ -396,6 +420,10 @@ bolts:
       - "0"
       - "30"
 
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
+
   - id: "RPMBolt-8"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
     parallelism: 1
@@ -422,6 +450,10 @@ bolts:
       - "throttle"
       - "0"
       - "30"
+
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
 
   - id: "RPMBolt-9"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
@@ -450,6 +482,10 @@ bolts:
       - "0"
       - "30"
 
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
+
   - id: "RPMBolt-10"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
     parallelism: 1
@@ -476,6 +512,10 @@ bolts:
       - "throttle"
       - "0"
       - "30"
+
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
 
   - id: "RPMBolt-11"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
@@ -504,6 +544,10 @@ bolts:
       - "0"
       - "30"
 
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
+
   - id: "RPMBolt-12"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
     parallelism: 1
@@ -530,6 +574,10 @@ bolts:
       - "throttle"
       - "0"
       - "30"
+
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
 
   - id: "RPMBolt-13"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
@@ -558,6 +606,10 @@ bolts:
       - "0"
       - "30"
 
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
+
   - id: "RPMBolt-14"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
     parallelism: 1
@@ -584,6 +636,10 @@ bolts:
       - "throttle"
       - "0"
       - "30"
+
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
 
   - id: "RPMBolt-15"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
@@ -612,6 +668,10 @@ bolts:
       - "0"
       - "30"
 
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
+
   - id: "RPMBolt-16"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
     parallelism: 1
@@ -638,6 +698,10 @@ bolts:
       - "throttle"
       - "0"
       - "30"
+
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
 
   - id: "RPMBolt-17"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
@@ -666,6 +730,10 @@ bolts:
       - "0"
       - "30"
 
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
+
   - id: "RPMBolt-18"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
     parallelism: 1
@@ -692,6 +760,10 @@ bolts:
       - "throttle"
       - "0"
       - "30"
+
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
 
   - id: "RPMBolt-19"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
@@ -720,6 +792,10 @@ bolts:
       - "0"
       - "30"
 
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
+
   - id: "RPMBolt-20"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
     parallelism: 1
@@ -746,6 +822,10 @@ bolts:
       - "throttle"
       - "0"
       - "30"
+
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
 
   - id: "RPMBolt-21"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
@@ -774,6 +854,10 @@ bolts:
       - "0"
       - "30"
 
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
+
   - id: "RPMBolt-22"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
     parallelism: 1
@@ -800,6 +884,10 @@ bolts:
       - "throttle"
       - "0"
       - "30"
+
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
 
   - id: "RPMBolt-23"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
@@ -828,6 +916,10 @@ bolts:
       - "0"
       - "30"
 
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
+
   - id: "RPMBolt-24"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
     parallelism: 1
@@ -854,6 +946,10 @@ bolts:
       - "throttle"
       - "0"
       - "30"
+
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
 
   - id: "RPMBolt-25"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
@@ -882,6 +978,10 @@ bolts:
       - "0"
       - "30"
 
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
+
   - id: "RPMBolt-26"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
     parallelism: 1
@@ -908,6 +1008,10 @@ bolts:
       - "throttle"
       - "0"
       - "30"
+
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
 
   - id: "RPMBolt-27"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
@@ -936,6 +1040,10 @@ bolts:
       - "0"
       - "30"
 
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
+
   - id: "RPMBolt-28"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
     parallelism: 1
@@ -962,6 +1070,10 @@ bolts:
       - "throttle"
       - "0"
       - "30"
+
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
 
   - id: "RPMBolt-29"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
@@ -990,6 +1102,10 @@ bolts:
       - "0"
       - "30"
 
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
+
   - id: "RPMBolt-30"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
     parallelism: 1
@@ -1016,6 +1132,10 @@ bolts:
       - "throttle"
       - "0"
       - "30"
+
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
 
   - id: "RPMBolt-31"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
@@ -1044,6 +1164,10 @@ bolts:
       - "0"
       - "30"
 
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
+
   - id: "RPMBolt-32"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
     parallelism: 1
@@ -1070,6 +1194,10 @@ bolts:
       - "throttle"
       - "0"
       - "30"
+
+  - id: "sink-#NO"
+    className: "com.dsc.iu.stream.app.Sink"
+    parallelism: 1
 
   - id: "RPMBolt-33"
     className: "com.dsc.iu.stream.app.ScalarMetricBolt"
@@ -1120,19 +1248,19 @@ streams:
      
   - name: "RPMBolt-1 --> sink"
     from: "RPMBolt-1"
-    to: "sink"
+    to: "sink-1"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-1 --> sink"
     from: "SpeedBolt-1"
-    to: "sink"
+    to: "sink-1"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-1 --> sink"
     from: "ThrottleBolt-1"
-    to: "sink"
+    to: "sink-1"
     grouping:
       type: SHUFFLE
 
@@ -1156,19 +1284,19 @@ streams:
      
   - name: "RPMBolt-2 --> sink"
     from: "RPMBolt-2"
-    to: "sink"
+    to: "sink-2"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-2 --> sink"
     from: "SpeedBolt-2"
-    to: "sink"
+    to: "sink-2"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-2 --> sink"
     from: "ThrottleBolt-2"
-    to: "sink"
+    to: "sink-2"
     grouping:
       type: SHUFFLE
 
@@ -1192,19 +1320,19 @@ streams:
      
   - name: "RPMBolt-3 --> sink"
     from: "RPMBolt-3"
-    to: "sink"
+    to: "sink-3"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-3 --> sink"
     from: "SpeedBolt-3"
-    to: "sink"
+    to: "sink-3"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-3 --> sink"
     from: "ThrottleBolt-3"
-    to: "sink"
+    to: "sink-3"
     grouping:
       type: SHUFFLE
 
@@ -1228,19 +1356,19 @@ streams:
      
   - name: "RPMBolt-4 --> sink"
     from: "RPMBolt-4"
-    to: "sink"
+    to: "sink-4"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-4 --> sink"
     from: "SpeedBolt-4"
-    to: "sink"
+    to: "sink-4"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-4 --> sink"
     from: "ThrottleBolt-4"
-    to: "sink"
+    to: "sink-4"
     grouping:
       type: SHUFFLE
 
@@ -1264,19 +1392,19 @@ streams:
      
   - name: "RPMBolt-5 --> sink"
     from: "RPMBolt-5"
-    to: "sink"
+    to: "sink-5"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-5 --> sink"
     from: "SpeedBolt-5"
-    to: "sink"
+    to: "sink-5"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-5 --> sink"
     from: "ThrottleBolt-5"
-    to: "sink"
+    to: "sink-5"
     grouping:
       type: SHUFFLE
 
@@ -1300,19 +1428,19 @@ streams:
      
   - name: "RPMBolt-6 --> sink"
     from: "RPMBolt-6"
-    to: "sink"
+    to: "sink-6"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-6 --> sink"
     from: "SpeedBolt-6"
-    to: "sink"
+    to: "sink-6"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-6 --> sink"
     from: "ThrottleBolt-6"
-    to: "sink"
+    to: "sink-6"
     grouping:
       type: SHUFFLE
 
@@ -1336,19 +1464,19 @@ streams:
      
   - name: "RPMBolt-7 --> sink"
     from: "RPMBolt-7"
-    to: "sink"
+    to: "sink-7"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-7 --> sink"
     from: "SpeedBolt-7"
-    to: "sink"
+    to: "sink-7"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-7 --> sink"
     from: "ThrottleBolt-7"
-    to: "sink"
+    to: "sink-7"
     grouping:
       type: SHUFFLE
 
@@ -1372,19 +1500,19 @@ streams:
      
   - name: "RPMBolt-8 --> sink"
     from: "RPMBolt-8"
-    to: "sink"
+    to: "sink-8"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-8 --> sink"
     from: "SpeedBolt-8"
-    to: "sink"
+    to: "sink-8"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-8 --> sink"
     from: "ThrottleBolt-8"
-    to: "sink"
+    to: "sink-8"
     grouping:
       type: SHUFFLE
 
@@ -1408,19 +1536,19 @@ streams:
      
   - name: "RPMBolt-9 --> sink"
     from: "RPMBolt-9"
-    to: "sink"
+    to: "sink-9"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-9 --> sink"
     from: "SpeedBolt-9"
-    to: "sink"
+    to: "sink-9"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-9 --> sink"
     from: "ThrottleBolt-9"
-    to: "sink"
+    to: "sink-9"
     grouping:
       type: SHUFFLE
 
@@ -1444,19 +1572,19 @@ streams:
      
   - name: "RPMBolt-10 --> sink"
     from: "RPMBolt-10"
-    to: "sink"
+    to: "sink-10"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-10 --> sink"
     from: "SpeedBolt-10"
-    to: "sink"
+    to: "sink-10"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-10 --> sink"
     from: "ThrottleBolt-10"
-    to: "sink"
+    to: "sink-10"
     grouping:
       type: SHUFFLE
 
@@ -1480,19 +1608,19 @@ streams:
      
   - name: "RPMBolt-11 --> sink"
     from: "RPMBolt-11"
-    to: "sink"
+    to: "sink-11"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-11 --> sink"
     from: "SpeedBolt-11"
-    to: "sink"
+    to: "sink-11"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-11 --> sink"
     from: "ThrottleBolt-11"
-    to: "sink"
+    to: "sink-11"
     grouping:
       type: SHUFFLE
 
@@ -1516,19 +1644,19 @@ streams:
      
   - name: "RPMBolt-12 --> sink"
     from: "RPMBolt-12"
-    to: "sink"
+    to: "sink-12"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-12 --> sink"
     from: "SpeedBolt-12"
-    to: "sink"
+    to: "sink-12"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-12 --> sink"
     from: "ThrottleBolt-12"
-    to: "sink"
+    to: "sink-12"
     grouping:
       type: SHUFFLE
 
@@ -1552,19 +1680,19 @@ streams:
      
   - name: "RPMBolt-13 --> sink"
     from: "RPMBolt-13"
-    to: "sink"
+    to: "sink-13"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-13 --> sink"
     from: "SpeedBolt-13"
-    to: "sink"
+    to: "sink-13"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-13 --> sink"
     from: "ThrottleBolt-13"
-    to: "sink"
+    to: "sink-13"
     grouping:
       type: SHUFFLE
 
@@ -1588,19 +1716,19 @@ streams:
      
   - name: "RPMBolt-14 --> sink"
     from: "RPMBolt-14"
-    to: "sink"
+    to: "sink-14"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-14 --> sink"
     from: "SpeedBolt-14"
-    to: "sink"
+    to: "sink-14"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-14 --> sink"
     from: "ThrottleBolt-14"
-    to: "sink"
+    to: "sink-14"
     grouping:
       type: SHUFFLE
 
@@ -1624,19 +1752,19 @@ streams:
      
   - name: "RPMBolt-15 --> sink"
     from: "RPMBolt-15"
-    to: "sink"
+    to: "sink-15"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-15 --> sink"
     from: "SpeedBolt-15"
-    to: "sink"
+    to: "sink-15"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-15 --> sink"
     from: "ThrottleBolt-15"
-    to: "sink"
+    to: "sink-15"
     grouping:
       type: SHUFFLE
 
@@ -1660,19 +1788,19 @@ streams:
      
   - name: "RPMBolt-16 --> sink"
     from: "RPMBolt-16"
-    to: "sink"
+    to: "sink-16"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-16 --> sink"
     from: "SpeedBolt-16"
-    to: "sink"
+    to: "sink-16"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-16 --> sink"
     from: "ThrottleBolt-16"
-    to: "sink"
+    to: "sink-16"
     grouping:
       type: SHUFFLE
 
@@ -1696,19 +1824,19 @@ streams:
      
   - name: "RPMBolt-17 --> sink"
     from: "RPMBolt-17"
-    to: "sink"
+    to: "sink-17"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-17 --> sink"
     from: "SpeedBolt-17"
-    to: "sink"
+    to: "sink-17"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-17 --> sink"
     from: "ThrottleBolt-17"
-    to: "sink"
+    to: "sink-17"
     grouping:
       type: SHUFFLE
 
@@ -1732,19 +1860,19 @@ streams:
      
   - name: "RPMBolt-18 --> sink"
     from: "RPMBolt-18"
-    to: "sink"
+    to: "sink-18"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-18 --> sink"
     from: "SpeedBolt-18"
-    to: "sink"
+    to: "sink-18"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-18 --> sink"
     from: "ThrottleBolt-18"
-    to: "sink"
+    to: "sink-18"
     grouping:
       type: SHUFFLE
 
@@ -1768,19 +1896,19 @@ streams:
      
   - name: "RPMBolt-19 --> sink"
     from: "RPMBolt-19"
-    to: "sink"
+    to: "sink-19"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-19 --> sink"
     from: "SpeedBolt-19"
-    to: "sink"
+    to: "sink-19"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-19 --> sink"
     from: "ThrottleBolt-19"
-    to: "sink"
+    to: "sink-19"
     grouping:
       type: SHUFFLE
 
@@ -1804,19 +1932,19 @@ streams:
      
   - name: "RPMBolt-20 --> sink"
     from: "RPMBolt-20"
-    to: "sink"
+    to: "sink-20"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-20 --> sink"
     from: "SpeedBolt-20"
-    to: "sink"
+    to: "sink-20"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-20 --> sink"
     from: "ThrottleBolt-20"
-    to: "sink"
+    to: "sink-20"
     grouping:
       type: SHUFFLE
 
@@ -1840,19 +1968,19 @@ streams:
      
   - name: "RPMBolt-21 --> sink"
     from: "RPMBolt-21"
-    to: "sink"
+    to: "sink-21"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-21 --> sink"
     from: "SpeedBolt-21"
-    to: "sink"
+    to: "sink-21"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-21 --> sink"
     from: "ThrottleBolt-21"
-    to: "sink"
+    to: "sink-21"
     grouping:
       type: SHUFFLE
 
@@ -1876,19 +2004,19 @@ streams:
      
   - name: "RPMBolt-22 --> sink"
     from: "RPMBolt-22"
-    to: "sink"
+    to: "sink-22"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-22 --> sink"
     from: "SpeedBolt-22"
-    to: "sink"
+    to: "sink-22"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-22 --> sink"
     from: "ThrottleBolt-22"
-    to: "sink"
+    to: "sink-22"
     grouping:
       type: SHUFFLE
 
@@ -1912,19 +2040,19 @@ streams:
      
   - name: "RPMBolt-23 --> sink"
     from: "RPMBolt-23"
-    to: "sink"
+    to: "sink-23"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-23 --> sink"
     from: "SpeedBolt-23"
-    to: "sink"
+    to: "sink-23"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-23 --> sink"
     from: "ThrottleBolt-23"
-    to: "sink"
+    to: "sink-23"
     grouping:
       type: SHUFFLE
 
@@ -1948,19 +2076,19 @@ streams:
      
   - name: "RPMBolt-24 --> sink"
     from: "RPMBolt-24"
-    to: "sink"
+    to: "sink-24"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-24 --> sink"
     from: "SpeedBolt-24"
-    to: "sink"
+    to: "sink-24"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-24 --> sink"
     from: "ThrottleBolt-24"
-    to: "sink"
+    to: "sink-24"
     grouping:
       type: SHUFFLE
 
@@ -1984,19 +2112,19 @@ streams:
      
   - name: "RPMBolt-25 --> sink"
     from: "RPMBolt-25"
-    to: "sink"
+    to: "sink-25"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-25 --> sink"
     from: "SpeedBolt-25"
-    to: "sink"
+    to: "sink-25"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-25 --> sink"
     from: "ThrottleBolt-25"
-    to: "sink"
+    to: "sink-25"
     grouping:
       type: SHUFFLE
 
@@ -2020,19 +2148,19 @@ streams:
      
   - name: "RPMBolt-26 --> sink"
     from: "RPMBolt-26"
-    to: "sink"
+    to: "sink-26"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-26 --> sink"
     from: "SpeedBolt-26"
-    to: "sink"
+    to: "sink-26"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-26 --> sink"
     from: "ThrottleBolt-26"
-    to: "sink"
+    to: "sink-26"
     grouping:
       type: SHUFFLE
 
@@ -2056,19 +2184,19 @@ streams:
      
   - name: "RPMBolt-27 --> sink"
     from: "RPMBolt-27"
-    to: "sink"
+    to: "sink-27"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-27 --> sink"
     from: "SpeedBolt-27"
-    to: "sink"
+    to: "sink-27"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-27 --> sink"
     from: "ThrottleBolt-27"
-    to: "sink"
+    to: "sink-27"
     grouping:
       type: SHUFFLE
 
@@ -2092,19 +2220,19 @@ streams:
      
   - name: "RPMBolt-28 --> sink"
     from: "RPMBolt-28"
-    to: "sink"
+    to: "sink-28"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-28 --> sink"
     from: "SpeedBolt-28"
-    to: "sink"
+    to: "sink-28"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-28 --> sink"
     from: "ThrottleBolt-28"
-    to: "sink"
+    to: "sink-28"
     grouping:
       type: SHUFFLE
 
@@ -2128,19 +2256,19 @@ streams:
      
   - name: "RPMBolt-29 --> sink"
     from: "RPMBolt-29"
-    to: "sink"
+    to: "sink-29"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-29 --> sink"
     from: "SpeedBolt-29"
-    to: "sink"
+    to: "sink-29"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-29 --> sink"
     from: "ThrottleBolt-29"
-    to: "sink"
+    to: "sink-29"
     grouping:
       type: SHUFFLE
 
@@ -2164,19 +2292,19 @@ streams:
      
   - name: "RPMBolt-30 --> sink"
     from: "RPMBolt-30"
-    to: "sink"
+    to: "sink-30"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-30 --> sink"
     from: "SpeedBolt-30"
-    to: "sink"
+    to: "sink-30"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-30 --> sink"
     from: "ThrottleBolt-30"
-    to: "sink"
+    to: "sink-30"
     grouping:
       type: SHUFFLE
 
@@ -2200,19 +2328,19 @@ streams:
      
   - name: "RPMBolt-31 --> sink"
     from: "RPMBolt-31"
-    to: "sink"
+    to: "sink-31"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-31 --> sink"
     from: "SpeedBolt-31"
-    to: "sink"
+    to: "sink-31"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-31 --> sink"
     from: "ThrottleBolt-31"
-    to: "sink"
+    to: "sink-31"
     grouping:
       type: SHUFFLE
 
@@ -2236,19 +2364,19 @@ streams:
      
   - name: "RPMBolt-32 --> sink"
     from: "RPMBolt-32"
-    to: "sink"
+    to: "sink-32"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-32 --> sink"
     from: "SpeedBolt-32"
-    to: "sink"
+    to: "sink-32"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-32 --> sink"
     from: "ThrottleBolt-32"
-    to: "sink"
+    to: "sink-32"
     grouping:
       type: SHUFFLE
 
@@ -2272,19 +2400,19 @@ streams:
      
   - name: "RPMBolt-33 --> sink"
     from: "RPMBolt-33"
-    to: "sink"
+    to: "sink-33"
     grouping:
       type: SHUFFLE
       
   - name: "SpeedBolt-33 --> sink"
     from: "SpeedBolt-33"
-    to: "sink"
+    to: "sink-33"
     grouping:
       type: SHUFFLE
       
   - name: "ThrottleBolt-33 --> sink"
     from: "ThrottleBolt-33"
-    to: "sink"
+    to: "sink-33"
     grouping:
       type: SHUFFLE
 
