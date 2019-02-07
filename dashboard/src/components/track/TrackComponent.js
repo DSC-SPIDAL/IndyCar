@@ -192,12 +192,13 @@ export default class TrackComponent extends React.Component {
             this.pastRecords[carNumber] = newRecord;
             cb();
             return;
-        } else if (this.cars[carNumber].length > this.bufferSize / 10 && Date.now() - newRecord.time - this.realTimeStamp[carNumber] > 100) {//drop only if buffer has enough data
-            //skip frame
-            //console.log("Drop frame");
-            cb();
-            return;
         }
+        // } else if (this.cars[carNumber].length > this.bufferSize / 10 && Date.now() - newRecord.time - this.realTimeStamp[carNumber] > 100) {//drop only if buffer has enough data
+        //     //skip frame
+        //     //console.log("Drop frame");
+        //     cb();
+        //     return;
+        // }
         let diffOfActualTime = Math.max(0, Date.now() - newRecord.time - this.realTimeStamp[carNumber]);
 
         let pastRecord = this.pastRecords[carNumber];
@@ -287,24 +288,6 @@ export default class TrackComponent extends React.Component {
         let initPoint = this.path.pointAt(0);
         carContainer.center(initPoint.x, initPoint.y);
 
-        //var car = carContainer.rect(4.8 * carScale, 1.8 * carScale).stroke(1).fill('transparent').attr({ 'stroke-width': 1 })
-        // this.animateLap(carContainer, car, animationTime, length, () => {
-        //     console.log(carNumber, "finished one lap");
-        // });
-
-        // CarInformationService.getCarLapTimes(carNumber).then(response => {
-        //     let lapTimes = response.data;
-        //     let startIndex = 0;
-        //
-        //     let animationCallback = () => {
-        //         if (startIndex < lapTimes.length) {
-        //             this.animateLap(carContainer, car, carNumber, lapTimes[startIndex].lap_num, lapTimes[startIndex].lap_time * 500, length, animationCallback);
-        //             startIndex++;
-        //         }
-        //     };
-        //     animationCallback();
-        // });
-
         let frameBuffer = new CBuffer(this.bufferSize);
 
         let firstTime = true;
@@ -336,7 +319,7 @@ export default class TrackComponent extends React.Component {
         frameBuffer.eventAdded = (data) => {
             excessCount++;
             if (!this.realTimeStamp[carNumber]) {
-                this.realTimeStamp[carNumber] = Date.now() - data.time;
+                this.realTimeStamp[carNumber] = Date.now() + 10000 - data.time;
             }
             if (firstTime && excessCount === 10) {
                 firstTime = false;

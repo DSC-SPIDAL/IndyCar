@@ -49,6 +49,10 @@ public class StreamerTest {
 
         recordStreamer.setTelemetryRecordListener(record -> {
 
+            if (record.getCarNumber().equals("10")) {
+                System.out.println(record.getTimeOfDay());
+            }
+
             Long old = carTime.put(record.getCarNumber(), record.getTimeField());
             if (old != null && old > record.getTimeField()) {
                 System.out.println("Out of order time for car " + record.getCarNumber()

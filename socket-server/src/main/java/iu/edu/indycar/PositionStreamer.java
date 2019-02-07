@@ -63,6 +63,8 @@ public class PositionStreamer {
                 s -> s.split("_")[2]
         );
 
+        LOG.info("Streaming data for {} cars", ServerConstants.DEBUG_CARS);
+
         recordStreamer.addRecordAcceptPolicy(
                 TelemetryRecord.class,
                 new AbstractRecordAcceptPolicy<TelemetryRecord>() {
@@ -70,7 +72,7 @@ public class PositionStreamer {
                     public boolean evaluate(TelemetryRecord indycarRecord) {
                         if (foundFirstNonZero.containsKey(indycarRecord.getCarNumber())) {
                             return true;
-                        } else if (indycarRecord.getLapDistance() != 0) {
+                        } else if (indycarRecord.getLapDistance() != 0 && foundFirstNonZero.size() < ServerConstants.DEBUG_CARS) {
                             foundFirstNonZero.put(indycarRecord.getCarNumber(), true);
                             return true;
                         }
@@ -85,16 +87,35 @@ public class PositionStreamer {
                     telemetryRecord.getCarNumber(), (s) -> new AtomicLong());
             try {
                 long counter = atomicInteger.getAndIncrement();
-                this.recordPublisher.publishRecord(telemetryRecord.getCarNumber(),
-                        String.format("%f,%f,%f,%d,%f,%s",
-                                telemetryRecord.getVehicleSpeed(),
-                                telemetryRecord.getEngineSpeed(),
-                                telemetryRecord.getThrottle(),
-                                counter,
-                                telemetryRecord.getLapDistance(),
-                                "5/27/18 " + telemetryRecord.getTimeOfDay()
-                        ));
-                LatencyCalculator.addSent(telemetryRecord.getCarNumber() + "_" + counter);
+                String uuid = telemetryRecord.getCarNumber() + "_" + counter;
+                if (!ServerConstants.DEBUG_MODE) {
+                    this.recordPublisher.publishRecord(
+                            telemetryRecord.getCarNumber(),
+                            String.format("%f,%f,%f,%d,%f,%s",
+                                    telemetryRecord.getVehicleSpeed(),
+                                    telemetryRecord.getEngineSpeed(),
+                                    telemetryRecord.getThrottle(),
+                                    counter,
+                                    telemetryRecord.getLapDistance(),
+                                    "5/27/18 " + telemetryRecord.getTimeOfDay()
+                            )
+                    );
+                } else {
+                    this.recordPublisher.publishRecord(
+                            telemetryRecord.getCarNumber(),
+                            String.format("%s,%f,%f,%f,%d,%f,%s,%s",
+                                    uuid,
+                                    telemetryRecord.getVehicleSpeed(),
+                                    telemetryRecord.getEngineSpeed(),
+                                    telemetryRecord.getThrottle(),
+                                    counter,
+                                    telemetryRecord.getLapDistance(),
+                                    "5/27/18 " + telemetryRecord.getTimeOfDay(),
+                                    telemetryRecord.getCarNumber()
+                            )
+                    );
+                }
+                LatencyCalculator.addSent(uuid);
 //                this.recordWriter.write(
 //                        telemetryRecord.getCarNumber(),
 //                        String.valueOf(counter),

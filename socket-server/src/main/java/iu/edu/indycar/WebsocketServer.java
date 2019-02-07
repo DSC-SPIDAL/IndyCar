@@ -1,11 +1,13 @@
 package iu.edu.indycar;
 
 import iu.edu.indycar.tmp.LatencyCalculator;
+import iu.edu.indycar.tmp.PingLatency;
 import iu.edu.indycar.tmp.RecordPublisher;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -43,6 +45,7 @@ public class WebsocketServer {
     public static void main(String[] args) throws MqttException {
 
         String filePath = args.length == 0 ? ServerConstants.LOG_FILE : args[0];
+        ServerConstants.DEBUG_CARS = args.length < 2 ? 33 : Integer.valueOf(args[1]);
 
         ServerBoot serverBoot = new ServerBoot("0.0.0.0", 5000);
 
@@ -50,10 +53,25 @@ public class WebsocketServer {
         recordPublisher.connectToBroker();
 
         MQTTTelemetryListener mqttAnomalyListener = new MQTTTelemetryListener(
-                serverBoot, ServerConstants.ANOMALY_TOPIC
+                serverBoot,
+                ServerConstants.DEBUG_MODE ?
+                        ServerConstants.DEBUG_TOPIC : ServerConstants.ANOMALY_TOPIC
         );
         serverBoot.start();
         mqttAnomalyListener.start();
         startPositionStreamer(serverBoot, recordPublisher, mqttAnomalyListener, filePath);
+
+        new Timer().schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    PingLatency.writeToFile();
+                    LatencyCalculator.writeToFile();
+                    System.exit(0);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, 15 * 60 * 1000);
     }
 }

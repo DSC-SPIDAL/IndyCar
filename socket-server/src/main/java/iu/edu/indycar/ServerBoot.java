@@ -167,6 +167,6 @@ public class ServerBoot {
 
         LOG.info("Starting server...");
         server.start();
-        timer.schedule(this.pingTask, 0, 1000);
+        timer.schedule(this.pingTask, 0, 500);
     }
 }

@@ -42,7 +42,11 @@ public class RecordPublisher implements MqttCallback {
         mqttMessage.setPayload(record.getBytes());
         mqttMessage.setQos(0);
         //LOG.info("Publishing {} to {}", record, carNumber);
-        client.publish(carNumber, mqttMessage);
+        if (ServerConstants.DEBUG_MODE) {
+            client.publish(ServerConstants.DEBUG_TOPIC, mqttMessage);
+        } else {
+            client.publish(carNumber, mqttMessage);
+        }
     }
 
     @Override

@@ -45,15 +45,15 @@ export default class HeaderComponent extends React.Component {
     };
 
     componentDidMount() {
-        RaceInformationService.getRaceInformation().then(response => {
-            this.setState({
-                eventName: response.data['event_name'],
-                runName: response.data['run_name'],
-                startDate: response.data['start_date'],
-            })
-        }).catch(err => {
-            console.error("Error in fetching race info", err);
-        });
+        // RaceInformationService.getRaceInformation().then(response => {
+        //     this.setState({
+        //         eventName: response.data['event_name'],
+        //         runName: response.data['run_name'],
+        //         startDate: response.data['start_date'],
+        //     })
+        // }).catch(err => {
+        //     console.error("Error in fetching race info", err);
+        // });
 
         this.socketService.subscribe("weather", this.onWeatherRecord);
     }
