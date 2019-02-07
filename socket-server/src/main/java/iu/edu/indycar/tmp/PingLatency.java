@@ -24,7 +24,7 @@ public class PingLatency {
     private long highestLatency = Long.MIN_VALUE;
     private long lowestLatency = Long.MAX_VALUE;
 
-    private static List<Long> times = new ArrayList<>();
+    private static final List<Long> times = new ArrayList<>();
 
 
     public PingLatency(String client) {
@@ -35,11 +35,13 @@ public class PingLatency {
         this.sentTime = System.currentTimeMillis();
     }
 
-    public synchronized void pongReceived() {
+    public void pongReceived() {
         this.count++;
         long latency = ((System.currentTimeMillis() - this.sentTime) / 2);
 
-        times.add(latency);
+        synchronized (times) {
+            times.add(latency);
+        }
 
         this.total += latency; //send - recv
 
@@ -58,16 +60,18 @@ public class PingLatency {
         }
     }
 
-    public synchronized static void writeToFile() throws IOException {
+    public static void writeToFile() throws IOException {
         BufferedWriter br = new BufferedWriter(
                 new FileWriter(
                         new File("bench/ws_browser_latency_" + ServerConstants.DEBUG_CARS + ".csv")
                 )
         );
 
-        for (Long time : times) {
-            br.write(time.toString());
-            br.newLine();
+        synchronized (times) {
+            for (Long time : times) {
+                br.write(time.toString());
+                br.newLine();
+            }
         }
 
         br.close();

@@ -24,7 +24,7 @@ public class LatencyCalculator {
     private static long totalRecords = 0;
     private static BigInteger totalLatency = BigInteger.ZERO;
 
-    private static List<Long> times = new ArrayList<>();
+    private static final List<Long> times = new ArrayList<>();
 
     public synchronized static void addSent(String uuid) {
         records.put(uuid, System.currentTimeMillis());
@@ -43,7 +43,9 @@ public class LatencyCalculator {
                 minLatency = latency;
             }
 
-            times.add(latency);
+            synchronized (times) {
+                times.add(latency);
+            }
 
             totalRecords++;
             totalLatency = totalLatency.add(BigInteger.valueOf(latency));
@@ -65,9 +67,11 @@ public class LatencyCalculator {
                 )
         );
 
-        for (Long time : times) {
-            br.write(time.toString());
-            br.newLine();
+        synchronized (times) {
+            for (Long time : times) {
+                br.write(time.toString());
+                br.newLine();
+            }
         }
 
         br.close();
@@ -76,6 +80,7 @@ public class LatencyCalculator {
 
     public static void clear() {
         records.clear();
+        times.clear();
         maxLatency = Long.MIN_VALUE;
         minLatency = Long.MAX_VALUE;
         totalRecords = 0;
