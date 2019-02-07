@@ -203,7 +203,7 @@ spouts:
 
 
 bolts:
-  - id: "sink-#NO"
+  - id: "sink-1"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -234,7 +234,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-2"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -265,7 +265,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-3"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -296,7 +296,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-4"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -327,7 +327,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-5"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -358,7 +358,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-6"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -389,7 +389,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-7"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -420,7 +420,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-8"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -451,7 +451,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-9"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -482,7 +482,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-10"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -513,7 +513,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-11"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -544,7 +544,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-12"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -575,7 +575,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-13"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -606,7 +606,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-14"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -637,7 +637,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-15"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -668,7 +668,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-16"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -699,7 +699,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-17"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -730,7 +730,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-18"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -761,7 +761,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-19"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -792,7 +792,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-20"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -823,7 +823,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-21"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -854,7 +854,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-22"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -885,7 +885,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-23"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -916,7 +916,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-24"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -947,7 +947,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-25"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -978,7 +978,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-26"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -1009,7 +1009,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-27"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -1040,7 +1040,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-28"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -1071,7 +1071,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-29"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -1102,7 +1102,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-30"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -1133,7 +1133,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-31"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -1164,7 +1164,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-32"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
@@ -1195,7 +1195,7 @@ bolts:
       - "0"
       - "30"
 
-  - id: "sink-#NO"
+  - id: "sink-33"
     className: "com.dsc.iu.stream.app.Sink"
     parallelism: 1
 
