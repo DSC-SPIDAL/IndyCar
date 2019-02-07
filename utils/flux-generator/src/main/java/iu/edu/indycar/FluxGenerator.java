@@ -57,19 +57,19 @@ public class FluxGenerator {
             "    grouping:\n" +
             "      type: SHUFFLE\n" +
             "     \n" +
-            "  - name: \"RPMBolt-#NO --> sink\"\n" +
+            "  - name: \"RPMBolt-#NO --> sink-#NO\"\n" +
             "    from: \"RPMBolt-#NO\"\n" +
             "    to: \"sink-#NO\"\n" +
             "    grouping:\n" +
             "      type: SHUFFLE\n" +
             "      \n" +
-            "  - name: \"SpeedBolt-#NO --> sink\"\n" +
+            "  - name: \"SpeedBolt-#NO --> sink-#NO\"\n" +
             "    from: \"SpeedBolt-#NO\"\n" +
             "    to: \"sink-#NO\"\n" +
             "    grouping:\n" +
             "      type: SHUFFLE\n" +
             "      \n" +
-            "  - name: \"ThrottleBolt-#NO --> sink\"\n" +
+            "  - name: \"ThrottleBolt-#NO --> sink-#NO\"\n" +
             "    from: \"ThrottleBolt-#NO\"\n" +
             "    to: \"sink-#NO\"\n" +
             "    grouping:\n" +
