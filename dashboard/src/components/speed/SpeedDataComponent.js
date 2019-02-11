@@ -53,6 +53,7 @@ export default class SpeedDataComponent extends React.Component {
         this.updateSectionTiming();
     }
 
+
     componentWillReceiveProps(nextProps) {
         if (nextProps.carNumber !== this.props.carNumber) {
             this.updateCarInformation(nextProps);
@@ -129,6 +130,18 @@ export default class SpeedDataComponent extends React.Component {
                                   legend: {
                                       display: false
                                   },
+                                  elements: {
+                                      line: {
+                                          tension: 0, // disables bezier curves
+                                      }
+                                  },
+                                  animation: {
+                                      duration: 0, // general animation time
+                                  },
+                                  hover: {
+                                      animationDuration: 0, // duration of animations when hovering an item
+                                  },
+                                  responsiveAnimationDuration: 0, // animation duration after a resize
                                   scales: {
                                       yAxes: [{
                                           display: false,

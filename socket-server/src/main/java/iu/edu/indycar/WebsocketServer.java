@@ -45,9 +45,9 @@ public class WebsocketServer {
     public static void main(String[] args) throws MqttException {
 
         String filePath = args.length == 0 ? ServerConstants.LOG_FILE : args[0];
-        ServerConstants.DEBUG_CARS = args.length < 2 ? 33 : Integer.valueOf(args[1]);
+        ServerConstants.DEBUG_CARS = args.length < 2 ? ServerConstants.DEBUG_CARS : Integer.valueOf(args[1]);
 
-        ServerBoot serverBoot = new ServerBoot("0.0.0.0", 5000);
+        ServerBoot serverBoot = new ServerBoot("0.0.0.0", 61521);
 
         RecordPublisher recordPublisher = new RecordPublisher();
         recordPublisher.connectToBroker();
@@ -72,6 +72,6 @@ public class WebsocketServer {
                     e.printStackTrace();
                 }
             }
-        }, 15 * 60 * 1000);
+        }, 10 * 60 * 1000);
     }
 }

@@ -3,6 +3,7 @@ import SpeedAnomalyComponent from "./SpeedAnomalyComponent";
 import {Card} from "@blueprintjs/core";
 import "./AnomalyWrapper.css";
 import {ANOMALY_METRIC} from "./AnomalyConstants";
+import {SocketService} from "../../services/SocketService";
 
 export default class AnomalyWrapper extends React.Component {
 
@@ -16,12 +17,26 @@ export default class AnomalyWrapper extends React.Component {
             selectedCarNumber: 20,
             selectedMetric: ANOMALY_METRIC.RPM.id
         }
+        this.socket = new SocketService();
+    }
+
+    subscribe = () => {
+        this.socket.send("EVENT_SUB", {
+            roomName: "anomaly_" + this.state.selectedCarNumber
+        });
+    };
+
+    componentDidMount() {
+        this.subscribe();
     }
 
     onCarChange = (event) => {
+        this.socket.send("EVENT_UNSUB", {
+            roomName: "anomaly_" + this.state.selectedCarNumber
+        });
         this.setState({
             selectedCarNumber: event.target.value
-        });
+        }, this.subscribe);
     };
 
     onMetricChange = (event) => {
@@ -48,26 +63,38 @@ export default class AnomalyWrapper extends React.Component {
                                 </select>
                             </div>
                         </label>
-                        <label className="pt-label">
-                            Metric
-                            <div className="pt-select">
-                                <select onChange={this.onMetricChange} value={this.state.selectedMetric}>
-                                    {
-                                        Object.keys(ANOMALY_METRIC).map(metric => {
-                                            return (
-                                                <option value={metric} key={metric}>
-                                                    {ANOMALY_METRIC[metric].text}
-                                                </option>
-                                            );
-                                        })
-                                    }
-                                </select>
-                            </div>
-                        </label>
+                        {/*<label className="pt-label">*/}
+                        {/*Metric*/}
+                        {/*<div className="pt-select">*/}
+                        {/*<select onChange={this.onMetricChange} value={this.state.selectedMetric}>*/}
+                        {/*{*/}
+                        {/*Object.keys(ANOMALY_METRIC).map(metric => {*/}
+                        {/*return (*/}
+                        {/*<option value={metric} key={metric}>*/}
+                        {/*{ANOMALY_METRIC[metric].text}*/}
+                        {/*</option>*/}
+                        {/*);*/}
+                        {/*})*/}
+                        {/*}*/}
+                        {/*</select>*/}
+                        {/*</div>*/}
+                        {/*</label>*/}
                     </div>
+
                     <SpeedAnomalyComponent carNumber={this.state.selectedCarNumber}
-                                           metric={this.state.selectedMetric}
-                                           key={this.state.selectedCarNumber + this.state.selectedMetric}/>
+                                           metric={"SPEED"}
+                                           rawDataColor="#1565C0"
+                                           hideX={true}
+                                           key={this.state.selectedCarNumber + "SPEED"}/>
+                    <SpeedAnomalyComponent carNumber={this.state.selectedCarNumber}
+                                           metric={"RPM"}
+                                           hideX={true}
+                                           rawDataColor="#2E7D32"
+                                           key={this.state.selectedCarNumber + "RPM"}/>
+                    <SpeedAnomalyComponent carNumber={this.state.selectedCarNumber}
+                                           metric={"THROTTLE"}
+                                           rawDataColor="#EF6C00"
+                                           key={this.state.selectedCarNumber + "THROTTLE"}/>
                 </Card>
             </div>
         );

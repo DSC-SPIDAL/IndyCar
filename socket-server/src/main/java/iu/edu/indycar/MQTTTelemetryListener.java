@@ -1,5 +1,6 @@
 package iu.edu.indycar;
 
+import iu.edu.indycar.models.Anomaly;
 import iu.edu.indycar.models.AnomalyMessage;
 import iu.edu.indycar.models.CarPositionRecord;
 import iu.edu.indycar.streamer.TimeUtils;
@@ -73,9 +74,11 @@ public class MQTTTelemetryListener {
         try {
             JSONObject jsonObject = getJSONMessage(payload);
 
-            String counter = jsonObject.getString("UUID");
+            String uuid = jsonObject.getString("UUID");
 
-            LatencyCalculator.addRecv(counter);
+            long counter = Long.valueOf(uuid.split("_")[1]);
+
+            LatencyCalculator.addRecv(uuid);
 
             String timeOfDay = jsonObject.getString("timeOfDay");
             long timeOfDayLong = TimeUtils.convertTimestampToLong(timeOfDay);
@@ -85,41 +88,39 @@ public class MQTTTelemetryListener {
             double lapDistance = jsonObject.getDouble("lapDistance");
 
             serverBoot.publishPositionEvent(
-                    new CarPositionRecord(lapDistance, timeOfDayLong, carNumber)
+                    new CarPositionRecord(lapDistance, timeOfDayLong, carNumber),
+                    counter
             );
 
             double vehicleSpeed = Double.valueOf(jsonObject.getString("vehicleSpeed"));
             double throttle = Double.valueOf(jsonObject.getString("throttle"));
             double rpm = Double.valueOf(jsonObject.getString("engineSpeed"));
 
-            AnomalyMessage speedAnomaly = new AnomalyMessage();
-            speedAnomaly.setIndex(timeOfDayLong);
-            speedAnomaly.setTimeOfDayString(timeOfDay);
+            AnomalyMessage anomalyMessage = new AnomalyMessage();
+            anomalyMessage.setIndex(timeOfDayLong);
+            anomalyMessage.setTimeOfDayString(timeOfDay);
+            anomalyMessage.setCarNumber(carNumberInt);
+
+            Anomaly speedAnomaly = new Anomaly();
             speedAnomaly.setAnomalyType("SPEED");
-            speedAnomaly.setCarNumber(carNumberInt);
             speedAnomaly.setRawData(vehicleSpeed);
             speedAnomaly.setAnomaly(jsonObject.getDouble("vehicleSpeedAnomaly"));
+            anomalyMessage.addAnomaly(speedAnomaly);
 
 
-            AnomalyMessage throttleAnomaly = new AnomalyMessage();
-            throttleAnomaly.setIndex(timeOfDayLong);
-            throttleAnomaly.setTimeOfDayString(timeOfDay);
+            Anomaly throttleAnomaly = new Anomaly();
             throttleAnomaly.setAnomalyType("THROTTLE");
-            throttleAnomaly.setCarNumber(carNumberInt);
             throttleAnomaly.setRawData(throttle);
             throttleAnomaly.setAnomaly(jsonObject.getDouble("throttleAnomaly"));
+            anomalyMessage.addAnomaly(throttleAnomaly);
 
-            AnomalyMessage rpmAnomaly = new AnomalyMessage();
-            rpmAnomaly.setIndex(timeOfDayLong);
-            rpmAnomaly.setTimeOfDayString(timeOfDay);
+            Anomaly rpmAnomaly = new Anomaly();
             rpmAnomaly.setAnomalyType("RPM");
-            rpmAnomaly.setCarNumber(carNumberInt);
             rpmAnomaly.setRawData(rpm);
             rpmAnomaly.setAnomaly(jsonObject.getDouble("engineSpeedAnomaly"));
+            anomalyMessage.addAnomaly(rpmAnomaly);
 
-            serverBoot.publishAnomalyEvent(speedAnomaly);
-            serverBoot.publishAnomalyEvent(throttleAnomaly);
-            serverBoot.publishAnomalyEvent(rpmAnomaly);
+            serverBoot.publishAnomalyEvent(anomalyMessage);
 
 
 //                    recordWriter.write(

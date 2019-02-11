@@ -9,12 +9,14 @@ import iu.edu.indycar.models.JoinRoomMessage;
 import iu.edu.indycar.streamer.records.CompleteLapRecord;
 import iu.edu.indycar.streamer.records.EntryRecord;
 import iu.edu.indycar.streamer.records.WeatherRecord;
+import iu.edu.indycar.tmp.CarRank;
 import iu.edu.indycar.tmp.PingLatency;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import java.net.SocketAddress;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class ServerBoot {
 
@@ -34,9 +36,12 @@ public class ServerBoot {
     private HashMap<String, List<CompleteLapRecord>> lapRecords = new HashMap<>();
 
     private TimerTask pingTask;
+    private TimerTask rankTask;
     private Timer timer = new Timer();
 
     private HashMap<SocketAddress, PingLatency> latency = new HashMap<>();
+
+    private ConcurrentHashMap<String, CarRank> ranks = new ConcurrentHashMap<>();
 
     public ServerBoot(String host, int port) {
 
@@ -57,17 +62,32 @@ public class ServerBoot {
                 latency.values().forEach(PingLatency::pingSent);
             }
         };
+
+        this.rankTask = new TimerTask() {
+            @Override
+            public void run() {
+                List<CarRank> values = new ArrayList<>(ranks.values());
+                Collections.sort(values);
+                server.getBroadcastOperations().sendEvent("ranks", values);
+            }
+        };
     }
 
     public void publishAnomalyEvent(AnomalyMessage anomalyMessage) {
-        String room = anomalyMessage.getCarNumber() + anomalyMessage.getAnomalyType();
+        String room = "anomaly_" + anomalyMessage.getCarNumber();
         //LOG.info("Sending event to room {}", room);
-        this.server.getRoomOperations(room).sendEvent("anomaly", anomalyMessage);
+        this.server.getRoomOperations(room).sendEvent(room, anomalyMessage);
     }
 
-    public void publishPositionEvent(CarPositionRecord carPositionRecord) {
+    public void publishPositionEvent(CarPositionRecord carPositionRecord, long counter) {
         carPositionRecord.setSentTime(System.currentTimeMillis());
         this.server.getBroadcastOperations().sendEvent("position", carPositionRecord);
+
+        CarRank carRank = this.ranks.computeIfAbsent(carPositionRecord.getCarNumber(), CarRank::new);
+        if (counter == 0) {
+            carRank.reset();
+        }
+        carRank.recordDistance(carPositionRecord.getDistance());
     }
 
     public void publishWeatherEvent(WeatherRecord weatherRecord) {
@@ -168,5 +188,6 @@ public class ServerBoot {
         LOG.info("Starting server...");
         server.start();
         timer.schedule(this.pingTask, 0, 500);
+        timer.schedule(this.rankTask, 0, 5000);
     }
 }

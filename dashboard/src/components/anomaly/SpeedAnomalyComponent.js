@@ -13,7 +13,7 @@ export default class SpeedAnomalyComponent extends React.Component {
                 anomalyData: [],
                 labels: []
             },
-            windowSize: 100
+            windowSize: 25
         };
 
         this.anamolySubscriber = new AnomalySubscriber();
@@ -28,14 +28,15 @@ export default class SpeedAnomalyComponent extends React.Component {
     }
 
     onReceiveChartData = (data) => {
+        let anomalyObject = data.anomalies[this.props.metric];
         let chartData = this.state.chartData;
 
         let speedData = chartData.speedData;
-        speedData.push(data.rawData);
+        speedData.push(anomalyObject.rawData);
         speedData.length > this.state.windowSize && speedData.splice(0, speedData.length - this.state.windowSize);
 
         let anomalyData = chartData.anomalyData;
-        anomalyData.push(parseFloat(data.anomaly));
+        anomalyData.push(parseFloat(anomalyObject.anomaly));
         anomalyData.length > this.state.windowSize && anomalyData.splice(0, anomalyData.length - this.state.windowSize);
 
         let labels = chartData.labels;
@@ -47,24 +48,18 @@ export default class SpeedAnomalyComponent extends React.Component {
 
     componentDidMount() {
         console.log("Sending Join room Request");
-        this.socket.send("EVENT_SUB", {
-            roomName: this.props.carNumber + this.props.metric
-        });
-        this.socket.subscribe("anomaly", this.onReceiveChartData);
+        this.socket.subscribe("anomaly_" + this.props.carNumber, this.onReceiveChartData);
 
         this.chartUpdateInterval = setInterval(() => {
             if (this.chart && this.chart.chartInstance && this.needChartUpdate) {
                 this.chart.chartInstance.update();
                 this.needChartUpdate = false;
             }
-        }, 1000 / 60);//24 frames per second
+        }, 1000 / 10);//10 frames per second
     }
 
     componentWillUnmount() {
-        this.socket.send("EVENT_UNSUB", {
-            roomName: this.props.carNumber + this.props.metric
-        });
-        this.socket.unsubscribe("anomaly", this.onReceiveChartData);
+        this.socket.unsubscribe("anomaly_" + this.props.carNumber, this.onReceiveChartData);
         clearInterval(this.chartUpdateInterval);
     }
 
@@ -74,7 +69,7 @@ export default class SpeedAnomalyComponent extends React.Component {
 
     render() {
         return (
-            <div>
+            <div style={{position: 'relative', height: !(this.props.hideX) ? 300 : 150}}>
                 <Line data={{
                     labels: this.state.chartData.labels,
                     datasets: [{
@@ -82,8 +77,8 @@ export default class SpeedAnomalyComponent extends React.Component {
                         yAxisID: "Metric",
                         data: this.state.chartData.speedData,
                         fill: false,
-                        borderColor: "#1565C0",
-                        backgroundColor: "#1565C0",
+                        borderColor: this.props.rawDataColor,
+                        backgroundColor: this.props.rawDataColor,
                         borderWidth: 3,
                         pointRadius: 0
                     }, {
@@ -98,13 +93,30 @@ export default class SpeedAnomalyComponent extends React.Component {
                         steppedLine: true
                     }],
                 }} options={{
+                    maintainAspectRatio: false,
                     animation: {
                         duration: 0
                     },
+                    elements: {
+                        line: {
+                            tension: 0, // disables bezier curves
+                        }
+                    },
+                    hover: {
+                        animationDuration: 0, // duration of animations when hovering an item
+                    },
+                    responsiveAnimationDuration: 0, // animation duration after a resize,
+                    legend: {
+                        display: false
+                    },
                     scales: {
                         xAxes: [{
+                            display: !(this.props.hideX),
                             ticks: {
-                                display: true
+                                display: true,
+                                autoSkip: false,
+                                maxRotation: 90,
+                                minRotation: 90
                             },
                             scaleLabel: {
                                 display: true,
@@ -121,6 +133,9 @@ export default class SpeedAnomalyComponent extends React.Component {
                             scaleLabel: {
                                 display: true,
                                 labelString: this.props.metric
+                            },
+                            afterFit: function (scaleInstance) {
+                                scaleInstance.width = 70; // sets the width to 100px
                             }
                         }, {
                             id: 'Anomaly',

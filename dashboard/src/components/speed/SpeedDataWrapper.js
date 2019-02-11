@@ -2,6 +2,7 @@ import React from "react";
 import SpeedDataComponent from "./SpeedDataComponent";
 import "./SpeedDataWrapper.css";
 import CarInformationService, {CAR_INFO_LISTENER} from "../../services/CarInformationService";
+import {SocketService} from "../../services/SocketService";
 
 /**
  * @author Chathura Widanage
@@ -12,9 +13,22 @@ export default class SpeedDataWrapper extends React.Component {
         super(props);
         this.state = {
             carDistances: [],
-            carsList: {}
+            carsList: {},
+            ranks: []
         };
+        this.socket = new SocketService();
     }
+
+    componentWillUnmount() {
+        this.socket.unsubscribe("ranks", this.onRankUpdate)
+    }
+
+
+    onRankUpdate = (rankUpdate) => {
+        this.setState({
+            ranks: rankUpdate
+        });
+    };
 
     componentDidMount() {
         CarInformationService.addEventListener(CAR_INFO_LISTENER, (info) => {
@@ -29,53 +43,22 @@ export default class SpeedDataWrapper extends React.Component {
         this.setState({
             carsList
         });
-        // CarInformationService.getCarList().then(response => {
-        //     console.log(response.data);
-        //     Promise.all(response.data.map(CarInformationService.getCarRank)).then(response => {
-        //         console.log("R", response);
-        //     });
-        // });
-        //
-        // let currentDistances = {};
-        // CarInformationService.subscribeToRankChanges((carDistances) => {
-        //     currentDistances = carDistances;
-        // });
-        //
-        // setInterval(() => {
-        //     this.setState({
-        //         carDistances: Object.values(currentDistances)
-        //     })
-        // }, 5000);
+
+        this.socket.subscribe("ranks", this.onRankUpdate);
     }
 
     render() {
 
-        // let sorted = this.state.carDistances.sort((a, b) => {
-        //     return b.distance - a.distance;
-        // });
-        //
-        // if (sorted.length < 3) {
-        //     return null;
-        // }
-
-        let selectedCars = Object.keys(this.state.carsList);
-
-        selectedCars = selectedCars.slice(0, Math.min(3, selectedCars.length));
-
-        let speedDataComponents = []/*selectedCars.map((carNumber, index) => {
-            return <SpeedDataComponent carNumber={carNumber}
+        let speedDataComponents = this.state.ranks.map((rankObj, index) => {
+            return <SpeedDataComponent carNumber={rankObj.carNumber}
                                        carData={{}}
-                                       key={carNumber}
+                                       key={rankObj.carNumber}
                                        rank={index + 1}/>
-        });*/
+        });
 
         return (
             <div className="speed-data-wrapper">
                 {speedDataComponents}
-                {/*<SpeedDataComponent carNumber={1} rank={1}/>*/}
-                {/*<SpeedDataComponent carNumber={2} rank={2}/>*/}
-                {/*<SpeedDataComponent carNumber={3} rank={3}/>*/}
-                {/*<SpeedDataComponent carNumber={4} rank={4}/>*/}
             </div>
         );
     }

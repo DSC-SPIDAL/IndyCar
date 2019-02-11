@@ -209,7 +209,11 @@ export default class TrackComponent extends React.Component {
 
         if (deltaDistance < 0) {
             //sometimes recorded distance is larger than totalTrack length
+            let initDistance = deltaDistance;
             deltaDistance = ((this.path.length() / scale) - pastRecord.distance + newRecord.distance) * scale;
+            if (deltaDistance < 0) {
+                console.log("Still negative", initDistance, deltaDistance, newRecord.distance, pastRecord.distance);
+            }
         }
 
         if (window.debugCar === carNumber) {
@@ -217,7 +221,7 @@ export default class TrackComponent extends React.Component {
         }
 
         //lagging fix
-        if (deltaDistance === 0 && deltaTime === 0) {
+        if (deltaDistance <= 0 && deltaTime === 0) {
             cb();
             return;
         }

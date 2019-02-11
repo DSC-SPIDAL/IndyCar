@@ -14,6 +14,6 @@ public class ServerConstants {
     public static final int EVENT_EMITTER_THREADS = 4;
 
     public static final boolean DEBUG_MODE = true;
-    public static int DEBUG_CARS = 24;
-    public static final String DEBUG_TOPIC = "debug_topic";
+    public static int DEBUG_CARS = 8;
+    public static final String DEBUG_TOPIC = "debug_topic_2";
 }
