@@ -8,6 +8,7 @@ public class ServerConstants {
     public static final String PASSWORD = "xyi5b2YUcw8CHhAE";
 
     public static final String ANOMALY_TOPIC = "streaming_output";
+    public static final String STATUS_TOPIC = "status";
 
     public static final String LOG_FILE = "/home/chathura/Downloads/indy_data/IPBroadcaster_Input_2018-05-27_0.log";
 
@@ -16,4 +17,6 @@ public class ServerConstants {
     public static final boolean DEBUG_MODE = false;
     public static int DEBUG_CARS = 8;
     public static final String DEBUG_TOPIC = "debug_topic_2";
+
+    public static final int WS_PORT = DEBUG_MODE ? 61521 : 5000;
 }

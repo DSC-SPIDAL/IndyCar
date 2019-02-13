@@ -27,13 +27,13 @@ public class LatencyCalculator {
     private static final List<Long> times = new ArrayList<>();
 
     public synchronized static void addSent(String uuid) {
-        records.put(uuid, System.currentTimeMillis());
+        records.put(uuid, System.nanoTime());
     }
 
     public synchronized static boolean addRecv(String uuid) {
         Long submittedTime = records.get(uuid);
         if (submittedTime != null) {
-            long latency = System.currentTimeMillis() - submittedTime;
+            long latency = System.nanoTime() - submittedTime;
             if (latency > maxLatency) {
                 maxLatency = latency;
                 LOG.info("Max Latency : " + maxLatency + "ms");

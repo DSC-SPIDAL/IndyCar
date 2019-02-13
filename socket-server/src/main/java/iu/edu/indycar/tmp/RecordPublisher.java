@@ -7,20 +7,23 @@ import org.eclipse.paho.client.mqttv3.*;
 
 public class RecordPublisher implements MqttCallback {
 
-    private final Logger LOG = LogManager.getLogger(RecordPublisher.client);
+    private final Logger LOG = LogManager.getLogger(RecordPublisher.class);
 
-    private static MqttClient client;
+    private MqttClient client;
+
+    private StreamResetListener listener;
+
+    public RecordPublisher(StreamResetListener listener) {
+        this.listener = listener;
+    }
 
     public void connectToBroker() {
         MqttConnectOptions conn = new MqttConnectOptions();
 
-        //changing # of inflight messages from default 10 to 500
-        conn.setMaxInflight(500);
-
         conn.setAutomaticReconnect(true);
         conn.setCleanSession(true);
         conn.setConnectionTimeout(30);
-        conn.setKeepAliveInterval(30);
+        conn.setKeepAliveInterval(300);
         conn.setMaxInflight(1000);
         conn.setUserName(ServerConstants.USERNAME);
         conn.setPassword(ServerConstants.PASSWORD.toCharArray());
@@ -49,15 +52,34 @@ public class RecordPublisher implements MqttCallback {
         }
     }
 
+    public void sendRaceEnded() throws MqttException {
+        MqttMessage mqttMessage = new MqttMessage();
+        mqttMessage.setPayload("OK".getBytes());
+        mqttMessage.setQos(2);
+        client.publish(ServerConstants.STATUS_TOPIC, mqttMessage);
+    }
+
     @Override
     public void connectionLost(Throwable cause) {
         LOG.error("lost connection to broker...", cause);
+        try {
+            client.reconnect();
+        } catch (MqttException e) {
+            LOG.error("Error occurred when trying to reconnect");
+        }
     }
 
     @Override
     public void messageArrived(String topic, MqttMessage message) throws Exception {
         // TODO Auto-generated method stub
-
+        if (ServerConstants.STATUS_TOPIC.equals(topic)) {
+            String msg = new String(message.getPayload());
+            if ("START".equals(msg)) {
+                if (listener != null) {
+                    listener.reset();
+                }
+            }
+        }
     }
 
     @Override

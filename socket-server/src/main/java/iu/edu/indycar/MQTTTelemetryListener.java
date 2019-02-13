@@ -134,7 +134,9 @@ public class MQTTTelemetryListener {
             serverBoot.publishAnomalyEvent(anomalyMessage);
 
 
-            LatencyCalculator.addRecv(uuid);
+            if (ServerConstants.DEBUG_MODE) {
+                LatencyCalculator.addRecv(uuid);
+            }
 
 
 //                    recordWriter.write(

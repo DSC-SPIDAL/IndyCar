@@ -89,7 +89,6 @@ public class PositionStreamer {
             try {
                 long counter = atomicInteger.getAndIncrement();
                 String uuid = telemetryRecord.getCarNumber() + "_" + counter;
-                LatencyCalculator.addSent(uuid);
                 if (!ServerConstants.DEBUG_MODE) {
                     this.recordPublisher.publishRecord(
                             telemetryRecord.getCarNumber(),
@@ -103,6 +102,7 @@ public class PositionStreamer {
                             )
                     );
                 } else {
+                    LatencyCalculator.addSent(uuid);
                     this.recordPublisher.publishRecord(
                             telemetryRecord.getCarNumber(),
                             String.format("%s,%f,%f,%f,%d,%f,%s,%s",
