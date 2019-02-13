@@ -8,7 +8,7 @@ let socketService = new SocketService("j-093.juliet.futuresystems.org", 5000);
 //let socketService = new SocketService("j-093.juliet.futuresystems.org", 61521);
 //let socketService = new SocketService("localhost", 61521);
 socketService.start(() => {
-    console.log("Loading GUI");
+    console.log("Loading GUI...");
     ReactDOM.render(<App/>, document.getElementById('root'));
 
     let scroll = window.localStorage.getItem("scroll");

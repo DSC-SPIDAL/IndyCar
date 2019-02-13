@@ -13,10 +13,10 @@ export default class AnomalyWrapper extends React.Component {
             carNumbers: [
                 20, 21, 13, 98, 19, 6, 33, 24, 26, 7, 60, 27, 17, 15, 10,
                 64, 25, 59, 32, 28, 4, 3, 18, 22, 12, 1, 9, 14, 23, 30, 29, 88, 66
-            ].sort(),
-            selectedCarNumber: 20,
+            ].sort(function(a, b){return a-b}),
+            selectedCarNumber: 21,
             selectedMetric: ANOMALY_METRIC.RPM.id
-        }
+        };
         this.socket = new SocketService();
     }
 

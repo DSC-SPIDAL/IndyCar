@@ -39,19 +39,26 @@ export default class LapTimesComponent extends React.Component {
             carData: {},
             maxLap: 0
         };
+
+        this.setStateTimeout = -1;
     }
 
     onLapRecordReceived = (record) => {
-        let carData = this.state.carData;
-        if (!carData[record.carNumber]) {
-            carData[record.carNumber] = [];
+        if (record.carNumber !== "") {
+            clearTimeout(this.setStateTimeout);
+            let carData = this.state.carData;
+            if (!carData[record.carNumber]) {
+                carData[record.carNumber] = [];
+            }
+            let maxLap = this.state.maxLap;
+            carData[record.carNumber][record.completedLaps] = record.time;
+            if (record.completedLaps > maxLap) {
+                maxLap = record.completedLaps;
+            }
+            this.setStateTimeout = setTimeout(() => {
+                this.setState({carData, maxLap});
+            }, 1000);
         }
-        let maxLap = this.state.maxLap;
-        carData[record.carNumber][record.completedLaps] = record.time;
-        if (record.completedLaps > maxLap) {
-            maxLap = record.completedLaps;
-        }
-        this.setState({carData, maxLap});
     };
 
     onCarInformationChanged = () => {
@@ -100,10 +107,6 @@ export default class LapTimesComponent extends React.Component {
         }
     };
 
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return false;
-    }
-
     render() {
         // let carsListSwitch = this.state.carsList.map(car => {
         //     return <Switch label={car.driverName} key={car.carNumber}
@@ -119,7 +122,7 @@ export default class LapTimesComponent extends React.Component {
         Object.keys(this.state.carData).forEach(carNumber => {
             let lapTimes = this.state.carData[carNumber];
             dataSet.push({
-                label: CarInformationService.getCarInformation(carNumber).driverName,
+                label: `[${carNumber}] ${CarInformationService.getCarInformation(carNumber).driverName}`,
                 data: lapTimes,
                 fill: false,
                 borderColor: getCarColor(carNumber),

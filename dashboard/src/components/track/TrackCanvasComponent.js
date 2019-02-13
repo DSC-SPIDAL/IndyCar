@@ -3,10 +3,8 @@ import "./TrackComponent.css";
 import SVG from "svg.js";
 import roadTexture from "./img/road_two.jpg";
 import CBuffer from "CBuffer";
-
-import CarInformationService from "../../services/CarInformationService";
+import fabric from "fabric/dist/fabric";
 import {SocketService} from "../../services/SocketService";
-import LOADER from "./img/buffering.gif";
 
 //GLOBAL CALCULATIONS//
 
@@ -16,6 +14,9 @@ let trackShortLength = 201;
 let trackWidth = 15.2;
 let turnArc = 402;
 let turnRadius = turnArc * 4 / (2 * Math.PI);
+
+let totalTrackLength = (trackLongLength * 2) + (trackShortLength * 2) + (turnArc * 4);
+console.log("Total track length", totalTrackLength);
 
 //calculating optimum scale for screen size
 let scale = Math.min((window.innerWidth) / (trackLongLength + (turnRadius * 2)), (window.innerHeight) / (trackShortLength + turnRadius * 2));
@@ -96,14 +97,11 @@ let fiveToFour = sixToFive + scalledTurnArc;
 let fourToThree = fiveToFour + shortStraightWay.length;
 let threeToTwo = fourToThree + scalledTurnArc;
 
-export default class TrackComponent extends React.Component {
+export default class TrackCanvasComponent extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            buffering: true,
-            intermediateBuffering: false
-        };
+        this.state = {};
         this.socketService = new SocketService();
 
         this.cars = {};
@@ -115,6 +113,8 @@ export default class TrackComponent extends React.Component {
         this.lastE = Date.now();
 
         this.bufferSize = 10000;
+
+        console.log("Fabric", fabric);
     }
 
     componentDidMount() {
@@ -153,6 +153,8 @@ export default class TrackComponent extends React.Component {
     };
 
     drawTrack = (ref) => {
+
+        let canvas = new fabric.fabric.Canvas('yoho');
 
         this.draw = SVG(ref).size('100%', shortStraightWay.length + (2 * scaledRadius) + (trackWidth * widthSCale * 2));
 
@@ -214,7 +216,6 @@ export default class TrackComponent extends React.Component {
             deltaDistance = ((this.path.length() / scale) - pastRecord.distance + newRecord.distance) * scale;
             if (deltaDistance < 0) {
                 console.log("Still negative", initDistance, deltaDistance, newRecord.distance, pastRecord.distance);
-                deltaDistance = 0;
             }
         }
 
@@ -290,7 +291,6 @@ export default class TrackComponent extends React.Component {
         carContainer.rect(boundingBoxMax, boundingBoxMax).fill('transparent');
         car.move(boundingBoxMax / 2 - 4.8 * carScale / 2, boundingBoxMax / 2 - trackOffset * carScale / 2);
         car.rotate(180);
-        car.hide();
 
         let initPoint = this.path.pointAt(0);
         carContainer.center(initPoint.x, initPoint.y);
@@ -308,9 +308,6 @@ export default class TrackComponent extends React.Component {
                 console.log("No records in buffer", carNumber);
                 firstTime = true;
                 excessCount = 0;
-                this.setState({
-                    intermediateBuffering: true
-                });
             }
         };
 
@@ -329,19 +326,11 @@ export default class TrackComponent extends React.Component {
         frameBuffer.eventAdded = (data) => {
             excessCount++;
             if (!this.realTimeStamp[carNumber]) {
-                //this.realTimeStamp[carNumber] = Date.now() + 10000 - data.time;
+                this.realTimeStamp[carNumber] = Date.now() + 10000 - data.time;
             }
-            if (firstTime && excessCount === 8 * 5) { // five seconds buffering
-                car.show();
-                this.realTimeStamp[carNumber] = Date.now() + 10000 - data.time;//max expected time diff is 10sec
+            if (firstTime && excessCount === 10) {
                 firstTime = false;
                 animationCallback();
-                if (this.state.buffering || this.state.intermediateBuffering) {
-                    this.setState({
-                        buffering: false,
-                        intermediateBuffering: false
-                    });
-                }
             }
         };
 
@@ -354,15 +343,10 @@ export default class TrackComponent extends React.Component {
             <div className="ic-track">
                 <div ref={(ref) => {
                     this.trackWrapper = ref;
-                }} className="ic-track-wrapper" style={{visibility: !this.state.buffering ? 'visible' : 'hidden'}}>
+                }} className="ic-track-wrapper">
                 </div>
-                <div className="ic-track-buffering"
-                     style={{visibility: this.state.buffering || this.state.intermediateBuffering ? 'visible' : 'hidden'}}>
-                    <div>
-                        <img src={LOADER} width={20}/>
-                        <p>Buffering.....</p>
-                    </div>
-                </div>
+
+                <canvas id="yoho"/>
             </div>
         )
     }

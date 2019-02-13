@@ -89,9 +89,6 @@ export default class SpeedDataComponent extends React.Component {
             return lapR.time;
         });
 
-        console.log("Sorted", sortedLaps)
-
-
         return (
             <Card className="speed-data-component">
                 <div className="speed-data-rank-wrapper">
