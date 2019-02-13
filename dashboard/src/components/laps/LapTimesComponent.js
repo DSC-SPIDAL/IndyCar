@@ -100,6 +100,10 @@ export default class LapTimesComponent extends React.Component {
         }
     };
 
+    shouldComponentUpdate(nextProps, nextState, nextContext) {
+        return false;
+    }
+
     render() {
         // let carsListSwitch = this.state.carsList.map(car => {
         //     return <Switch label={car.driverName} key={car.carNumber}
@@ -121,6 +125,9 @@ export default class LapTimesComponent extends React.Component {
                 borderColor: getCarColor(carNumber),
                 backgroundColor: getCarColor(carNumber),
                 borderWidth: 0.5,
+                datasetKeyProvider: () => {
+                    return carNumber;
+                }
             });
         });
         //x axis

@@ -72,7 +72,7 @@ public class PositionStreamer {
                     public boolean evaluate(TelemetryRecord indycarRecord) {
                         if (foundFirstNonZero.containsKey(indycarRecord.getCarNumber())) {
                             return true;
-                        } else if (indycarRecord.getLapDistance() != 0 && foundFirstNonZero.size() < ServerConstants.DEBUG_CARS) {
+                        } else if (indycarRecord.getLapDistance() != 0 && (!ServerConstants.DEBUG_MODE || foundFirstNonZero.size() < ServerConstants.DEBUG_CARS)) {
                             foundFirstNonZero.put(indycarRecord.getCarNumber(), true);
                             return true;
                         }
@@ -81,6 +81,7 @@ public class PositionStreamer {
                 }
         );
 
+
         recordStreamer.setTelemetryRecordListener(telemetryRecord -> {
 
             AtomicLong atomicInteger = carCounter.computeIfAbsent(
@@ -88,6 +89,7 @@ public class PositionStreamer {
             try {
                 long counter = atomicInteger.getAndIncrement();
                 String uuid = telemetryRecord.getCarNumber() + "_" + counter;
+                LatencyCalculator.addSent(uuid);
                 if (!ServerConstants.DEBUG_MODE) {
                     this.recordPublisher.publishRecord(
                             telemetryRecord.getCarNumber(),
@@ -115,7 +117,6 @@ public class PositionStreamer {
                             )
                     );
                 }
-                LatencyCalculator.addSent(uuid);
 //                this.recordWriter.write(
 //                        telemetryRecord.getCarNumber(),
 //                        String.valueOf(counter),

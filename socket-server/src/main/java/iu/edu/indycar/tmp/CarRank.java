@@ -18,7 +18,7 @@ public class CarRank implements Comparable<CarRank> {
 
     public synchronized void recordDistance(double distance) {
         if (distanceFromStart > distance) {
-            System.out.println("Lower record " + carNumber + " : " + distanceFromStart + "," + distance);
+//            System.out.println("Lower record " + carNumber + " : " + distanceFromStart + "," + distance + ":" + Thread.currentThread().getId());
             lap++;
         }
         this.distanceFromStart = distance;

@@ -47,7 +47,7 @@ public class WebsocketServer {
         String filePath = args.length == 0 ? ServerConstants.LOG_FILE : args[0];
         ServerConstants.DEBUG_CARS = args.length < 2 ? ServerConstants.DEBUG_CARS : Integer.valueOf(args[1]);
 
-        ServerBoot serverBoot = new ServerBoot("0.0.0.0", 61521);
+        ServerBoot serverBoot = new ServerBoot("0.0.0.0", 5000);
 
         RecordPublisher recordPublisher = new RecordPublisher();
         recordPublisher.connectToBroker();
@@ -61,17 +61,19 @@ public class WebsocketServer {
         mqttAnomalyListener.start();
         startPositionStreamer(serverBoot, recordPublisher, mqttAnomalyListener, filePath);
 
-        new Timer().schedule(new TimerTask() {
-            @Override
-            public void run() {
-                try {
-                    PingLatency.writeToFile();
-                    LatencyCalculator.writeToFile();
-                    System.exit(0);
-                } catch (IOException e) {
-                    e.printStackTrace();
+        if (ServerConstants.DEBUG_MODE) {
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+                        PingLatency.writeToFile();
+                        LatencyCalculator.writeToFile();
+                        System.exit(0);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
-            }
-        }, 10 * 60 * 1000);
+            }, 10 * 60 * 1000);
+        }
     }
 }

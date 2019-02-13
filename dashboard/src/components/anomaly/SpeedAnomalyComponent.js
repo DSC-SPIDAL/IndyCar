@@ -36,7 +36,8 @@ export default class SpeedAnomalyComponent extends React.Component {
         speedData.length > this.state.windowSize && speedData.splice(0, speedData.length - this.state.windowSize);
 
         let anomalyData = chartData.anomalyData;
-        anomalyData.push(parseFloat(anomalyObject.anomaly));
+        anomalyData.push(anomalyObject.anomaly);
+        console.log(anomalyObject.anomaly)
         anomalyData.length > this.state.windowSize && anomalyData.splice(0, anomalyData.length - this.state.windowSize);
 
         let labels = chartData.labels;

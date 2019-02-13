@@ -3,7 +3,7 @@ import {Card} from "@blueprintjs/core";
 import "./SpeedDataComponent.css";
 import {Icon} from "@blueprintjs/core/lib/esm/components/icon/icon";
 import {Line} from "react-chartjs-2";
-import CarInformationService from "../../services/CarInformationService";
+import CarInformationService, {CAR_LAP_LISTENER} from "../../services/CarInformationService";
 import PropTypes from 'prop-types';
 
 /**
@@ -15,7 +15,8 @@ export default class SpeedDataComponent extends React.Component {
         super(props);
         this.state = {
             x: [],
-            carInfo: {}
+            carInfo: {},
+            lapRecords: {}
         };
 
         // for (let i = 0; i < 18; i++) {
@@ -31,39 +32,66 @@ export default class SpeedDataComponent extends React.Component {
         })
     };
 
-    updateSectionTiming(props = this.props) {
-        // CarInformationService.getSectionTiming(props.carNumber, props.carData.currentLap).then(response => {
-        //     let times = response.data.map(sectionTime => 100 / parseFloat(sectionTime.last_section_time.split(":")[2]));
-        //     this.setState({
-        //         x: times
-        //     })
-        // });
-    }
+    onLapRecordReceived = (lapRecord) => {
+        if (lapRecord.carNumber === this.props.carNumber) {
+            let lapRecords = this.state.lapRecords;
+            if (!lapRecords[lapRecord.completedLaps]) {
+                lapRecords[lapRecord.completedLaps] = lapRecord.time;
+                this.setState({
+                    lapRecords
+                });
+            }
+        }
+    };
 
     componentDidMount() {
-        // setInterval(() => {
-        //     let x = [];
-        //     for (let i = 0; i < 18; i++) {
-        //         x.push(Math.floor(Math.random() * 250))
-        //     }
-        //     this.setState({x});
-        // }, 5000);
-
         this.updateCarInformation();
-        this.updateSectionTiming();
+
+
+        let lapTimes = CarInformationService.getLapTimes();
+        Object.values(lapTimes).forEach(records => {
+            records.forEach(this.onLapRecordReceived);
+        });
+
+
+        CarInformationService.addEventListener(CAR_LAP_LISTENER, this.onLapRecordReceived);
+    }
+
+    componentWillUnmount() {
+        CarInformationService.removeEventListener(CAR_LAP_LISTENER, this.onLapRecordReceived);
     }
 
 
     componentWillReceiveProps(nextProps) {
         if (nextProps.carNumber !== this.props.carNumber) {
             this.updateCarInformation(nextProps);
-            this.updateSectionTiming(nextProps);
-        } else if (nextProps.carData.currentLap !== this.props.carData.currentLap) {
-            this.updateSectionTiming(nextProps);
         }
     }
 
     render() {
+
+        let lapRecs = Object.keys(this.state.lapRecords).map(key => {
+            return {lap: key, time: this.state.lapRecords[key]}
+        });
+
+        let sortedLapNumbers = [];
+        let sortedLaps = lapRecs.sort((a, b) => {
+            let lapA = parseInt(a.lap);
+            let lapB = parseInt(b.lap);
+            if (lapA < lapB) {
+                return -1;
+            } else if (lapA > lapB) {
+                return 1;
+            }
+            return 0;
+        }).map(lapR => {
+            sortedLapNumbers.push(lapR.lap);
+            return lapR.time;
+        });
+
+        console.log("Sorted", sortedLaps)
+
+
         return (
             <Card className="speed-data-component">
                 <div className="speed-data-rank-wrapper">
@@ -90,6 +118,7 @@ export default class SpeedDataComponent extends React.Component {
                             </div>
                             <div className="speed-data-driver-info-other">
                                 <div className="speed-data-driver-info-other-col">
+                                    {/*{this.props.carData.distanceFromStart} [{this.props.carData.lap}]*/}
                                     <div>
                                         <Icon icon="id-number"/>
                                     </div>
@@ -114,13 +143,13 @@ export default class SpeedDataComponent extends React.Component {
                     </div>
                     <div className="speed-data-lap-sections">
                         <Line data={{
-                            labels: this.state.x,
+                            labels: sortedLapNumbers,
                             datasets: [
                                 {
                                     borderColor: "#90A4AE",
                                     backgroundColor: "#263238",
                                     borderWidth: 0.5,
-                                    data: this.state.x
+                                    data: sortedLaps
                                 }
                             ]
                         }}

@@ -31,9 +31,11 @@ export default class HeaderComponent extends React.Component {
 
     onWeatherRecord = (data) => {
         console.log("Weather data", data);
-        let time = parseInt(data.timeOfDay, 16);
-        let hours = Math.floor(time / (1000 * 60 * 60));
-        let mins = Math.floor((time % (1000 * 60 * 60)) / (1000 * 60));
+        let hours = Math.floor(data.timeOfDay / (1000 * 60 * 60)) + "";
+        let mins = Math.floor((data.timeOfDay % (1000 * 60 * 60)) / (1000 * 60)) + "";
+        if (mins.length === 1) {
+            mins = "0" + mins;
+        }
         this.setState({
             weather: {
                 pressure: data.pressure,

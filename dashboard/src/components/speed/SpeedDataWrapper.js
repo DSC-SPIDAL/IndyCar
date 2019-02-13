@@ -33,10 +33,12 @@ export default class SpeedDataWrapper extends React.Component {
     componentDidMount() {
         CarInformationService.addEventListener(CAR_INFO_LISTENER, (info) => {
             let carsList = this.state.carsList;
-            carsList[info.carNumber] = info;
-            this.setState({
-                carsList
-            })
+            if (!carsList[info.carNumber]) {
+                carsList[info.carNumber] = info;
+                this.setState({
+                    carsList
+                });
+            }
         });
 
         let carsList = CarInformationService.getCarList();
@@ -47,11 +49,27 @@ export default class SpeedDataWrapper extends React.Component {
         this.socket.subscribe("ranks", this.onRankUpdate);
     }
 
+    shouldComponentUpdate(nextProps, nextState, nextContext) {
+        let oldRanks = this.state.ranks;
+        let newRanks = nextState.ranks;
+
+        if (oldRanks.length !== newRanks.length) {
+            return true;
+        } else {
+            for (let i = 0; i < oldRanks.length; i++) {
+                if (oldRanks[i].carNumber !== newRanks[i].carNumber) {
+                    return true;
+                }
+            }
+        }
+        return false;
+    }
+
     render() {
 
         let speedDataComponents = this.state.ranks.map((rankObj, index) => {
             return <SpeedDataComponent carNumber={rankObj.carNumber}
-                                       carData={{}}
+                                       carData={rankObj}
                                        key={rankObj.carNumber}
                                        rank={index + 1}/>
         });

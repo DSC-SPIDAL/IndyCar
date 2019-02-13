@@ -70,6 +70,10 @@ public class MQTTTelemetryListener {
         this.initRecordWriter();
     }
 
+    private long previousTime = 0;
+    private long previousEventTime = 0;
+    private long offeset = 0;
+
     private void processMessage(String payload) {
         try {
             JSONObject jsonObject = getJSONMessage(payload);
@@ -78,14 +82,21 @@ public class MQTTTelemetryListener {
 
             long counter = Long.valueOf(uuid.split("_")[1]);
 
-            LatencyCalculator.addRecv(uuid);
-
             String timeOfDay = jsonObject.getString("timeOfDay");
             long timeOfDayLong = TimeUtils.convertTimestampToLong(timeOfDay);
             String carNumber = jsonObject.getString("carNumber");
             int carNumberInt = Integer.parseInt(carNumber);
 
             double lapDistance = jsonObject.getDouble("lapDistance");
+
+
+//            if (carNumber.equals("24")) {
+//                System.out.println(System.currentTimeMillis() - previousTime + ":" + (timeOfDayLong - previousEventTime));
+//                previousTime = System.currentTimeMillis();
+//                offeset += ((System.currentTimeMillis() - previousTime) - (timeOfDayLong - previousEventTime));
+//                System.out.println("offset:" + offeset);
+//                previousEventTime = timeOfDayLong;
+//            }
 
             serverBoot.publishPositionEvent(
                     new CarPositionRecord(lapDistance, timeOfDayLong, carNumber),
@@ -121,6 +132,9 @@ public class MQTTTelemetryListener {
             anomalyMessage.addAnomaly(rpmAnomaly);
 
             serverBoot.publishAnomalyEvent(anomalyMessage);
+
+
+            LatencyCalculator.addRecv(uuid);
 
 
 //                    recordWriter.write(
