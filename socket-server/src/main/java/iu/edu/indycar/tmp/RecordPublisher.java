@@ -27,6 +27,7 @@ public class RecordPublisher implements MqttCallback {
         conn.setMaxInflight(1000);
         conn.setUserName(ServerConstants.USERNAME);
         conn.setPassword(ServerConstants.PASSWORD.toCharArray());
+        conn.setSocketFactory(new MQTTSocketFactory());
 
         try {
             client = new MqttClient(
@@ -35,6 +36,7 @@ public class RecordPublisher implements MqttCallback {
             );
             client.setCallback(this);
             client.connect(conn);
+            client.subscribe(ServerConstants.STATUS_TOPIC);
         } catch (MqttException m) {
             m.printStackTrace();
         }

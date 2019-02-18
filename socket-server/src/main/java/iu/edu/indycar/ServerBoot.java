@@ -37,11 +37,16 @@ public class ServerBoot {
 
     private TimerTask pingTask;
     private TimerTask rankTask;
+    private TimerTask positionStreamTask;
     private Timer timer = new Timer();
 
     private HashMap<SocketAddress, PingLatency> latency = new HashMap<>();
 
     private ConcurrentHashMap<String, CarRank> ranks = new ConcurrentHashMap<>();
+
+    private final Map<String, CarPositionRecord> carPositionRecords = new ConcurrentHashMap<>();
+
+    private final List<ArrayList<CarPositionRecord>> pastRecords = new ArrayList<>();
 
     public ServerBoot(String host, int port) {
 
@@ -71,6 +76,30 @@ public class ServerBoot {
                 server.getBroadcastOperations().sendEvent("ranks", values);
             }
         };
+
+        this.positionStreamTask = new TimerTask() {
+            @Override
+            public void run() {
+                ArrayList<CarPositionRecord> recordsList = null;
+                synchronized (carPositionRecords) {
+                    Collection<CarPositionRecord> records = carPositionRecords.values();
+                    if (!records.isEmpty()) {
+                        recordsList = new ArrayList<>(records);
+                        carPositionRecords.clear();
+                    }
+                }
+
+                if (recordsList != null) {
+                    server.getRoomOperations("position").sendEvent("position", recordsList);
+                    synchronized (pastRecords) {
+                        pastRecords.add(recordsList);
+                        if (pastRecords.size() > 10) {
+                            pastRecords.remove(0);
+                        }
+                    }
+                }
+            }
+        };
     }
 
     public void publishAnomalyEvent(AnomalyMessage anomalyMessage) {
@@ -81,7 +110,10 @@ public class ServerBoot {
 
     public void publishPositionEvent(CarPositionRecord carPositionRecord, long counter) {
         carPositionRecord.setSentTime(System.currentTimeMillis());
-        this.server.getBroadcastOperations().sendEvent("position", carPositionRecord);
+        synchronized (this.carPositionRecords) {
+            this.carPositionRecords.put(carPositionRecord.getCarNumber(), carPositionRecord);
+        }
+        //this.server.getBroadcastOperations().sendEvent("position", carPositionRecord);
 
         CarRank carRank = this.ranks.computeIfAbsent(carPositionRecord.getCarNumber(), CarRank::new);
         if (counter == 0) {
@@ -118,7 +150,10 @@ public class ServerBoot {
         this.lastWeatherRecord = null;
         this.entryRecordSet = new HashSet<>();
         this.lapRecords = new HashMap<>();
+        this.ranks.clear();
         this.pingTask.cancel();
+        this.carPositionRecords.clear();
+        this.pastRecords.clear();
     }
 
     public void start() {
@@ -143,11 +178,20 @@ public class ServerBoot {
                     socketIOClient.getRemoteAddress(),
                     new PingLatency(socketIOClient.getRemoteAddress().toString())
             );
+
+            //broadcast past records
+            synchronized (pastRecords) {
+                for (ArrayList<CarPositionRecord> pastRecord : pastRecords) {
+                    socketIOClient.sendEvent("position", pastRecord);
+                }
+            }
+            socketIOClient.joinRoom("position");
         });
 
         server.addDisconnectListener(socketIOClient -> {
             LOG.info("Client {} disconnected", socketIOClient.getRemoteAddress());
             latency.remove(socketIOClient.getRemoteAddress());
+            socketIOClient.leaveRoom("position");
         });
 
         server.addEventListener(
@@ -171,14 +215,14 @@ public class ServerBoot {
         );
 
 
-        server.addEventListener("pongi", String.class,
-                (socketIOClient, message, ackRequest) -> {
-                    PingLatency pingLatency = latency.get(socketIOClient.getRemoteAddress());
-                    if (pingLatency != null) {
-                        pingLatency.pongReceived();
-                    }
-                }
-        );
+//        server.addEventListener("pongi", String.class,
+//                (socketIOClient, message, ackRequest) -> {
+//                    PingLatency pingLatency = latency.get(socketIOClient.getRemoteAddress());
+//                    if (pingLatency != null) {
+//                        pingLatency.pongReceived();
+//                    }
+//                }
+//        );
 
         Runtime.getRuntime().addShutdownHook(new Thread(() -> {
             LOG.info("Stopping Server");
@@ -187,7 +231,8 @@ public class ServerBoot {
 
         LOG.info("Starting server...");
         server.start();
-        timer.schedule(this.pingTask, 0, 500);
+        //timer.schedule(this.pingTask, 0, 500);
         timer.schedule(this.rankTask, 0, 5000);
+        timer.schedule(this.positionStreamTask, 0, 2000);
     }
 }

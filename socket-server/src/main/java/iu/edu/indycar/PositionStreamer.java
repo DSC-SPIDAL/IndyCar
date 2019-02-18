@@ -1,5 +1,6 @@
 package iu.edu.indycar;
 
+import iu.edu.indycar.models.CarPositionRecord;
 import iu.edu.indycar.streamer.RecordStreamer;
 import iu.edu.indycar.streamer.StreamEndListener;
 import iu.edu.indycar.streamer.records.TelemetryRecord;
@@ -84,11 +85,26 @@ public class PositionStreamer {
 
         recordStreamer.setTelemetryRecordListener(telemetryRecord -> {
 
+
             AtomicLong atomicInteger = carCounter.computeIfAbsent(
                     telemetryRecord.getCarNumber(), (s) -> new AtomicLong());
             try {
                 long counter = atomicInteger.getAndIncrement();
                 String uuid = telemetryRecord.getCarNumber() + "_" + counter;
+
+
+                if (ServerConstants.DIRECT_STREAM_DISTANCE) {
+                    if (!ServerConstants.DIRECT_STREAM_CAR_FILTER
+                            || ServerConstants.DIRECT_STREAM_CARS.contains(telemetryRecord.getCarNumber())) {
+                        CarPositionRecord cpr = new CarPositionRecord(
+                                telemetryRecord.getLapDistance(),
+                                telemetryRecord.getTimeField(),
+                                telemetryRecord.getCarNumber()
+                        );
+                        this.serverBoot.publishPositionEvent(cpr, counter);
+                    }
+                }
+
                 if (!ServerConstants.DEBUG_MODE) {
                     this.recordPublisher.publishRecord(
                             telemetryRecord.getCarNumber(),
@@ -102,7 +118,6 @@ public class PositionStreamer {
                             )
                     );
                 } else {
-                    LatencyCalculator.addSent(uuid);
                     this.recordPublisher.publishRecord(
                             telemetryRecord.getCarNumber(),
                             String.format("%s,%f,%f,%f,%d,%f,%s,%s",
@@ -117,6 +132,7 @@ public class PositionStreamer {
                             )
                     );
                 }
+                LatencyCalculator.addSent(uuid);
 //                this.recordWriter.write(
 //                        telemetryRecord.getCarNumber(),
 //                        String.valueOf(counter),

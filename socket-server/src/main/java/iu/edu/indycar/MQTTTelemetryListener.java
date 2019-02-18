@@ -3,15 +3,19 @@ package iu.edu.indycar;
 import iu.edu.indycar.models.Anomaly;
 import iu.edu.indycar.models.AnomalyMessage;
 import iu.edu.indycar.models.CarPositionRecord;
+import iu.edu.indycar.streamer.RecordTiming;
 import iu.edu.indycar.streamer.TimeUtils;
 import iu.edu.indycar.tmp.LatencyCalculator;
+import iu.edu.indycar.tmp.MQTTSocketFactory;
 import iu.edu.indycar.tmp.RecordWriter;
+import iu.edu.indycar.tmp.WSMessage;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.*;
 import org.json.JSONObject;
 
 import java.io.IOException;
+import java.util.HashMap;
 import java.util.Random;
 import java.util.concurrent.ArrayBlockingQueue;
 import java.util.concurrent.ExecutorService;
@@ -34,6 +38,11 @@ public class MQTTTelemetryListener {
 
     private ArrayBlockingQueue<byte[]> msgs = new ArrayBlockingQueue<>(1000);
     private final ExecutorService executorService = Executors.newFixedThreadPool(ServerConstants.EVENT_EMITTER_THREADS);
+
+    private HashMap<String, Boolean> firstRecordDetected = new HashMap<>();
+    private HashMap<String, RecordTiming> recordTimingHashMap = new HashMap<>();
+
+    private long messagesQueued = 0;
 
     public MQTTTelemetryListener(ServerBoot serverBoot, String subscription) {
         System.out.println(subscription);
@@ -67,12 +76,16 @@ public class MQTTTelemetryListener {
 
     public void reset() {
         this.recordWriter.close();
+        this.firstRecordDetected.clear();
+
+        this.recordTimingHashMap.values().forEach(RecordTiming::stop);
+        this.recordTimingHashMap.clear();
+
+        this.messagesQueued = 0;
+
         this.initRecordWriter();
     }
 
-    private long previousTime = 0;
-    private long previousEventTime = 0;
-    private long offeset = 0;
 
     private void processMessage(String payload) {
         try {
@@ -80,11 +93,21 @@ public class MQTTTelemetryListener {
 
             String uuid = jsonObject.getString("UUID");
 
+            String carNumber = jsonObject.getString("carNumber");
             long counter = Long.valueOf(uuid.split("_")[1]);
+
+            if (counter == 0) {
+                this.firstRecordDetected.put(carNumber, true);
+                System.out.println("First record for car " + carNumber);
+            }
+
+            if (counter != 0 && !firstRecordDetected.getOrDefault(carNumber, false)) {
+                System.out.println("Drop");
+                return;
+            }
 
             String timeOfDay = jsonObject.getString("timeOfDay");
             long timeOfDayLong = TimeUtils.convertTimestampToLong(timeOfDay);
-            String carNumber = jsonObject.getString("carNumber");
             int carNumberInt = Integer.parseInt(carNumber);
 
             double lapDistance = jsonObject.getDouble("lapDistance");
@@ -98,10 +121,6 @@ public class MQTTTelemetryListener {
 //                previousEventTime = timeOfDayLong;
 //            }
 
-            serverBoot.publishPositionEvent(
-                    new CarPositionRecord(lapDistance, timeOfDayLong, carNumber),
-                    counter
-            );
 
             double vehicleSpeed = Double.valueOf(jsonObject.getString("vehicleSpeed"));
             double throttle = Double.valueOf(jsonObject.getString("throttle"));
@@ -131,11 +150,38 @@ public class MQTTTelemetryListener {
             rpmAnomaly.setAnomaly(jsonObject.getDouble("engineSpeedAnomaly"));
             anomalyMessage.addAnomaly(rpmAnomaly);
 
-            serverBoot.publishAnomalyEvent(anomalyMessage);
+
+            this.recordTimingHashMap.computeIfAbsent(carNumber, (k) -> {
+                RecordTiming rt = new RecordTiming(carNumber, (r) -> {
+                    WSMessage wsMessage = (WSMessage) r;
+                    if (!ServerConstants.DIRECT_STREAM_DISTANCE) {
+                        serverBoot.publishPositionEvent(
+                                wsMessage.getCarPositionRecord(),
+                                wsMessage.getCounter()
+                        );
+                    }
+                    serverBoot.publishAnomalyEvent(wsMessage.getAnomalyMessage());
+                }, 1, (s) -> {
+                    LOG.info("Stream ended for car", carNumber);
+                }, messagesQueued > (this.recordTimingHashMap.size() + 1) * 30 * 8);
+                rt.setPollTimeout(5);
+                return rt;
+            }).enqueue(
+                    new WSMessage(
+                            counter,
+                            new CarPositionRecord(lapDistance, timeOfDayLong, carNumber),
+                            anomalyMessage
+                    )
+            );
 
 
-            if (ServerConstants.DEBUG_MODE) {
-                LatencyCalculator.addRecv(uuid);
+            LatencyCalculator.addRecv(uuid);
+
+            messagesQueued++;
+
+            if (messagesQueued == (this.recordTimingHashMap.size() + 1) * 30 * 8) {
+                LOG.info("Starting real-timers after buffering {}...", messagesQueued);
+                this.recordTimingHashMap.values().forEach(RecordTiming::start);
             }
 
 
@@ -220,6 +266,7 @@ public class MQTTTelemetryListener {
         connOpts.setUserName(username);
         connOpts.setPassword(password.toCharArray());
         connOpts.setAutomaticReconnect(true);
+        connOpts.setSocketFactory(new MQTTSocketFactory());
         return connOpts;
     }
 }

@@ -3,11 +3,11 @@ package iu.edu.indycar.models;
 public class CarPositionRecord {
 
     private double distance;
-    private double time;
+    private long time;
     private String carNumber;
     private long sentTime;//to calculate latency
 
-    public CarPositionRecord(double distance, double time, String carNumber) {
+    public CarPositionRecord(double distance, long time, String carNumber) {
         this.distance = distance;
         this.time = time;
         this.carNumber = carNumber;
@@ -37,11 +37,11 @@ public class CarPositionRecord {
         this.carNumber = carNumber;
     }
 
-    public double getTime() {
+    public long getTime() {
         return time;
     }
 
-    public void setTime(double time) {
+    public void setTime(long time) {
         this.time = time;
     }
 }
