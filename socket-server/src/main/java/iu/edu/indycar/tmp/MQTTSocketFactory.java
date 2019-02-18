@@ -4,11 +4,15 @@ import javax.net.SocketFactory;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.Socket;
+import java.net.SocketException;
 
 public class MQTTSocketFactory extends SocketFactory {
 
-    public Socket createSocket() {
-        return new Socket();
+    public Socket createSocket() throws SocketException {
+        Socket socket = new Socket();
+        socket.setKeepAlive(true);
+        socket.setTcpNoDelay(true);
+        return socket;
     }
 
     public Socket createSocket(String var1, int var2) throws IOException {

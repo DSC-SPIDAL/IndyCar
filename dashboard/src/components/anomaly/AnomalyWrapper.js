@@ -93,7 +93,7 @@ export default class AnomalyWrapper extends React.Component {
                                            key={this.state.selectedCarNumber + "RPM"}/>
                     <SpeedAnomalyComponent carNumber={this.state.selectedCarNumber}
                                            metric={"THROTTLE"}
-                                           rawDataColor="#EF6C00"
+                                           rawDataColor="#673AB7"
                                            key={this.state.selectedCarNumber + "THROTTLE"}/>
                 </Card>
             </div>

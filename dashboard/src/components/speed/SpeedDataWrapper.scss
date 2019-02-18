@@ -1,4 +1,9 @@
 .speed-data-wrapper {
   padding-left: 5px;
   padding-right: 5px;
+
+  .speed-data-wrapper-controls {
+    text-align: right;
+    margin-bottom: 10px;
+  }
 }

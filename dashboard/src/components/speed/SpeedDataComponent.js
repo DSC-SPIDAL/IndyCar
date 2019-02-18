@@ -76,8 +76,8 @@ export default class SpeedDataComponent extends React.Component {
 
         let sortedLapNumbers = [];
         let sortedLaps = lapRecs.sort((a, b) => {
-            let lapA = parseInt(a.lap);
-            let lapB = parseInt(b.lap);
+            let lapA = parseInt(a.lap, 10);
+            let lapB = parseInt(b.lap, 10);
             if (lapA < lapB) {
                 return -1;
             } else if (lapA > lapB) {

@@ -1,7 +1,6 @@
 import React from "react";
 import "./HeaderComponent.css";
-import RaceInformationService from "../../services/RaceInformationService";
-import {Navbar, NavbarGroup, NavbarDivider, Alignment, Tooltip, Position} from "@blueprintjs/core";
+import {Alignment, Navbar, NavbarDivider, NavbarGroup, Position, Tooltip} from "@blueprintjs/core";
 import THERMO_IMG from "./img/thermometer.png";
 import BARO_IMG from "./img/gauge.png";
 import HUMIDITY_IMG from "./img/humidity.png";
