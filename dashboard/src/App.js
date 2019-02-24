@@ -14,7 +14,7 @@ class App extends Component {
                 {/*<TrackCanvasComponent/>*/}
                 <TrackComponent/>
                 <SpeedDataWrapper/>
-                {/*<AnomalyWrapper/>*/}
+                <AnomalyWrapper/>
                 <LapTimesComponent/>
             </div>
         );

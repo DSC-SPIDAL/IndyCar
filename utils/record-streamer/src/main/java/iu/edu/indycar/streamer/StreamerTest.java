@@ -9,6 +9,9 @@ import org.apache.logging.log4j.Logger;
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class StreamerTest {
 
@@ -18,7 +21,7 @@ public class StreamerTest {
         File file = new File(args[0]);
 
         RecordStreamer recordStreamer = new RecordStreamer(
-                file, true, 100000, s -> s.split("_")[2]);
+                file, true, 10000000, s -> s.split("_")[2]);
 
 //        ConcurrentHashMap<String, Long> lastRecordTime = new ConcurrentHashMap<>();
 //
@@ -45,30 +48,10 @@ public class StreamerTest {
 //
 //        new Timer().schedule(tt, 0, 1000);
 
-        HashMap<String, Long> carTime = new HashMap<>();
+        Map<String, AtomicInteger> carTime = new ConcurrentHashMap<>();
 
         recordStreamer.setTelemetryRecordListener(record -> {
-
-            if (record.getCarNumber().equals("10")) {
-                System.out.println(record.getTimeOfDay());
-            }
-
-            Long old = carTime.put(record.getCarNumber(), record.getTimeField());
-            if (old != null && old > record.getTimeField()) {
-                System.out.println("Out of order time for car " + record.getCarNumber()
-                        + " : " + old + "," + record.getTimeField());
-            }
-
-//            long atomicLong = lastRecordTime.getOrDefault(record.getCarNumber(), 0L);
-//            lastRecordTime.put(record.getCarNumber(), ++atomicLong);
-
-            //System.out.println(record.getCarNumber() + ":" + record.getVehicleSpeed());
-//      System.out.println(record.getCarNumber());
-//      System.out.println(record.getTimeOfDay());
-//      System.out.println(record.getEngineSpeed());
-//      System.out.println(record.getLapDistance());
-//      System.out.println(record.getThrottle());
-//      System.out.println(record.getThrottle());
+            carTime.computeIfAbsent(record.getCarNumber(), s -> new AtomicInteger()).incrementAndGet();
         });
 
         recordStreamer.setWeatherRecordListener(wr -> {
@@ -94,6 +77,14 @@ public class StreamerTest {
 
         recordStreamer.setStreamEndListener(tag -> {
             LOG.info("End of stream");
+            carTime.forEach((k, v) -> {
+                if (v.get() > 50000) {
+                    System.out.println("\"" + k + "\",");
+                }
+            });
+
+            System.out.println(carTime);
+
 //            tt.cancel();
 //            averageHashMap.forEach((k, v) -> {
 //                LOG.info(k + " : " + (v.records / v.count));

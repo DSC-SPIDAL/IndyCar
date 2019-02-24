@@ -179,6 +179,8 @@ public class RecordStreamer implements StreamEndListener {
                 if (e.isLog()) {
                     LOG.warn("Couldn't parse a record", e);
                 }
+            } catch (Exception ex) {
+                LOG.warn("Unexpected exception occurred when parsing the record {}", line, ex);
             } finally {
                 line = br.readLine();
             }

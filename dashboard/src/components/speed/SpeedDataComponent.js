@@ -6,6 +6,17 @@ import {Line} from "react-chartjs-2";
 import CarInformationService, {CAR_LAP_LISTENER} from "../../services/CarInformationService";
 import PropTypes from 'prop-types';
 
+const DRIVERS_WITH_IMAGES = {
+    13: 13,
+    19: 19,
+    20: 20,
+    21: 21,
+    24: 24,
+    26: 26,
+    33: 33,
+    98: 98
+};
+
 /**
  * @author Chathura Widanage
  */
@@ -89,14 +100,20 @@ export default class SpeedDataComponent extends React.Component {
             return lapR.time;
         });
 
+        let imageUrl = DRIVERS_WITH_IMAGES[parseInt(this.state.carInfo.carNumber, 10)] ?
+            `url(img/drivers/${this.state.carInfo.carNumber}.jpg)` : `url(img/drivers/no.jpg)`
+
         return (
             <Card className="speed-data-component">
                 <div className="speed-data-rank-wrapper">
                     <div className="speed-data-info-wrapper">
                         <div className="speed-data-car-info">
                             <div className="speed-data-car-info-middle">
-                                <div className="speed-data-car-info-number">
+                                <div className="speed-data-car-info-number"
+                                     style={{backgroundImage: imageUrl}}>
+                                    <span>
                                     {this.state.carInfo.carNumber}
+                                    </span>
                                 </div>
                                 <div className="speed-data-car-info-engine">
                                     {this.state.carInfo.engine}

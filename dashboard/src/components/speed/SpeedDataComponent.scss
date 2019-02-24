@@ -2,6 +2,7 @@
 
 .speed-data-component {
   padding: 0;
+
   &:not(:last-of-type) {
     margin-bottom: 5px;
   }
@@ -19,10 +20,12 @@
       grid-template-columns: 80px calc(100% - 80px);
       grid-column-gap: 10px;
       padding: 10px;
+
       .speed-data-car-info {
         text-align: center;
         position: relative;
         vertical-align: middle;
+        margin-left: 15px;
 
         .speed-data-car-info-middle {
           position: absolute;
@@ -32,13 +35,30 @@
 
           .speed-data-car-info-number {
             font-family: 'Oswald', sans-serif;
-            font-size: 42px;
             border: 1px dashed $pt-code-background-color;
             border-radius: 500px;
             width: 80px;
             height: 80px;
             padding: 10px;
             margin-bottom: 10px;
+            background-repeat: no-repeat;
+            background-size: cover;
+            background-position: center;
+
+            span {
+              border: 1px dashed $pt-code-background-color;
+              font-size: 21px;
+              position: absolute;
+              background-color: white;
+              border-radius: 1000px;
+              color: #293742;
+              //padding: 5px;
+              left: -10px;
+              top: -5px;
+              width: 30px;
+              height: 30px;
+              line-height: 30px;
+            }
           }
         }
       }
@@ -48,6 +68,8 @@
         grid-template-columns: 100%;
         grid-template-rows: auto auto;
         grid-row-gap: 10px;
+        margin-left: 15px;
+
         .speed-data-driver-info-bio {
           .speed-data-driver-name {
             font-size: 26px;
@@ -63,6 +85,7 @@
               font-size: 24px;
             }
           }
+
           padding-bottom: 5px;
           //border-bottom: 1px solid $pt-dark-divider-white;
         }
