@@ -1,10 +1,12 @@
 package iu.edu.indycar;
 
+import iu.edu.indycar.models.AnomalyLabel;
 import iu.edu.indycar.models.CarPositionRecord;
 import iu.edu.indycar.streamer.RecordStreamer;
 import iu.edu.indycar.streamer.StreamEndListener;
 import iu.edu.indycar.streamer.records.TelemetryRecord;
 import iu.edu.indycar.streamer.records.policy.AbstractRecordAcceptPolicy;
+import iu.edu.indycar.tmp.AnomalyLabelsBank;
 import iu.edu.indycar.tmp.LatencyCalculator;
 import iu.edu.indycar.tmp.RecordPublisher;
 import iu.edu.indycar.tmp.RecordWriter;
@@ -96,10 +98,13 @@ public class PositionStreamer {
                 if (ServerConstants.DIRECT_STREAM_DISTANCE) {
                     if (!ServerConstants.DIRECT_STREAM_CAR_FILTER
                             || ServerConstants.DIRECT_STREAM_CARS.contains(telemetryRecord.getCarNumber())) {
+                        AnomalyLabel anomalyForCarAt = AnomalyLabelsBank.getAnomalyForCarAt(
+                                telemetryRecord.getCarNumber(), telemetryRecord.getTimeOfDayLong());
                         CarPositionRecord cpr = new CarPositionRecord(
                                 telemetryRecord.getLapDistance(),
                                 telemetryRecord.getTimeField(),
-                                telemetryRecord.getCarNumber()
+                                telemetryRecord.getCarNumber(),
+                                anomalyForCarAt
                         );
                         this.serverBoot.publishPositionEvent(cpr, counter);
                     }

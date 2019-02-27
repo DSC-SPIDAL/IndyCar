@@ -1,14 +1,12 @@
 package iu.edu.indycar;
 
 import iu.edu.indycar.models.Anomaly;
+import iu.edu.indycar.models.AnomalyLabel;
 import iu.edu.indycar.models.AnomalyMessage;
 import iu.edu.indycar.models.CarPositionRecord;
 import iu.edu.indycar.streamer.RecordTiming;
 import iu.edu.indycar.streamer.TimeUtils;
-import iu.edu.indycar.tmp.LatencyCalculator;
-import iu.edu.indycar.tmp.MQTTSocketFactory;
-import iu.edu.indycar.tmp.RecordWriter;
-import iu.edu.indycar.tmp.WSMessage;
+import iu.edu.indycar.tmp.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.*;
@@ -17,10 +15,8 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
-import java.util.concurrent.ArrayBlockingQueue;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
+import java.util.concurrent.*;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class MQTTTelemetryListener {
 
@@ -42,7 +38,7 @@ public class MQTTTelemetryListener {
     private HashMap<String, Boolean> firstRecordDetected = new HashMap<>();
     private HashMap<String, RecordTiming> recordTimingHashMap = new HashMap<>();
 
-    private long messagesQueued = 0;
+    private AtomicInteger messagesToQueue = new AtomicInteger(33 * 30 * 8);
 
     public MQTTTelemetryListener(ServerBoot serverBoot, String subscription) {
         System.out.println(subscription);
@@ -81,7 +77,7 @@ public class MQTTTelemetryListener {
         this.recordTimingHashMap.values().forEach(RecordTiming::stop);
         this.recordTimingHashMap.clear();
 
-        this.messagesQueued = 0;
+        this.messagesToQueue.set(33 * 30 * 8);
 
         this.initRecordWriter();
     }
@@ -126,10 +122,13 @@ public class MQTTTelemetryListener {
             double throttle = Double.valueOf(jsonObject.getString("throttle"));
             double rpm = Double.valueOf(jsonObject.getString("engineSpeed"));
 
+            AnomalyLabel anomalyLabel = AnomalyLabelsBank.getAnomalyForCarAt(carNumber, timeOfDayLong);
+
             AnomalyMessage anomalyMessage = new AnomalyMessage();
             anomalyMessage.setIndex(timeOfDayLong);
             anomalyMessage.setTimeOfDayString(timeOfDay);
             anomalyMessage.setCarNumber(carNumberInt);
+            anomalyMessage.setAnomalyLabel(anomalyLabel);
 
             Anomaly speedAnomaly = new Anomaly();
             speedAnomaly.setAnomalyType("SPEED");
@@ -163,13 +162,13 @@ public class MQTTTelemetryListener {
                     serverBoot.publishAnomalyEvent(wsMessage.getAnomalyMessage());
                 }, 1, (s) -> {
                     LOG.info("Stream ended for car", carNumber);
-                }, messagesQueued > (this.recordTimingHashMap.size() + 1) * 30 * 8);
+                }, messagesToQueue.get() <= 0);
                 rt.setPollTimeout(5);
                 return rt;
             }).enqueue(
                     new WSMessage(
                             counter,
-                            new CarPositionRecord(lapDistance, timeOfDayLong, carNumber),
+                            new CarPositionRecord(lapDistance, timeOfDayLong, carNumber, anomalyLabel),
                             anomalyMessage
                     )
             );
@@ -177,11 +176,10 @@ public class MQTTTelemetryListener {
 
             LatencyCalculator.addRecv(uuid);
 
-            messagesQueued++;
-
-            if (messagesQueued == (this.recordTimingHashMap.size() + 1) * 30 * 8) {
-                LOG.info("Starting real-timers after buffering {}...", messagesQueued);
+            if (messagesToQueue.decrementAndGet() == 0) {
+                LOG.info("Starting real-timers after buffering...");
                 this.recordTimingHashMap.values().forEach(RecordTiming::start);
+                serverBoot.sendReloadEvent();
             }
 
 

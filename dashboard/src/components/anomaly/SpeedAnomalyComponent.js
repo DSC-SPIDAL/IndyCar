@@ -1,6 +1,7 @@
 import React from "react";
 import AnomalySubscriber from "../../subscribers/AnomalySubscriber";
 import {Line} from "react-chartjs-2";
+import "chartjs-plugin-datalabels"
 import {SocketService} from "../../services/SocketService";
 
 export default class SpeedAnomalyComponent extends React.Component {
@@ -11,9 +12,11 @@ export default class SpeedAnomalyComponent extends React.Component {
             chartData: {
                 speedData: [],
                 anomalyData: [],
-                labels: []
+                labels: [],
+                anomalyLabels: [],
             },
-            windowSize: 25
+            windowSize: 25,
+            anomalyLabelsCount: 0
         };
 
         this.anamolySubscriber = new AnomalySubscriber();
@@ -28,6 +31,7 @@ export default class SpeedAnomalyComponent extends React.Component {
     }
 
     onReceiveChartData = (data) => {
+        console.log(data);
         let anomalyObject = data.anomalies[this.props.metric];
         let chartData = this.state.chartData;
 
@@ -38,6 +42,14 @@ export default class SpeedAnomalyComponent extends React.Component {
         let anomalyData = chartData.anomalyData;
         anomalyData.push(anomalyObject.anomaly);
         anomalyData.length > this.state.windowSize && anomalyData.splice(0, anomalyData.length - this.state.windowSize);
+
+        let anomalyLabels = chartData.anomalyLabels;
+        if (data.anomalyLabel) {
+            this.state.anomalyLabelsCount = this.state.windowSize
+        }
+        this.state.anomalyLabelsCount--;
+        anomalyLabels.push(data.anomalyLabel);
+        anomalyLabels.length > this.state.windowSize && anomalyLabels.splice(0, anomalyLabels.length - this.state.windowSize);
 
         let labels = chartData.labels;
         labels.push(data.timeOfDayString);
@@ -68,6 +80,7 @@ export default class SpeedAnomalyComponent extends React.Component {
     }
 
     render() {
+
         return (
             <div style={{position: 'relative', height: !(this.props.hideX) ? 265 : 150}}>
                 <Line data={{
@@ -80,7 +93,10 @@ export default class SpeedAnomalyComponent extends React.Component {
                         borderColor: this.props.rawDataColor,
                         backgroundColor: this.props.rawDataColor,
                         borderWidth: 3,
-                        pointRadius: 0
+                        pointRadius: 0,
+                        datalabels: {
+                            display: false
+                        }
                     }, {
                         label: "Anomaly Score",
                         yAxisID: "Anomaly",
@@ -90,7 +106,25 @@ export default class SpeedAnomalyComponent extends React.Component {
                         backgroundColor: "#c62828",
                         borderWidth: 3,
                         pointRadius: 0,
-                        steppedLine: true
+                        steppedLine: true,
+                        datalabels: {
+                            display: (context) => {
+                                return this.state.anomalyLabelsCount > 0 && !!(this.state.chartData.anomalyLabels[context.dataIndex])
+                                    && context.dataIndex % 5 === 0;
+                            },
+                            formatter: (value, context) => {
+                                return this.state.chartData.anomalyLabels[context.dataIndex] ?
+                                    this.state.chartData.anomalyLabels[context.dataIndex].label : "";
+                            },
+                            color: '#293742',
+                            backgroundColor: 'white',
+                            borderColor: 'white',
+                            borderRadius: 4,
+                            font: {
+                                weight: 'bold'
+                            },
+                            padding: 5
+                        }
                     }],
                 }} options={{
                     maintainAspectRatio: false,

@@ -130,6 +130,9 @@ export default class LapTimesComponent extends React.Component {
                 borderWidth: 0.5,
                 datasetKeyProvider: () => {
                     return carNumber;
+                },
+                datalabels: {
+                    display: false
                 }
             });
         });

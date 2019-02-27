@@ -27,10 +27,16 @@ public class LatencyCalculator {
     private static final List<Long> times = new ArrayList<>();
 
     public synchronized static void addSent(String uuid) {
+        if (!ServerConstants.CALCULATE_MQTT_LATENCY) {
+            return;
+        }
         records.put(uuid, System.nanoTime());
     }
 
     public synchronized static boolean addRecv(String uuid) {
+        if (!ServerConstants.CALCULATE_MQTT_LATENCY) {
+            return true;
+        }
         Long submittedTime = records.get(uuid);
         if (submittedTime != null) {
             long latency = System.nanoTime() - submittedTime;

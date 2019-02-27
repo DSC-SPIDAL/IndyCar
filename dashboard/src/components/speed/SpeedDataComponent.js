@@ -163,7 +163,10 @@ export default class SpeedDataComponent extends React.Component {
                                     borderColor: "#90A4AE",
                                     backgroundColor: "#263238",
                                     borderWidth: 0.5,
-                                    data: sortedLaps
+                                    data: sortedLaps,
+                                    datalabels: {
+                                        display: false
+                                    }
                                 }
                             ]
                         }}

@@ -159,7 +159,7 @@ public class ServerBoot {
     public void start() {
 
         server.addConnectListener(socketIOClient -> {
-            LOG.info("Client {} connected", socketIOClient.getRemoteAddress());
+            LOG.debug("Client {} connected", socketIOClient.getRemoteAddress());
             //broadcast initial weather
             if (this.lastWeatherRecord != null) {
                 socketIOClient.sendEvent("weather", this.lastWeatherRecord);
@@ -167,7 +167,7 @@ public class ServerBoot {
 
             //broadcast entries
             if (!this.entryRecordSet.isEmpty()) {
-                LOG.info("Sending initial entries to {}", socketIOClient.getRemoteAddress().toString());
+                LOG.debug("Sending initial entries to {}", socketIOClient.getRemoteAddress().toString());
                 socketIOClient.sendEvent("entries", this.entryRecordSet);
             }
 
@@ -189,7 +189,7 @@ public class ServerBoot {
         });
 
         server.addDisconnectListener(socketIOClient -> {
-            LOG.info("Client {} disconnected", socketIOClient.getRemoteAddress());
+            LOG.debug("Client {} disconnected", socketIOClient.getRemoteAddress());
             latency.remove(socketIOClient.getRemoteAddress());
             socketIOClient.leaveRoom("position");
         });
@@ -197,7 +197,7 @@ public class ServerBoot {
         server.addEventListener(
                 EVENT_SUB, JoinRoomMessage.class,
                 (socketIOClient, joinRoomMessage, ackRequest) -> {
-                    LOG.info("Join room[{}] request received from {}",
+                    LOG.debug("Join room[{}] request received from {}",
                             joinRoomMessage.getRoomName(), socketIOClient.getRemoteAddress());
                     socketIOClient.joinRoom(joinRoomMessage.getRoomName());
                     ackRequest.sendAckData();
@@ -207,7 +207,7 @@ public class ServerBoot {
         server.addEventListener(
                 EVENT_UNSUB, JoinRoomMessage.class,
                 (socketIOClient, joinRoomMessage, ackRequest) -> {
-                    LOG.info("Leave room[{}] request received from {}",
+                    LOG.debug("Leave room[{}] request received from {}",
                             joinRoomMessage.getRoomName(), socketIOClient.getRemoteAddress());
                     socketIOClient.leaveRoom(joinRoomMessage.getRoomName());
                     ackRequest.sendAckData();

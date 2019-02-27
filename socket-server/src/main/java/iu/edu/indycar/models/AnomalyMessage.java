@@ -9,6 +9,15 @@ public class AnomalyMessage {
     private long index;
     private Map<String, Anomaly> anomalies = new HashMap<>();
     private String timeOfDayString;
+    private AnomalyLabel anomalyLabel;
+
+    public AnomalyLabel getAnomalyLabel() {
+        return anomalyLabel;
+    }
+
+    public void setAnomalyLabel(AnomalyLabel anomalyLabel) {
+        this.anomalyLabel = anomalyLabel;
+    }
 
     public String getTimeOfDayString() {
         return timeOfDayString;

@@ -1,14 +1,12 @@
 package iu.edu.indycar;
 
 import iu.edu.indycar.streamer.StreamEndListener;
-import iu.edu.indycar.tmp.LatencyCalculator;
-import iu.edu.indycar.tmp.PingLatency;
-import iu.edu.indycar.tmp.RecordPublisher;
-import iu.edu.indycar.tmp.StreamResetListener;
+import iu.edu.indycar.tmp.*;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
+import java.io.File;
 import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -75,9 +73,15 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
         }
     }
 
-    public static void main(String[] args) throws MqttException {
+    public static void main(String[] args) throws MqttException, IOException {
         String filePath = args.length == 0 ? ServerConstants.LOG_FILE : args[0];
         ServerConstants.DEBUG_CARS = args.length < 2 ? ServerConstants.DEBUG_CARS : Integer.valueOf(args[1]);
+
+        File anomalyLabelsFile = new File("anomaly_labels.csv");
+        if (anomalyLabelsFile.exists()) {
+            LOG.info("Anomaly labels found. Loading...");
+            AnomalyLabelsBank.loadLabelsFromCSV("anomaly_labels.csv");
+        }
 
         WebsocketServer websocketServer = new WebsocketServer(filePath);
         websocketServer.start();
