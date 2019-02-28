@@ -50,11 +50,18 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
         new Timer().schedule(tt, 30000);
     }
 
-    public void start() throws MqttException {
+    public void start() throws MqttException, IOException {
         this.recordPublisher.connectToBroker();
         this.serverBoot.start();
         this.mqttTelemetryListener.start();
         this.startNewStreamingSession();
+
+        //loading anomaly labels
+        File anomalyLabelsFile = new File("anomaly_labels.csv");
+        if (anomalyLabelsFile.exists()) {
+            LOG.info("Anomaly labels found. Loading...");
+            AnomalyLabelsBank.loadLabelsFromCSV("anomaly_labels.csv");
+        }
 
         //close in 10 minutes in debug mode
         if (ServerConstants.DEBUG_MODE) {
@@ -77,12 +84,6 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
         String filePath = args.length == 0 ? ServerConstants.LOG_FILE : args[0];
         ServerConstants.DEBUG_CARS = args.length < 2 ? ServerConstants.DEBUG_CARS : Integer.valueOf(args[1]);
 
-        File anomalyLabelsFile = new File("anomaly_labels.csv");
-        if (anomalyLabelsFile.exists()) {
-            LOG.info("Anomaly labels found. Loading...");
-            AnomalyLabelsBank.loadLabelsFromCSV("anomaly_labels.csv");
-        }
-
         WebsocketServer websocketServer = new WebsocketServer(filePath);
         websocketServer.start();
     }
@@ -100,6 +101,7 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
         this.serverBoot.reset();
         this.mqttTelemetryListener.reset();
         this.positionStreamer.stop();
+        AnomalyLabelsBank.reset();
 
         LOG.info("Sending race end signal to storm");
         try {

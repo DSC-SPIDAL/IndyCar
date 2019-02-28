@@ -10,6 +10,7 @@ public class AnomalyLabelsBank {
     public static HashMap<String, Queue<AnomalyLabel>> anomalyLabels = new HashMap<>();
 
     public static void loadLabelsFromCSV(String csvPath) throws IOException {
+        anomalyLabels.clear();
         BufferedReader br = new BufferedReader(new FileReader(new File(csvPath)));
         String line = br.readLine(); // pass the header
         while ((line = br.readLine()) != null) {
@@ -30,7 +31,8 @@ public class AnomalyLabelsBank {
         anomalyLabels.clear();
     }
 
-    private static long tempCount = 0;
+//    private static long tempCount = 0;
+//    private static String uuid = UUID.randomUUID().toString();
 
     public static AnomalyLabel getAnomalyForCarAt(String carNumber, long eventTime) {
         if (anomalyLabels.containsKey(carNumber)) {
@@ -44,14 +46,16 @@ public class AnomalyLabelsBank {
                 }
             }
         }
-        if (anomalyLabels != null && tempCount++ % 1000 < 100) {
-            AnomalyLabel anomalyLabel = new AnomalyLabel();
-            anomalyLabel.setFrom(eventTime);
-            anomalyLabel.setTo(eventTime + 100);
-            anomalyLabel.setLabel("Anomaly Label");
-            return anomalyLabel;
-        }
-
+//        if (anomalyLabels != null && tempCount++ % 1000 < 100) {
+//            AnomalyLabel anomalyLabel = new AnomalyLabel();
+//            anomalyLabel.setUuid(uuid);
+//            anomalyLabel.setFrom(eventTime);
+//            anomalyLabel.setTo(eventTime + 100);
+//            anomalyLabel.setLabel("Anomaly Label");
+//            return anomalyLabel;
+//        } else {
+//            uuid = UUID.randomUUID().toString();
+//        }
         return null;
     }
 }

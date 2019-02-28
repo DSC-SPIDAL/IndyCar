@@ -98,8 +98,8 @@ public class MQTTTelemetryListener {
             }
 
             if (counter != 0 && !firstRecordDetected.getOrDefault(carNumber, false)) {
-                System.out.println("Drop");
-                return;
+                System.out.println("Drop records for " + carNumber);
+                //return;
             }
 
             String timeOfDay = jsonObject.getString("timeOfDay");
@@ -180,6 +180,23 @@ public class MQTTTelemetryListener {
                 LOG.info("Starting real-timers after buffering...");
                 this.recordTimingHashMap.values().forEach(RecordTiming::start);
                 serverBoot.sendReloadEvent();
+            }
+
+            if (anomalyLabel != null) {
+                AnomalyLogger.AnomalyLabelDocument anomalyLabelDocument = AnomalyLogger.get(
+                        carNumber,
+                        anomalyLabel.getLabel(),
+                        anomalyLabel.getUuid()
+                );
+                anomalyLabelDocument.record(
+                        speedAnomaly.getRawData(),
+                        speedAnomaly.getAnomaly(),
+                        rpmAnomaly.getRawData(),
+                        rpmAnomaly.getAnomaly(),
+                        throttleAnomaly.getRawData(),
+                        throttleAnomaly.getAnomaly(),
+                        timeOfDayLong
+                );
             }
 
 

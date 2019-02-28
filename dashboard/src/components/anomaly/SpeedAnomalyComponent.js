@@ -16,7 +16,10 @@ export default class SpeedAnomalyComponent extends React.Component {
                 anomalyLabels: [],
             },
             windowSize: 25,
-            anomalyLabelsCount: 0
+            currentAnomalyLabel: {
+                id: undefined,
+                count: 0
+            }
         };
 
         this.anamolySubscriber = new AnomalySubscriber();
@@ -31,7 +34,6 @@ export default class SpeedAnomalyComponent extends React.Component {
     }
 
     onReceiveChartData = (data) => {
-        console.log(data);
         let anomalyObject = data.anomalies[this.props.metric];
         let chartData = this.state.chartData;
 
@@ -44,11 +46,24 @@ export default class SpeedAnomalyComponent extends React.Component {
         anomalyData.length > this.state.windowSize && anomalyData.splice(0, anomalyData.length - this.state.windowSize);
 
         let anomalyLabels = chartData.anomalyLabels;
-        if (data.anomalyLabel) {
-            this.state.anomalyLabelsCount = this.state.windowSize
+
+        if (data.anomalyLabel && this.state.currentAnomalyLabel.id !== data.anomalyLabel.uuid) {
+            this.state.currentAnomalyLabel.id = data.anomalyLabel.uuid;
+            this.state.currentAnomalyLabel.count = 0;
         }
-        this.state.anomalyLabelsCount--;
-        anomalyLabels.push(data.anomalyLabel);
+
+        if (data.anomalyLabel) {
+            this.state.currentAnomalyLabel.count++;
+        } else {
+            this.state.currentAnomalyLabel.id = undefined;
+            this.state.currentAnomalyLabel.count = -1;
+        }
+
+        if (this.state.currentAnomalyLabel.count % 5 === 0) {
+            anomalyLabels.push(data.anomalyLabel);
+        } else {
+            anomalyLabels.push(undefined);
+        }
         anomalyLabels.length > this.state.windowSize && anomalyLabels.splice(0, anomalyLabels.length - this.state.windowSize);
 
         let labels = chartData.labels;
@@ -109,8 +124,7 @@ export default class SpeedAnomalyComponent extends React.Component {
                         steppedLine: true,
                         datalabels: {
                             display: (context) => {
-                                return this.state.anomalyLabelsCount > 0 && !!(this.state.chartData.anomalyLabels[context.dataIndex])
-                                    && context.dataIndex % 5 === 0;
+                                return !!(this.state.chartData.anomalyLabels[context.dataIndex])
                             },
                             formatter: (value, context) => {
                                 return this.state.chartData.anomalyLabels[context.dataIndex] ?
