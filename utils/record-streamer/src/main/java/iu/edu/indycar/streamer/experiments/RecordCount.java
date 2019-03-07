@@ -1,5 +1,6 @@
-package iu.edu.indycar.streamer;
+package iu.edu.indycar.streamer.experiments;
 
+import iu.edu.indycar.streamer.RecordStreamer;
 import iu.edu.indycar.streamer.records.CompleteLapRecord;
 import iu.edu.indycar.streamer.records.TelemetryRecord;
 import iu.edu.indycar.streamer.records.policy.AbstractRecordAcceptPolicy;
@@ -13,9 +14,9 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class StreamerTest {
+public class RecordCount {
 
-    private static final Logger LOG = LogManager.getLogger(StreamerTest.class);
+    private static final Logger LOG = LogManager.getLogger(RecordCount.class);
 
     public static void main(String[] args) throws IOException {
         File file = new File(args[0]);

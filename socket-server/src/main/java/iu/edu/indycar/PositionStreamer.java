@@ -8,8 +8,9 @@ import iu.edu.indycar.streamer.records.TelemetryRecord;
 import iu.edu.indycar.streamer.records.policy.AbstractRecordAcceptPolicy;
 import iu.edu.indycar.tmp.AnomalyLabelsBank;
 import iu.edu.indycar.tmp.LatencyCalculator;
-import iu.edu.indycar.tmp.RecordPublisher;
+import iu.edu.indycar.mqtt.MQTTClient;
 import iu.edu.indycar.tmp.RecordWriter;
+import iu.edu.indycar.ws.ServerBoot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -25,7 +26,7 @@ public class PositionStreamer {
 
     private final ServerBoot serverBoot;
 
-    private final RecordPublisher recordPublisher;
+    private final MQTTClient mqttClient;
     private final StreamEndListener streamEndlistener;
 
     private RecordWriter recordWriter;
@@ -36,11 +37,13 @@ public class PositionStreamer {
 
     private static int resets = 0;
 
+    private RecordStreamer recordStreamer;
+
     public PositionStreamer(ServerBoot serverBoot,
-                            RecordPublisher recordPublisher,
+                            MQTTClient mqttClient,
                             StreamEndListener streamEndListener) {
         this.serverBoot = serverBoot;
-        this.recordPublisher = recordPublisher;
+        this.mqttClient = mqttClient;
 
         this.streamEndlistener = s -> {
             this.stop();
@@ -56,10 +59,13 @@ public class PositionStreamer {
 
     public void stop() {
         this.recordWriter.close();
+        if (this.recordStreamer != null) {
+            this.recordStreamer.stop();
+        }
     }
 
     public void start(String filePath) {
-        RecordStreamer recordStreamer = new RecordStreamer(
+        this.recordStreamer = new RecordStreamer(
                 new File(filePath),
                 true,
                 1,
@@ -111,7 +117,7 @@ public class PositionStreamer {
                 }
 
                 if (!ServerConstants.DEBUG_MODE) {
-                    this.recordPublisher.publishRecord(
+                    this.mqttClient.publishRecord(
                             telemetryRecord.getCarNumber(),
                             String.format("%f,%f,%f,%d,%f,%s",
                                     telemetryRecord.getVehicleSpeed(),
@@ -123,7 +129,7 @@ public class PositionStreamer {
                             )
                     );
                 } else {
-                    this.recordPublisher.publishRecord(
+                    this.mqttClient.publishRecord(
                             telemetryRecord.getCarNumber(),
                             String.format("%s,%f,%f,%f,%d,%f,%s,%s",
                                     uuid,
@@ -157,7 +163,13 @@ public class PositionStreamer {
         //Entry records
         recordStreamer.setEntryRecordRecordListener(this.serverBoot::publishEntryRecord);
 
-        recordStreamer.setCompleteLapRecordRecordListener(this.serverBoot::publishCompletedLapRecord);
+        recordStreamer.setCompleteLapRecordRecordListener(completeLapRecord -> {
+            try {
+                this.serverBoot.publishCompletedLapRecord(completeLapRecord);
+            } catch (InterruptedException e) {
+                LOG.warn("Error in submitting lap record", e);
+            }
+        });
 
         recordStreamer.setStreamEndListener(this.streamEndlistener);
 

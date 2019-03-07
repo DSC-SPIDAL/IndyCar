@@ -1,20 +1,27 @@
-package iu.edu.indycar.tmp;
+package iu.edu.indycar.mqtt;
 
 import iu.edu.indycar.ServerConstants;
+import iu.edu.indycar.TelemetryListener;
+import iu.edu.indycar.tmp.StreamResetListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.*;
 
-public class RecordPublisher implements MqttCallback {
+public class MQTTClient implements MqttCallback {
 
-    private final Logger LOG = LogManager.getLogger(RecordPublisher.class);
+    private final Logger LOG = LogManager.getLogger(MQTTClient.class);
+    private TelemetryListener telemetryListener;
 
     private MqttClient client;
 
-    private StreamResetListener listener;
+    private StreamResetListener streamResetListener;
 
-    public RecordPublisher(StreamResetListener listener) {
-        this.listener = listener;
+    public MQTTClient(StreamResetListener streamResetListener) {
+        this.streamResetListener = streamResetListener;
+    }
+
+    public void setTelemetryListener(TelemetryListener telemetryListener) {
+        this.telemetryListener = telemetryListener;
     }
 
     public void connectToBroker() {
@@ -37,8 +44,11 @@ public class RecordPublisher implements MqttCallback {
             client.setCallback(this);
             client.connect(conn);
             client.subscribe(ServerConstants.STATUS_TOPIC);
+            client.subscribe(
+                    ServerConstants.DEBUG_MODE ? ServerConstants.DEBUG_TOPIC : ServerConstants.ANOMALY_TOPIC
+            );
         } catch (MqttException m) {
-            m.printStackTrace();
+            LOG.error("Error in connecting to the broker", m);
         }
     }
 
@@ -46,7 +56,7 @@ public class RecordPublisher implements MqttCallback {
         MqttMessage mqttMessage = new MqttMessage();
         mqttMessage.setPayload(record.getBytes());
         mqttMessage.setQos(0);
-        //LOG.info("Publishing {} to {}", record, carNumber);
+
         if (ServerConstants.DEBUG_MODE) {
             client.publish(ServerConstants.DEBUG_TOPIC, mqttMessage);
         } else {
@@ -65,22 +75,26 @@ public class RecordPublisher implements MqttCallback {
     public void connectionLost(Throwable cause) {
         LOG.error("lost connection to broker...", cause);
         try {
-            client.reconnect();
+            if (!client.isConnected()) {
+                client.reconnect();
+            }
         } catch (MqttException e) {
             LOG.error("Error occurred when trying to reconnect");
         }
     }
 
     @Override
-    public void messageArrived(String topic, MqttMessage message) throws Exception {
-        // TODO Auto-generated method stub
+    public void messageArrived(String topic, MqttMessage message) {
         if (ServerConstants.STATUS_TOPIC.equals(topic)) {
             String msg = new String(message.getPayload());
             if ("START".equals(msg)) {
-                if (listener != null) {
-                    listener.reset();
+                if (streamResetListener != null) {
+                    streamResetListener.reset();
                 }
             }
+        } else if (this.telemetryListener != null && (ServerConstants.ANOMALY_TOPIC.equals(topic)
+                || ServerConstants.DEBUG_TOPIC.equals(topic))) {
+            this.telemetryListener.onTelemetryMessage(message);
         }
     }
 

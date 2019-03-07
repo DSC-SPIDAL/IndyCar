@@ -69,7 +69,7 @@ public class LatencyCalculator {
     public synchronized static void writeToFile() throws IOException {
         BufferedWriter br = new BufferedWriter(
                 new FileWriter(
-                        new File("bench/rt_latency_" + ServerConstants.DEBUG_CARS + ".csv")
+                        new File("bench/rt_latency_" + ServerConstants.DEBUG_CARS + "-" + System.currentTimeMillis() + ".csv")
                 )
         );
 

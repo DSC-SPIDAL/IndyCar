@@ -188,6 +188,10 @@ public class RecordStreamer implements StreamEndListener {
         br.close();
         this.fileEnded = true;
         LOG.info("End of File : {}", file.getName());
+
+        if (!this.realTiming && this.streamEndListener != null) {
+            this.streamEndListener.onStreamEnd();
+        }
     }
 
     @Override

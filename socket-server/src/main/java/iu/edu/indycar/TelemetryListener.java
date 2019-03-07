@@ -7,6 +7,7 @@ import iu.edu.indycar.models.CarPositionRecord;
 import iu.edu.indycar.streamer.RecordTiming;
 import iu.edu.indycar.streamer.TimeUtils;
 import iu.edu.indycar.tmp.*;
+import iu.edu.indycar.ws.ServerBoot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.*;
@@ -18,68 +19,63 @@ import java.util.Random;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
-public class MQTTTelemetryListener {
+public class TelemetryListener implements Runnable {
 
-    private final static Logger LOG = LogManager.getLogger(MQTTTelemetryListener.class);
-
-    private final String topic;
+    private final static Logger LOG = LogManager.getLogger(TelemetryListener.class);
 
     private ServerBoot serverBoot;
 
     private RecordWriter recordWriter;
 
-    private int rests = 0;//keeps number of rests
-
     private Random random = new Random();
 
-    private ArrayBlockingQueue<byte[]> msgs = new ArrayBlockingQueue<>(1000);
-    private final ExecutorService executorService = Executors.newFixedThreadPool(ServerConstants.EVENT_EMITTER_THREADS);
+    private BlockingQueue<byte[]> msgs = new LinkedBlockingQueue<>();
 
     private HashMap<String, Boolean> firstRecordDetected = new HashMap<>();
     private HashMap<String, RecordTiming> recordTimingHashMap = new HashMap<>();
 
-    private AtomicInteger messagesToQueue = new AtomicInteger(33 * 30 * 8);
+    private AtomicInteger messagesToQueue = new AtomicInteger(8 * 30 * 8);
 
-    public MQTTTelemetryListener(ServerBoot serverBoot, String subscription) {
-        System.out.println(subscription);
+    private boolean stopped;
+
+    public TelemetryListener(ServerBoot serverBoot) {
         this.serverBoot = serverBoot;
-        this.topic = subscription;
-        this.initRecordWriter();
-        for (int i = 0; i < ServerConstants.EVENT_EMITTER_THREADS; i++) {
-            executorService.submit(() -> {
-                while (true) {
-                    try {
-                        byte[] msg = msgs.poll(1, TimeUnit.SECONDS);
-                        if (msg != null) {
-                            String payload = new String(msg);
-                            processMessage(payload);
-                        }
-                    } catch (InterruptedException e) {
-                        LOG.error("Error occurred when polling for messages", e);
-                    }
-                }
-            });
-        }
+        //this.initRecordWriter();
     }
 
     private void initRecordWriter() {
         try {
-            this.recordWriter = new RecordWriter("/tmp/records_out_" + rests++);
+            this.recordWriter = new RecordWriter("/tmp/records_out_" + System.currentTimeMillis());
         } catch (IOException e) {
             e.printStackTrace();
         }
     }
 
-    public void reset() {
-        this.recordWriter.close();
-        this.firstRecordDetected.clear();
+    private void enqueueForBroadcast(WSMessage wsMessage) throws InterruptedException {
+        String carNumber = wsMessage.getCarPositionRecord().getCarNumber();
 
-        this.recordTimingHashMap.values().forEach(RecordTiming::stop);
-        this.recordTimingHashMap.clear();
+        this.recordTimingHashMap.computeIfAbsent(carNumber, (k) -> {
+            RecordTiming rt = new RecordTiming(carNumber, (r) -> {
+                WSMessage message = (WSMessage) r;
+                if (!ServerConstants.DIRECT_STREAM_DISTANCE) {
+                    serverBoot.publishPositionEvent(
+                            message.getCarPositionRecord(),
+                            message.getCounter()
+                    );
+                }
+                serverBoot.publishAnomalyEvent(message.getAnomalyMessage());
+            }, 1, (s) -> {
+                LOG.info("Real-timing Stream ended for car", carNumber);
+            }, messagesToQueue.get() <= 0);
+            rt.setPollTimeout(5);
+            return rt;
+        }).enqueue(wsMessage);
 
-        this.messagesToQueue.set(33 * 30 * 8);
-
-        this.initRecordWriter();
+        if (messagesToQueue.decrementAndGet() == 0) {
+            LOG.info("Starting real-timers after buffering...");
+            this.recordTimingHashMap.values().forEach(RecordTiming::start);
+            serverBoot.sendReloadEvent();
+        }
     }
 
 
@@ -105,19 +101,7 @@ public class MQTTTelemetryListener {
             String timeOfDay = jsonObject.getString("timeOfDay");
             long timeOfDayLong = TimeUtils.convertTimestampToLong(timeOfDay);
             int carNumberInt = Integer.parseInt(carNumber);
-
             double lapDistance = jsonObject.getDouble("lapDistance");
-
-
-//            if (carNumber.equals("24")) {
-//                System.out.println(System.currentTimeMillis() - previousTime + ":" + (timeOfDayLong - previousEventTime));
-//                previousTime = System.currentTimeMillis();
-//                offeset += ((System.currentTimeMillis() - previousTime) - (timeOfDayLong - previousEventTime));
-//                System.out.println("offset:" + offeset);
-//                previousEventTime = timeOfDayLong;
-//            }
-
-
             double vehicleSpeed = Double.valueOf(jsonObject.getString("vehicleSpeed"));
             double throttle = Double.valueOf(jsonObject.getString("throttle"));
             double rpm = Double.valueOf(jsonObject.getString("engineSpeed"));
@@ -150,37 +134,15 @@ public class MQTTTelemetryListener {
             anomalyMessage.addAnomaly(rpmAnomaly);
 
 
-            this.recordTimingHashMap.computeIfAbsent(carNumber, (k) -> {
-                RecordTiming rt = new RecordTiming(carNumber, (r) -> {
-                    WSMessage wsMessage = (WSMessage) r;
-                    if (!ServerConstants.DIRECT_STREAM_DISTANCE) {
-                        serverBoot.publishPositionEvent(
-                                wsMessage.getCarPositionRecord(),
-                                wsMessage.getCounter()
-                        );
-                    }
-                    serverBoot.publishAnomalyEvent(wsMessage.getAnomalyMessage());
-                }, 1, (s) -> {
-                    LOG.info("Stream ended for car", carNumber);
-                }, messagesToQueue.get() <= 0);
-                rt.setPollTimeout(5);
-                return rt;
-            }).enqueue(
-                    new WSMessage(
-                            counter,
-                            new CarPositionRecord(lapDistance, timeOfDayLong, carNumber, anomalyLabel),
-                            anomalyMessage
-                    )
+            WSMessage wsMessage = new WSMessage(
+                    counter,
+                    new CarPositionRecord(lapDistance, timeOfDayLong, carNumber, anomalyLabel),
+                    anomalyMessage
             );
+            this.enqueueForBroadcast(wsMessage);
 
 
             LatencyCalculator.addRecv(uuid);
-
-            if (messagesToQueue.decrementAndGet() == 0) {
-                LOG.info("Starting real-timers after buffering...");
-                this.recordTimingHashMap.values().forEach(RecordTiming::start);
-                serverBoot.sendReloadEvent();
-            }
 
             if (anomalyLabel != null) {
                 AnomalyLogger.AnomalyLabelDocument anomalyLabelDocument = AnomalyLogger.get(
@@ -195,7 +157,8 @@ public class MQTTTelemetryListener {
                         rpmAnomaly.getAnomaly(),
                         throttleAnomaly.getRawData(),
                         throttleAnomaly.getAnomaly(),
-                        timeOfDayLong
+                        timeOfDayLong,
+                        counter
                 );
             }
 
@@ -235,53 +198,36 @@ public class MQTTTelemetryListener {
         }
     }
 
-    public void start() throws MqttException {
-        MqttClient client = new MqttClient(
-                ServerConstants.CONNECTION_URL,
-                MqttClient.generateClientId()
-        );
-        MqttConnectOptions connOpts = setUpConnectionOptions(
-                ServerConstants.USERNAME,
-                ServerConstants.PASSWORD
-        );
-
-        client.setCallback(new MqttCallback() {
-
-
-            @Override
-            public void connectionLost(Throwable throwable) {
-                LOG.error("Telemetry Listener's Connection lost", throwable);
-                try {
-                    LOG.info("Trying to reconnect...");
-                    client.reconnect();
-                } catch (MqttException e) {
-                    LOG.error("Error in reconnecting", e);
-                }
-            }
-
-            @Override
-            public void messageArrived(String s, MqttMessage mqttMessage) throws Exception {
-                msgs.add(mqttMessage.getPayload());
-                //LOG.info("Message arrived {} : {}", s, new String(mqttMessage.getPayload()));
-            }
-
-            @Override
-            public void deliveryComplete(IMqttDeliveryToken iMqttDeliveryToken) {
-
-            }
-        });
-        client.connect(connOpts);
-
-        client.subscribe(topic);
+    public void start() {
+        LOG.info("Starting telemetry listener...");
+        new Thread(this).start();
     }
 
-    private static MqttConnectOptions setUpConnectionOptions(String username, String password) {
-        MqttConnectOptions connOpts = new MqttConnectOptions();
-        connOpts.setCleanSession(true);
-        connOpts.setUserName(username);
-        connOpts.setPassword(password.toCharArray());
-        connOpts.setAutomaticReconnect(true);
-        connOpts.setSocketFactory(new MQTTSocketFactory());
-        return connOpts;
+    public void onTelemetryMessage(MqttMessage mqttMessage) {
+        if (this.stopped) {
+            LOG.info("Lister has stopped. Not accepting messages.");
+            return;
+        }
+        this.msgs.add(mqttMessage.getPayload());
+    }
+
+    public void close() {
+        this.stopped = true;
+        this.recordWriter.close();
+    }
+
+    @Override
+    public void run() {
+        while (!stopped) {
+            try {
+                byte[] msg = msgs.poll(1, TimeUnit.MINUTES);
+                if (msg != null) {
+                    String payload = new String(msg);
+                    processMessage(payload);
+                }
+            } catch (InterruptedException e) {
+                LOG.error("Error occurred when polling for messages", e);
+            }
+        }
     }
 }

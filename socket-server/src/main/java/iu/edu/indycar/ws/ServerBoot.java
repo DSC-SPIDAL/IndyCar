@@ -1,11 +1,13 @@
-package iu.edu.indycar;
+package iu.edu.indycar.ws;
 
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketConfig;
 import com.corundumstudio.socketio.SocketIOServer;
+import iu.edu.indycar.ServerConstants;
 import iu.edu.indycar.models.AnomalyMessage;
 import iu.edu.indycar.models.CarPositionRecord;
 import iu.edu.indycar.models.JoinRoomMessage;
+import iu.edu.indycar.streamer.RecordTiming;
 import iu.edu.indycar.streamer.records.CompleteLapRecord;
 import iu.edu.indycar.streamer.records.EntryRecord;
 import iu.edu.indycar.streamer.records.WeatherRecord;
@@ -17,6 +19,7 @@ import org.apache.logging.log4j.Logger;
 import java.net.SocketAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class ServerBoot {
 
@@ -35,8 +38,10 @@ public class ServerBoot {
 
     private HashMap<String, List<CompleteLapRecord>> lapRecords = new HashMap<>();
 
+    private HashMap<String, RecordTiming> recordsTiming = new HashMap<>();
+    private AtomicBoolean recordTimingStarted = new AtomicBoolean(false);
+
     private TimerTask pingTask;
-    private TimerTask rankTask;
     private TimerTask positionStreamTask;
     private Timer timer = new Timer();
 
@@ -56,6 +61,7 @@ public class ServerBoot {
 
         SocketConfig socketConfig = new SocketConfig();
         socketConfig.setReuseAddress(true);
+        socketConfig.setTcpNoDelay(true);
 
         config.setSocketConfig(socketConfig);
 
@@ -65,15 +71,6 @@ public class ServerBoot {
             public void run() {
                 server.getBroadcastOperations().sendEvent("ping", "");
                 latency.values().forEach(PingLatency::pingSent);
-            }
-        };
-
-        this.rankTask = new TimerTask() {
-            @Override
-            public void run() {
-                List<CarRank> values = new ArrayList<>(ranks.values());
-                Collections.sort(values);
-                server.getBroadcastOperations().sendEvent("ranks", values);
             }
         };
 
@@ -98,6 +95,10 @@ public class ServerBoot {
                         }
                     }
                 }
+
+                List<CarRank> values = new ArrayList<>(ranks.values());
+                Collections.sort(values);
+                server.getBroadcastOperations().sendEvent("ranks", values);
             }
         };
     }
@@ -120,6 +121,11 @@ public class ServerBoot {
             carRank.reset();
         }
         carRank.recordDistance(carPositionRecord.getDistance());
+        //start real-timing if not already started
+        if (!recordTimingStarted.getAndSet(true)) {
+            LOG.info("Starting timed records[lap records,weather] streaming...");
+            this.recordsTiming.values().forEach(RecordTiming::start);
+        }
     }
 
     public void publishWeatherEvent(WeatherRecord weatherRecord) {
@@ -134,12 +140,35 @@ public class ServerBoot {
         }
     }
 
-    public void publishCompletedLapRecord(CompleteLapRecord completeLapRecord) {
-        lapRecords.computeIfAbsent(
-                completeLapRecord.getCarNumber(),
-                (s) -> new ArrayList<>()
-        ).add(completeLapRecord);
-        this.server.getBroadcastOperations().sendEvent("lap-record", completeLapRecord);
+    public void publishCompletedLapRecord(CompleteLapRecord completeLapRecord) throws InterruptedException {
+        //todo accept only for 8 cars
+        if (ServerConstants.DIRECT_STREAM_CARS.contains(completeLapRecord.getCarNumber())) {
+            String tag = "LAP-" + completeLapRecord.getCarNumber();
+            this.recordsTiming.computeIfAbsent(
+                    tag,
+                    s -> {
+                        RecordTiming recordTiming =
+                                new RecordTiming(
+                                        tag,
+                                        r -> {
+                                            CompleteLapRecord clr = (CompleteLapRecord) (r);
+                                            lapRecords.computeIfAbsent(
+                                                    clr.getCarNumber(),
+                                                    (records) -> new ArrayList<>()
+                                            ).add(clr);
+                                            server.getBroadcastOperations().sendEvent("lap-record", clr);
+                                        },
+                                        1,
+                                        e -> {
+                                            //do nothing
+                                        },
+                                        recordTimingStarted.get()
+                                );
+                        recordTiming.setPollTimeout(5);
+                        return recordTiming;
+                    }
+            ).enqueue(completeLapRecord);
+        }
     }
 
     public void sendReloadEvent() {
@@ -151,9 +180,13 @@ public class ServerBoot {
         this.entryRecordSet = new HashSet<>();
         this.lapRecords = new HashMap<>();
         this.ranks.clear();
-        this.pingTask.cancel();
         this.carPositionRecords.clear();
         this.pastRecords.clear();
+
+        //clear timers
+        this.recordsTiming.values().forEach(RecordTiming::stop);
+        this.recordsTiming.clear();
+        this.recordTimingStarted.set(false);
     }
 
     public void start() {
@@ -232,7 +265,6 @@ public class ServerBoot {
         LOG.info("Starting server...");
         server.start();
         //timer.schedule(this.pingTask, 0, 500);
-        timer.schedule(this.rankTask, 0, 5000);
-        timer.schedule(this.positionStreamTask, 0, 2000);
+        timer.schedule(this.positionStreamTask, 0, 5000);
     }
 }

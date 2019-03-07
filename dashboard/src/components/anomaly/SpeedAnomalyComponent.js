@@ -121,7 +121,7 @@ export default class SpeedAnomalyComponent extends React.Component {
                         backgroundColor: "#c62828",
                         borderWidth: 3,
                         pointRadius: 0,
-                        steppedLine: true,
+                        //steppedLine: true,
                         datalabels: {
                             display: (context) => {
                                 return !!(this.state.chartData.anomalyLabels[context.dataIndex])

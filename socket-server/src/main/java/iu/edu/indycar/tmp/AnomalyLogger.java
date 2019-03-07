@@ -34,6 +34,8 @@ public class AnomalyLogger {
         private long from;
         private long to;
 
+        private List<Long> counter = new ArrayList<>();
+
         private List<Double> speed = new ArrayList<>();
         private List<Double> speedAnomaly = new ArrayList<>();
 
@@ -80,7 +82,7 @@ public class AnomalyLogger {
 
         public void record(double speed, double speedAn,
                            double rpm, double rpmAn,
-                           double throttle, double throttleAn, long time) {
+                           double throttle, double throttleAn, long time, long counter) {
 
             if (this.from == 0) {
                 this.from = time;
@@ -96,6 +98,8 @@ public class AnomalyLogger {
 
             this.throttle.add(throttle);
             this.throttleAnomaly.add(throttleAn);
+
+            this.counter.add(counter);
 
 
             this.scheduleWriting();
@@ -187,6 +191,14 @@ public class AnomalyLogger {
 
         public void setThrottleAnomaly(List<Double> throttleAnomaly) {
             this.throttleAnomaly = throttleAnomaly;
+        }
+
+        public List<Long> getCounter() {
+            return counter;
+        }
+
+        public void setCounter(List<Long> counter) {
+            this.counter = counter;
         }
     }
 }

@@ -1,7 +1,9 @@
 package iu.edu.indycar;
 
+import iu.edu.indycar.mqtt.MQTTClient;
 import iu.edu.indycar.streamer.StreamEndListener;
 import iu.edu.indycar.tmp.*;
+import iu.edu.indycar.ws.ServerBoot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -17,29 +19,33 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
     private String logFilePath;
 
     private ServerBoot serverBoot;
-    private RecordPublisher recordPublisher;
-    private MQTTTelemetryListener mqttTelemetryListener;
+    private MQTTClient mqttClient;
+    private TelemetryListener telemetryListener;
     private PositionStreamer positionStreamer;
+
+    private Timer timer = new Timer();
 
     public WebsocketServer(String logFilePath) {
         this.logFilePath = logFilePath;
         this.serverBoot = new ServerBoot("0.0.0.0", ServerConstants.WS_PORT);
-        this.recordPublisher = new RecordPublisher(this);
-        this.mqttTelemetryListener = new MQTTTelemetryListener(
-                serverBoot,
-                ServerConstants.DEBUG_MODE ?
-                        ServerConstants.DEBUG_TOPIC : ServerConstants.ANOMALY_TOPIC
-        );
-
+        this.mqttClient = new MQTTClient(this);
     }
 
     private void startNewStreamingSession() {
+        this.telemetryListener = new TelemetryListener(
+                serverBoot
+        );
+        this.mqttClient.setTelemetryListener(this.telemetryListener);
+
         this.positionStreamer = new PositionStreamer(
                 serverBoot,
-                recordPublisher,
+                mqttClient,
                 this
         );
+
         this.positionStreamer.start(this.logFilePath);
+        this.telemetryListener.start();
+
         LOG.info("Reloading client browsers in 30 seconds...");
         TimerTask tt = new TimerTask() {
             @Override
@@ -47,21 +53,25 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
                 serverBoot.sendReloadEvent();
             }
         };
-        new Timer().schedule(tt, 30000);
-    }
-
-    public void start() throws MqttException, IOException {
-        this.recordPublisher.connectToBroker();
-        this.serverBoot.start();
-        this.mqttTelemetryListener.start();
-        this.startNewStreamingSession();
+        this.timer.schedule(tt, 30000);
 
         //loading anomaly labels
         File anomalyLabelsFile = new File("anomaly_labels.csv");
         if (anomalyLabelsFile.exists()) {
             LOG.info("Anomaly labels found. Loading...");
-            AnomalyLabelsBank.loadLabelsFromCSV("anomaly_labels.csv");
+            try {
+                AnomalyLabelsBank.loadLabelsFromCSV("anomaly_labels.csv");
+            } catch (IOException e) {
+                LOG.warn("Error in loading anomaly labels", e);
+            }
         }
+    }
+
+    public void start() {
+        this.mqttClient.connectToBroker();
+        this.serverBoot.start();
+
+        this.startNewStreamingSession();
 
         //close in 10 minutes in debug mode
         if (ServerConstants.DEBUG_MODE) {
@@ -80,7 +90,7 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
         }
     }
 
-    public static void main(String[] args) throws MqttException, IOException {
+    public static void main(String[] args) {
         String filePath = args.length == 0 ? ServerConstants.LOG_FILE : args[0];
         ServerConstants.DEBUG_CARS = args.length < 2 ? ServerConstants.DEBUG_CARS : Integer.valueOf(args[1]);
 
@@ -97,15 +107,24 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
     @Override
     public void onStreamEnd(String s) {
         LOG.info("Race ended.. Restarting...");
+
+        try {
+            LatencyCalculator.writeToFile();
+        } catch (IOException e) {
+            LOG.warn("Error in writing latency values to file", e);
+        }
+
         LatencyCalculator.clear();
         this.serverBoot.reset();
-        this.mqttTelemetryListener.reset();
+
         this.positionStreamer.stop();
+        this.telemetryListener.close();
+
         AnomalyLabelsBank.reset();
 
         LOG.info("Sending race end signal to storm");
         try {
-            this.recordPublisher.sendRaceEnded();
+            this.mqttClient.sendRaceEnded();
             LOG.info("Waiting for storm to restart....");
         } catch (MqttException e) {
             LOG.error("Error in sending race end signal to storm", e);
