@@ -1,6 +1,6 @@
 import React from "react";
 import AnomalySubscriber from "../../subscribers/AnomalySubscriber";
-import {Line} from "react-chartjs-2";
+import {Bar, Line} from "react-chartjs-2";
 import "chartjs-plugin-datalabels"
 import {SocketService} from "../../services/SocketService";
 
@@ -12,6 +12,7 @@ export default class SpeedAnomalyComponent extends React.Component {
             chartData: {
                 speedData: [],
                 anomalyData: [],
+                anomalyColor: [],
                 labels: [],
                 anomalyLabels: [],
             },
@@ -45,7 +46,19 @@ export default class SpeedAnomalyComponent extends React.Component {
         anomalyData.push(anomalyObject.anomaly);
         anomalyData.length > this.state.windowSize && anomalyData.splice(0, anomalyData.length - this.state.windowSize);
 
-        let anomalyLabels = chartData.anomalyLabels;
+        //colors
+        let anomalyColor = chartData.anomalyColor;
+        if (anomalyObject.anomaly > 0.5) {
+            anomalyColor.push("#d32f2f");
+        } else if (anomalyObject.anomaly > 0.3) {
+            anomalyColor.push("#FDD835");
+        } else {
+            anomalyColor.push("#388E3C");
+        }
+        anomalyColor.length > this.state.windowSize && anomalyColor.splice(0, anomalyColor.length - this.state.windowSize);
+
+
+        /*let anomalyLabels = chartData.anomalyLabels;
 
         if (data.anomalyLabel && this.state.currentAnomalyLabel.id !== data.anomalyLabel.uuid) {
             this.state.currentAnomalyLabel.id = data.anomalyLabel.uuid;
@@ -64,7 +77,7 @@ export default class SpeedAnomalyComponent extends React.Component {
         } else {
             anomalyLabels.push(undefined);
         }
-        anomalyLabels.length > this.state.windowSize && anomalyLabels.splice(0, anomalyLabels.length - this.state.windowSize);
+        anomalyLabels.length > this.state.windowSize && anomalyLabels.splice(0, anomalyLabels.length - this.state.windowSize);*/
 
         let labels = chartData.labels;
         labels.push(data.timeOfDayString);
@@ -98,7 +111,7 @@ export default class SpeedAnomalyComponent extends React.Component {
 
         return (
             <div style={{position: 'relative', height: !(this.props.hideX) ? 265 : 150}}>
-                <Line data={{
+                <Bar data={{
                     labels: this.state.chartData.labels,
                     datasets: [{
                         label: this.props.metric,
@@ -109,6 +122,7 @@ export default class SpeedAnomalyComponent extends React.Component {
                         backgroundColor: this.props.rawDataColor,
                         borderWidth: 3,
                         pointRadius: 0,
+                        type: 'line',
                         datalabels: {
                             display: false
                         }
@@ -116,29 +130,28 @@ export default class SpeedAnomalyComponent extends React.Component {
                         label: "Anomaly Score",
                         yAxisID: "Anomaly",
                         data: this.state.chartData.anomalyData,
-                        fill: false,
-                        borderColor: "#c62828",
-                        backgroundColor: "#c62828",
-                        borderWidth: 3,
-                        pointRadius: 0,
-                        //steppedLine: true,
+                        fill: true,
+                        backgroundColor: this.state.chartData.anomalyColor,
                         datalabels: {
-                            display: (context) => {
-                                return !!(this.state.chartData.anomalyLabels[context.dataIndex])
-                            },
-                            formatter: (value, context) => {
-                                return this.state.chartData.anomalyLabels[context.dataIndex] ?
-                                    this.state.chartData.anomalyLabels[context.dataIndex].label : "";
-                            },
-                            color: '#293742',
-                            backgroundColor: 'white',
-                            borderColor: 'white',
-                            borderRadius: 4,
-                            font: {
-                                weight: 'bold'
-                            },
-                            padding: 5
+                            display: false
                         }
+                        // datalabels: {
+                        //     display: (context) => {
+                        //         return !!(this.state.chartData.anomalyLabels[context.dataIndex])
+                        //     },
+                        //     formatter: (value, context) => {
+                        //         return this.state.chartData.anomalyLabels[context.dataIndex] ?
+                        //             this.state.chartData.anomalyLabels[context.dataIndex].label : "";
+                        //     },
+                        //     color: '#293742',
+                        //     backgroundColor: 'white',
+                        //     borderColor: 'white',
+                        //     borderRadius: 4,
+                        //     font: {
+                        //         weight: 'bold'
+                        //     },
+                        //     padding: 5
+                        // }
                     }],
                 }} options={{
                     maintainAspectRatio: false,

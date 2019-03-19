@@ -2,7 +2,6 @@ import React from "react";
 import SpeedAnomalyComponent from "./SpeedAnomalyComponent";
 import {Card} from "@blueprintjs/core";
 import "./AnomalyWrapper.css";
-import {ANOMALY_METRIC} from "./AnomalyConstants";
 import {SocketService} from "../../services/SocketService";
 
 export default class AnomalyWrapper extends React.Component {
@@ -17,15 +16,32 @@ export default class AnomalyWrapper extends React.Component {
                 return a - b
             }),
             selectedCarNumber: 21,
-            selectedMetric: ANOMALY_METRIC.RPM.id
+            anomalyLabel: undefined
         };
         this.socket = new SocketService();
     }
+
+    onReceiveChartData = (data) => {
+        console.log(data);
+        if (data.anomalyLabel &&
+            (!this.state.anomalyLabel || this.state.anomalyLabel.uuid !== data.anomalyLabel.uuid)) {
+            this.setState({
+                anomalyLabel: data.anomalyLabel
+            });
+        }
+
+        if (!data.anomalyLabel && !this.state.currentAnomalyLabel) {
+            this.setState({
+                anomalyLabel: undefined
+            });
+        }
+    };
 
     subscribe = () => {
         this.socket.send("EVENT_SUB", {
             roomName: "anomaly_" + this.state.selectedCarNumber
         });
+        this.socket.subscribe("anomaly_" + this.state.selectedCarNumber, this.onReceiveChartData);
     };
 
     componentDidMount() {
@@ -36,15 +52,10 @@ export default class AnomalyWrapper extends React.Component {
         this.socket.send("EVENT_UNSUB", {
             roomName: "anomaly_" + this.state.selectedCarNumber
         });
+        this.socket.unsubscribe("anomaly_" + this.state.selectedCarNumber, this.onReceiveChartData);
         this.setState({
             selectedCarNumber: event.target.value
         }, this.subscribe);
-    };
-
-    onMetricChange = (event) => {
-        this.setState({
-            selectedMetric: event.target.value
-        });
     };
 
     render() {
@@ -52,19 +63,30 @@ export default class AnomalyWrapper extends React.Component {
             <div className="ic-section ic-anomaly-wrapper">
                 <Card>
                     <h5>Anomaly Scores</h5>
-                    <div className="ic-anomaly-selection">
-                        <label className="pt-label">
-                            Car
-                            <div className="pt-select">
-                                <select onChange={this.onCarChange} value={this.state.selectedCarNumber}>
-                                    {
-                                        this.state.carNumbers.map(carNum => {
-                                            return <option value={carNum} key={carNum}>{carNum}</option>
-                                        })
-                                    }
-                                </select>
-                            </div>
-                        </label>
+                    <div className="ic-anomaly-header">
+                        <div className="ic-anomaly-selection">
+                            <label className="pt-label">
+                                Car
+                                <div className="pt-select">
+                                    <select onChange={this.onCarChange} value={this.state.selectedCarNumber}>
+                                        {
+                                            this.state.carNumbers.map(carNum => {
+                                                return <option value={carNum} key={carNum}>{carNum}</option>
+                                            })
+                                        }
+                                    </select>
+                                </div>
+                            </label>
+                        </div>
+                        <div className="ic-anomaly-label-wrapper">
+                            {
+                                this.state.anomalyLabel
+                                &&
+                                <div className="ic-anomaly-label">
+                                    {this.state.anomalyLabel.label}
+                                </div>
+                            }
+                        </div>
                     </div>
 
                     <SpeedAnomalyComponent carNumber={this.state.selectedCarNumber}
