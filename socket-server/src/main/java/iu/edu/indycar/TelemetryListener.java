@@ -213,7 +213,6 @@ public class TelemetryListener implements Runnable {
 
     public void close() {
         this.stopped = true;
-        this.recordWriter.close();
     }
 
     @Override

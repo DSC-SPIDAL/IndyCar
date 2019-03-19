@@ -18,7 +18,7 @@ public class ServerConstants {
 
     public static final int EVENT_EMITTER_THREADS = 1;
 
-    public static final boolean CALCULATE_MQTT_LATENCY = false;
+    public static final boolean CALCULATE_MQTT_LATENCY = true;
 
     public static final boolean DIRECT_STREAM_DISTANCE = false;
     public static final boolean DIRECT_STREAM_CAR_FILTER = true;
