@@ -231,8 +231,8 @@ export default class TrackComponent extends React.Component {
         let pastRecord = this.pastRecords[carNumber];
 
         //normalize distances
-        let pastDistance = Math.min(4023, pastRecord.distance);
-        let newDistance = Math.min(4023, newRecord.distance);
+        let pastDistance = pastRecord.distance;
+        let newDistance = newRecord.distance;
 
         let distanceFromStart = pastDistance * scale;
         let deltaDistance = (newDistance - pastDistance) * scale;
