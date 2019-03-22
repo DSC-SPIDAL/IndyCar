@@ -3,7 +3,6 @@ package iu.edu.indycar.ws;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketConfig;
 import com.corundumstudio.socketio.SocketIOServer;
-import iu.edu.indycar.ServerConstants;
 import iu.edu.indycar.models.AnomalyMessage;
 import iu.edu.indycar.models.CarPositionRecord;
 import iu.edu.indycar.models.JoinRoomMessage;
@@ -141,34 +140,31 @@ public class ServerBoot {
     }
 
     public void publishCompletedLapRecord(CompleteLapRecord completeLapRecord) throws InterruptedException {
-        //todo accept only for 8 cars
-        if (ServerConstants.DIRECT_STREAM_CARS.contains(completeLapRecord.getCarNumber())) {
-            String tag = "LAP-" + completeLapRecord.getCarNumber();
-            this.recordsTiming.computeIfAbsent(
-                    tag,
-                    s -> {
-                        RecordTiming recordTiming =
-                                new RecordTiming(
-                                        tag,
-                                        r -> {
-                                            CompleteLapRecord clr = (CompleteLapRecord) (r);
-                                            lapRecords.computeIfAbsent(
-                                                    clr.getCarNumber(),
-                                                    (records) -> new ArrayList<>()
-                                            ).add(clr);
-                                            server.getBroadcastOperations().sendEvent("lap-record", clr);
-                                        },
-                                        1,
-                                        e -> {
-                                            //do nothing
-                                        },
-                                        recordTimingStarted.get()
-                                );
-                        recordTiming.setPollTimeout(5);
-                        return recordTiming;
-                    }
-            ).enqueue(completeLapRecord);
-        }
+        String tag = "LAP-" + completeLapRecord.getCarNumber();
+        this.recordsTiming.computeIfAbsent(
+                tag,
+                s -> {
+                    RecordTiming recordTiming =
+                            new RecordTiming(
+                                    tag,
+                                    r -> {
+                                        CompleteLapRecord clr = (CompleteLapRecord) (r);
+                                        lapRecords.computeIfAbsent(
+                                                clr.getCarNumber(),
+                                                (records) -> new ArrayList<>()
+                                        ).add(clr);
+                                        server.getBroadcastOperations().sendEvent("lap-record", clr);
+                                    },
+                                    1,
+                                    e -> {
+                                        //do nothing
+                                    },
+                                    recordTimingStarted.get()
+                            );
+                    recordTiming.setPollTimeout(5);
+                    return recordTiming;
+                }
+        ).enqueue(completeLapRecord);
     }
 
     public void sendReloadEvent() {
@@ -265,6 +261,6 @@ public class ServerBoot {
         LOG.info("Starting server...");
         server.start();
         //timer.schedule(this.pingTask, 0, 500);
-        timer.schedule(this.positionStreamTask, 0, 5000);
+        timer.schedule(this.positionStreamTask, 0, 10000);
     }
 }

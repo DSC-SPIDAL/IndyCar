@@ -16,6 +16,7 @@ import org.json.JSONObject;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
+import java.util.UUID;
 import java.util.concurrent.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
@@ -34,7 +35,9 @@ public class TelemetryListener implements Runnable {
     private HashMap<String, Boolean> firstRecordDetected = new HashMap<>();
     private HashMap<String, RecordTiming> recordTimingHashMap = new HashMap<>();
 
-    private AtomicInteger messagesToQueue = new AtomicInteger(8 * 30 * 8);
+    private AtomicInteger messagesToQueue = new AtomicInteger(33 * 30 * 8);
+
+    private HashMap<String, SpeedAnomalyWriter> speedAnWriter = new HashMap<>();
 
     private boolean stopped;
 
@@ -162,6 +165,27 @@ public class TelemetryListener implements Runnable {
                 );
             }
 
+            SpeedAnomalyWriter speedAnomalyWriter = speedAnWriter.computeIfAbsent(carNumber, s -> {
+                try {
+                    return new SpeedAnomalyWriter("all_logs/" + s + "/" + UUID.randomUUID().toString());
+                } catch (IOException e) {
+                    return null;
+                }
+            });
+
+            if (speedAnomalyWriter != null) {
+                speedAnomalyWriter.write(
+                        timeOfDay,
+                        timeOfDayLong,
+                        vehicleSpeed,
+                        speedAnomaly.getAnomaly(),
+                        rpm,
+                        rpmAnomaly.getAnomaly(),
+                        throttle,
+                        throttleAnomaly.getAnomaly()
+                );
+            }
+
 
 //                    recordWriter.write(
 //                            carNumber,
@@ -173,7 +197,7 @@ public class TelemetryListener implements Runnable {
 //                            throttle
 //                    );
         } catch (Exception ex) {
-            LOG.error("Skipping a record from pub/sub", ex);
+            LOG.error("Skipping a record [{}] from pub/sub", payload, ex);
         }
     }
 
@@ -213,6 +237,9 @@ public class TelemetryListener implements Runnable {
 
     public void close() {
         this.stopped = true;
+        this.speedAnWriter.values().forEach(speedAnomalyWriter -> {
+            speedAnomalyWriter.close();
+        });
     }
 
     @Override
