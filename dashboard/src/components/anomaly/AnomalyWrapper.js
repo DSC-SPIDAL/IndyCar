@@ -22,7 +22,6 @@ export default class AnomalyWrapper extends React.Component {
     }
 
     onReceiveChartData = (data) => {
-        console.log(data);
         if (data.anomalyLabel &&
             (!this.state.anomalyLabel || this.state.anomalyLabel.uuid !== data.anomalyLabel.uuid)) {
             this.setState({
@@ -30,7 +29,7 @@ export default class AnomalyWrapper extends React.Component {
             });
         }
 
-        if (!data.anomalyLabel && !this.state.currentAnomalyLabel) {
+        if (!data.anomalyLabel && this.state.anomalyLabel) {
             this.setState({
                 anomalyLabel: undefined
             });

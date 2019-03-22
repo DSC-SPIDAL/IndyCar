@@ -14,7 +14,8 @@ const DRIVERS_WITH_IMAGES = {
     24: 24,
     26: 26,
     33: 33,
-    98: 98
+    98: 98,
+    59: 59
 };
 
 /**
@@ -79,6 +80,15 @@ export default class SpeedDataComponent extends React.Component {
         }
     }
 
+    imageExists = (image_url) => {
+
+        let http = new XMLHttpRequest();
+
+        http.open('HEAD', image_url, false);
+        http.send();
+        return http.status !== 404;
+    };
+
     render() {
 
         let lapRecs = Object.keys(this.state.lapRecords).map(key => {
@@ -100,8 +110,12 @@ export default class SpeedDataComponent extends React.Component {
             return lapR.time;
         });
 
-        let imageUrl = DRIVERS_WITH_IMAGES[parseInt(this.state.carInfo.carNumber, 10)] ?
-            `url(img/drivers/${this.state.carInfo.carNumber}.jpg)` : `url(img/drivers/no.jpg)`
+        let rawImgUrl = `img/drivers/${this.state.carInfo.carNumber}.jpg`;
+        let imageUrl = `url(img/drivers/no.jpg)`;
+
+        if (this.imageExists(rawImgUrl)) {
+            imageUrl = `url(img/drivers/${this.state.carInfo.carNumber}.jpg)`;
+        }
 
         return (
             <Card className="speed-data-component">

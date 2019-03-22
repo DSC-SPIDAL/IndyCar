@@ -16,7 +16,7 @@ export default class SpeedAnomalyComponent extends React.Component {
                 labels: [],
                 anomalyLabels: [],
             },
-            windowSize: 25,
+            windowSize: 50,
             currentAnomalyLabel: {
                 id: undefined,
                 count: 0
@@ -43,18 +43,20 @@ export default class SpeedAnomalyComponent extends React.Component {
         speedData.length > this.state.windowSize && speedData.splice(0, speedData.length - this.state.windowSize);
 
         let anomalyData = chartData.anomalyData;
-        anomalyData.push(anomalyObject.anomaly);
-        anomalyData.length > this.state.windowSize && anomalyData.splice(0, anomalyData.length - this.state.windowSize);
 
         //colors
         let anomalyColor = chartData.anomalyColor;
         if (anomalyObject.anomaly > 0.5) {
             anomalyColor.push("#d32f2f");
+            anomalyData.push(0.2);
         } else if (anomalyObject.anomaly > 0.3) {
             anomalyColor.push("#FDD835");
+            anomalyData.push(0.1);
         } else {
             anomalyColor.push("#388E3C");
+            anomalyData.push(0.05);
         }
+        anomalyData.length > this.state.windowSize && anomalyData.splice(0, anomalyData.length - this.state.windowSize);
         anomalyColor.length > this.state.windowSize && anomalyColor.splice(0, anomalyColor.length - this.state.windowSize);
 
 
@@ -177,23 +179,30 @@ export default class SpeedAnomalyComponent extends React.Component {
                                 display: true,
                                 autoSkip: false,
                                 maxRotation: 90,
-                                minRotation: 90
+                                minRotation: 90,
+                                fontColor: "white"
                             },
                             scaleLabel: {
                                 display: true,
-                                labelString: "Time of Day"
-                            }
+                                labelString: "Time of Day",
+                                fontColor: 'white'
+                            },
+                            gridLines: {
+                                display: false
+                            },
                         }],
                         yAxes: [{
                             id: 'Metric',
                             type: 'linear',
                             position: 'left',
                             ticks: {
-                                min: 0
+                                min: 0,
+                                fontColor: "white",
                             },
                             scaleLabel: {
                                 display: true,
-                                labelString: this.props.metric
+                                labelString: this.props.metric,
+                                fontColor: 'white'
                             },
                             afterFit: function (scaleInstance) {
                                 scaleInstance.width = 70; // sets the width to 100px
@@ -204,13 +213,15 @@ export default class SpeedAnomalyComponent extends React.Component {
                             position: 'right',
                             ticks: {
                                 max: 1,
-                                min: 0
+                                min: 0,
+                                display: false
                             },
                             scaleLabel: {
-                                display: true,
+                                display: false,
                                 labelString: "Anomaly Score"
                             }
-                        }]
+                        }
+                        ]
                     }
                 }} ref={(ref) => {
                     this.chart = ref

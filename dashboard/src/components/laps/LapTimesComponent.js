@@ -4,12 +4,14 @@ import {Card, Colors} from "@blueprintjs/core";
 import CarInformationService, {CAR_LAP_LISTENER} from "../../services/CarInformationService";
 import "./LapTimesComponent.css";
 
+const goodColors = ["#ef5350", "#EC407A", "#AB47BC",
+    "#42A5F5", "#26A69A", "#66BB6A",
+    "#FFA726", "#558B2F"];
+
 function getRandomColor() {
-    // let letters = '0123456789ABCDEF';
-    //     // let color = '#';
-    //     // for (let i = 0; i < 6; i++) {
-    //     //     color += letters[Math.floor(Math.random() * 16)];
-    //     // }
+    if (goodColors.length > 0) {
+        return goodColors.pop();
+    }
     let colors = Object.values(Colors);
     return Object.values(Colors)[Math.floor(Math.random() * colors.length)];
 }
@@ -121,12 +123,13 @@ export default class LapTimesComponent extends React.Component {
         let dataSet = [];
         Object.keys(this.state.carData).forEach(carNumber => {
             let lapTimes = this.state.carData[carNumber];
+            let color = getCarColor(carNumber);
             dataSet.push({
                 label: `[${carNumber}] ${CarInformationService.getCarInformation(carNumber).driverName}`,
                 data: lapTimes,
                 fill: false,
-                borderColor: getCarColor(carNumber),
-                backgroundColor: getCarColor(carNumber),
+                borderColor: color,
+                backgroundColor: color,
                 borderWidth: 0.5,
                 datasetKeyProvider: () => {
                     return carNumber;
@@ -191,7 +194,7 @@ export default class LapTimesComponent extends React.Component {
                                       },
                                       ticks: {
                                           fontColor: "white",
-                                      },
+                                      }
                                   }],
                               }
                           }}/>

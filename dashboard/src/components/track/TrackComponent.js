@@ -160,7 +160,6 @@ export default class TrackComponent extends React.Component {
     };
 
     drawTrack = (ref) => {
-
         this.draw = SVG(ref).size('100%', shortStraightWay.length + (2 * scaledRadius) + (trackWidth * widthSCale * 2));
 
         /* let outerTrack = draw.rect(longStraightWay.length + (2 * scaledRadius), shortStraightWay.length + (2 * scaledRadius))
@@ -190,6 +189,8 @@ export default class TrackComponent extends React.Component {
 
 //start line
         this.draw.rect(20 * scale, longStraightWay.width).fill(pattern).move(this.path.pointAt(0).x - 20 * scale/*x2 + 20 * scale*/, longStraightWay.width / 2/*y1 - (longStraightWay.width / 2) */);
+
+        window.path = this.path;
     };
 
     positionCar = (carContainer, car, distance) => {
@@ -229,29 +230,33 @@ export default class TrackComponent extends React.Component {
 
         let pastRecord = this.pastRecords[carNumber];
 
-        let distanceFromStart = pastRecord.distance * scale;
-        let deltaDistance = (newRecord.distance - pastRecord.distance) * scale;
+        //normalize distances
+        let pastDistance = Math.min(4023, pastRecord.distance);
+        let newDistance = Math.min(4023, newRecord.distance);
+
+        let distanceFromStart = pastDistance * scale;
+        let deltaDistance = (newDistance - pastDistance) * scale;
         // let deltaTime = Math.max(1, newRecord.time - pastRecord.time - diffOfActualTime);
         let diff = (this.diffs[carNumber] - Date.now() + pastRecord.time);
 
         let rawDeltaTime = newRecord.time - pastRecord.time;//diff;
-        let deltaTime = Math.max(1, rawDeltaTime * this.timeReducers[carNumber]);
+        let deltaTime = rawDeltaTime;
+
         let speedAdjusted = false;
         if (this.cars[carNumber].length > 5) { //slow down only if we have enough buffer
             deltaTime = Math.max(1, rawDeltaTime * this.timeReducers[carNumber]);
             speedAdjusted = true;
         }
 
-        if (deltaTime === 1) {
-            console.log("One for", carNumber);
-        }
-
         if (deltaDistance < 0) {
+            console.log("Negative Distance", carNumber, deltaDistance,
+                newRecord.distance, pastRecord.distance);
             //sometimes recorded distance is larger than totalTrack length
             let initDistance = deltaDistance;
-            deltaDistance = ((this.path.length() / scale) - pastRecord.distance + newRecord.distance) * scale;
+            deltaDistance = ((this.path.length() / scale) - pastDistance + newDistance) * scale;
             if (deltaDistance < 0) {
-                console.log("Still negative", initDistance, deltaDistance, newRecord.distance, pastRecord.distance);
+                console.log("Still negative", carNumber, initDistance,
+                    deltaDistance, newRecord.distance, pastRecord.distance);
                 deltaDistance = 0;
             }
         }
@@ -347,17 +352,17 @@ export default class TrackComponent extends React.Component {
                 car.opacity(0.5);
                 firstTime = true;
                 excessCount = 0;
-                this.setState({
-                    intermediateBuffering: true
-                });
-
-                setTimeout(() => {
-                    if (this.state.intermediateBuffering) {
-                        this.setState({
-                            intermediateBuffering: false
-                        });
-                    }
-                }, 60 * 1000)
+                // this.setState({
+                //     intermediateBuffering: true
+                // });
+                //
+                // setTimeout(() => {
+                //     if (this.state.intermediateBuffering) {
+                //         this.setState({
+                //             intermediateBuffering: false
+                //         });
+                //     }
+                // }, 60 * 1000)
             }
         };
 
@@ -393,7 +398,8 @@ export default class TrackComponent extends React.Component {
             <div className="ic-track">
                 <div ref={(ref) => {
                     this.trackWrapper = ref;
-                }} className="ic-track-wrapper" style={{visibility: !this.state.buffering ? 'visible' : 'hidden'}}>
+                }} className="ic-track-wrapper" style={{visibility: !this.state.buffering ? 'visible' : 'hidden'}}
+                     id="drawing">
                 </div>
                 <div className="ic-track-buffering"
                      style={{visibility: this.state.buffering || this.state.intermediateBuffering ? 'visible' : 'hidden'}}>
