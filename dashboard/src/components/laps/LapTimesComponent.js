@@ -158,12 +158,12 @@ export default class LapTimesComponent extends React.Component {
                         labels: labels,
                         datasets: dataSet,
                     }}
-                          height={400}
+                          height={window.innerWidth > 800 ? 400 : 200}
                           options={{
                               responsive: true,
                               maintainAspectRatio: false,
                               legend: {
-                                  display: true,
+                                  display: window.innerWidth > 800,
                                   position: 'bottom',
                                   labels: {
                                       fontColor: 'white'

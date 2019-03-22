@@ -16,7 +16,7 @@ export default class SpeedAnomalyComponent extends React.Component {
                 labels: [],
                 anomalyLabels: [],
             },
-            windowSize: 50,
+            windowSize: Math.min(50, 50 * window.innerWidth / 2500),
             currentAnomalyLabel: {
                 id: undefined,
                 count: 0
