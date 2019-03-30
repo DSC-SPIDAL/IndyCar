@@ -36,7 +36,7 @@ public class MQTTTelemetryListener {
 
     private void initRecordWriter() {
         try {
-            this.recordWriter = new RecordWriter("/tmp/records_out_" + rests++);
+            this.recordWriter = new RecordWriter("/N/u/styagi/recout/records_out_" + rests++);
         } catch (IOException e) {
             e.printStackTrace();
         }
