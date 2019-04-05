@@ -1,8 +1,24 @@
 .ic-track-wrapper {
   padding-top: 10px;
   padding-bottom: 10px;
+  visibility: hidden;
 }
 
 .ic-lap-times-driver-selection {
   margin-bottom: 10px;
+}
+
+.ic-track {
+  position: relative;
+}
+
+.ic-track-buffering {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translateX(-50%) translateY(-50%);
+
+  div {
+    text-align: center;
+  }
 }

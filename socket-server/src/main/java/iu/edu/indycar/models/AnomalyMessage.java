@@ -1,13 +1,23 @@
 package iu.edu.indycar.models;
 
+import java.util.HashMap;
+import java.util.Map;
+
 public class AnomalyMessage {
 
     private int carNumber;
     private long index;
-    private double anomaly;
-    private double rawData;
-    private String anomalyType;
+    private Map<String, Anomaly> anomalies = new HashMap<>();
     private String timeOfDayString;
+    private AnomalyLabel anomalyLabel;
+
+    public AnomalyLabel getAnomalyLabel() {
+        return anomalyLabel;
+    }
+
+    public void setAnomalyLabel(AnomalyLabel anomalyLabel) {
+        this.anomalyLabel = anomalyLabel;
+    }
 
     public String getTimeOfDayString() {
         return timeOfDayString;
@@ -15,22 +25,6 @@ public class AnomalyMessage {
 
     public void setTimeOfDayString(String timeOfDayString) {
         this.timeOfDayString = timeOfDayString;
-    }
-
-    public String getAnomalyType() {
-        return anomalyType;
-    }
-
-    public void setAnomalyType(String anomalyType) {
-        this.anomalyType = anomalyType;
-    }
-
-    public double getRawData() {
-        return rawData;
-    }
-
-    public void setRawData(double rawData) {
-        this.rawData = rawData;
     }
 
     public int getCarNumber() {
@@ -49,11 +43,11 @@ public class AnomalyMessage {
         this.index = index;
     }
 
-    public double getAnomaly() {
-        return anomaly;
+    public Map<String, Anomaly> getAnomalies() {
+        return anomalies;
     }
 
-    public void setAnomaly(double anomaly) {
-        this.anomaly = anomaly;
+    public void addAnomaly(Anomaly anomaly) {
+        this.anomalies.put(anomaly.getAnomalyType(), anomaly);
     }
 }

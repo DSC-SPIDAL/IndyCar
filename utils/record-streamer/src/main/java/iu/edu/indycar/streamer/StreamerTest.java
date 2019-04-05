@@ -3,26 +3,39 @@ package iu.edu.indycar.streamer;
 import iu.edu.indycar.streamer.records.CompleteLapRecord;
 import iu.edu.indycar.streamer.records.TelemetryRecord;
 import iu.edu.indycar.streamer.records.policy.AbstractRecordAcceptPolicy;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.io.File;
 import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.atomic.AtomicInteger;
 
 public class StreamerTest {
+
+    private static final Logger LOG = LogManager.getLogger(StreamerTest.class);
+
     public static void main(String[] args) throws IOException {
-        File file = new File("/home/chathura/Downloads/indy_data/IPBroadcaster_Input_2018-05-27_0.log");
+        File file = new File(args[0]);
 
         RecordStreamer recordStreamer = new RecordStreamer(
-                file, true, 100000, s -> s.split("_")[2]);
+                file, true, 10000000, s -> s.split("_")[2]);
+
+        ConcurrentHashMap<String, AtomicInteger> recordsCount = new ConcurrentHashMap<>();
+
+        Map<String, Long> firstRecordTime = new ConcurrentHashMap<>();
+        Map<String, Long> lastRecordTime = new ConcurrentHashMap<>();
 
         recordStreamer.setTelemetryRecordListener(record -> {
-            //System.out.println(record.getCarNumber() + ":" + record.getVehicleSpeed());
-//      System.out.println(record.getCarNumber());
-//      System.out.println(record.getTimeOfDay());
-//      System.out.println(record.getEngineSpeed());
-//      System.out.println(record.getLapDistance());
-//      System.out.println(record.getThrottle());
-//      System.out.println(record.getThrottle());
+            if (!firstRecordTime.containsKey(record.getCarNumber())) {
+                firstRecordTime.put(record.getCarNumber(), record.getTimeOfDayLong());
+            }
+            lastRecordTime.put(record.getCarNumber(), record.getTimeOfDayLong());
+
+            recordsCount.computeIfAbsent(record.getCarNumber(),
+                    s -> new AtomicInteger()).incrementAndGet();
         });
 
         recordStreamer.setWeatherRecordListener(wr -> {
@@ -47,7 +60,19 @@ public class StreamerTest {
         });
 
         recordStreamer.setStreamEndListener(tag -> {
-            System.out.println("End of stream");
+            LOG.info("End of stream");
+
+            recordsCount.forEach((k, v) -> {
+                long timePassed = Math.max(1, lastRecordTime.get(k) - firstRecordTime.get(k));
+                System.out.println(k + "," + v + ","
+                        + (v.get() * 1000 / ((timePassed))));
+            });
+
+
+//            tt.cancel();
+//            averageHashMap.forEach((k, v) -> {
+//                LOG.info(k + " : " + (v.records / v.count));
+//            });
         });
 
 
@@ -63,7 +88,7 @@ public class StreamerTest {
                     public boolean evaluate(TelemetryRecord record) {
                         if (metFirstNonZero.getOrDefault(record.getCarNumber(), false)) {
                             return true;
-                        } else if (record.getVehicleSpeed() > 10) {
+                        } else if (record.getLapDistance() > 5) {
                             metFirstNonZero.put(record.getCarNumber(), true);
                             return true;
                         }

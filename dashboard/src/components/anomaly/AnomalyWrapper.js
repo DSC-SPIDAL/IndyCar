@@ -2,7 +2,7 @@ import React from "react";
 import SpeedAnomalyComponent from "./SpeedAnomalyComponent";
 import {Card} from "@blueprintjs/core";
 import "./AnomalyWrapper.css";
-import {ANOMALY_METRIC} from "./AnomalyConstants";
+import {SocketService} from "../../services/SocketService";
 
 export default class AnomalyWrapper extends React.Component {
 
@@ -12,22 +12,49 @@ export default class AnomalyWrapper extends React.Component {
             carNumbers: [
                 20, 21, 13, 98, 19, 6, 33, 24, 26, 7, 60, 27, 17, 15, 10,
                 64, 25, 59, 32, 28, 4, 3, 18, 22, 12, 1, 9, 14, 23, 30, 29, 88, 66
-            ].sort(),
-            selectedCarNumber: 20,
-            selectedMetric: ANOMALY_METRIC.RPM.id
+            ].sort(function (a, b) {
+                return a - b
+            }),
+            selectedCarNumber: 21,
+            anomalyLabel: undefined
+        };
+        this.socket = new SocketService();
+    }
+
+    onReceiveChartData = (data) => {
+        if (data.anomalyLabel &&
+            (!this.state.anomalyLabel || this.state.anomalyLabel.uuid !== data.anomalyLabel.uuid)) {
+            this.setState({
+                anomalyLabel: data.anomalyLabel
+            });
         }
+
+        if (!data.anomalyLabel && this.state.anomalyLabel) {
+            this.setState({
+                anomalyLabel: undefined
+            });
+        }
+    };
+
+    subscribe = () => {
+        this.socket.send("EVENT_SUB", {
+            roomName: "anomaly_" + this.state.selectedCarNumber
+        });
+        this.socket.subscribe("anomaly_" + this.state.selectedCarNumber, this.onReceiveChartData);
+    };
+
+    componentDidMount() {
+        this.subscribe();
     }
 
     onCarChange = (event) => {
+        this.socket.send("EVENT_UNSUB", {
+            roomName: "anomaly_" + this.state.selectedCarNumber
+        });
+        this.socket.unsubscribe("anomaly_" + this.state.selectedCarNumber, this.onReceiveChartData);
         this.setState({
             selectedCarNumber: event.target.value
-        });
-    };
-
-    onMetricChange = (event) => {
-        this.setState({
-            selectedMetric: event.target.value
-        });
+        }, this.subscribe);
     };
 
     render() {
@@ -35,39 +62,46 @@ export default class AnomalyWrapper extends React.Component {
             <div className="ic-section ic-anomaly-wrapper">
                 <Card>
                     <h5>Anomaly Scores</h5>
-                    <div className="ic-anomaly-selection">
-                        <label className="pt-label">
-                            Car
-                            <div className="pt-select">
-                                <select onChange={this.onCarChange} value={this.state.selectedCarNumber}>
-                                    {
-                                        this.state.carNumbers.map(carNum => {
-                                            return <option value={carNum} key={carNum}>{carNum}</option>
-                                        })
-                                    }
-                                </select>
-                            </div>
-                        </label>
-                        <label className="pt-label">
-                            Metric
-                            <div className="pt-select">
-                                <select onChange={this.onMetricChange} value={this.state.selectedMetric}>
-                                    {
-                                        Object.keys(ANOMALY_METRIC).map(metric => {
-                                            return (
-                                                <option value={metric} key={metric}>
-                                                    {ANOMALY_METRIC[metric].text}
-                                                </option>
-                                            );
-                                        })
-                                    }
-                                </select>
-                            </div>
-                        </label>
+                    <div className="ic-anomaly-header">
+                        <div className="ic-anomaly-selection">
+                            <label className="pt-label">
+                                Car
+                                <div className="pt-select">
+                                    <select onChange={this.onCarChange} value={this.state.selectedCarNumber}>
+                                        {
+                                            this.state.carNumbers.map(carNum => {
+                                                return <option value={carNum} key={carNum}>{carNum}</option>
+                                            })
+                                        }
+                                    </select>
+                                </div>
+                            </label>
+                        </div>
+                        <div className="ic-anomaly-label-wrapper">
+                            {
+                                this.state.anomalyLabel
+                                &&
+                                <div className="ic-anomaly-label">
+                                    {this.state.anomalyLabel.label}
+                                </div>
+                            }
+                        </div>
                     </div>
+
                     <SpeedAnomalyComponent carNumber={this.state.selectedCarNumber}
-                                           metric={this.state.selectedMetric}
-                                           key={this.state.selectedCarNumber + this.state.selectedMetric}/>
+                                           metric={"SPEED"}
+                                           rawDataColor="#1565C0"
+                                           hideX={true}
+                                           key={this.state.selectedCarNumber + "SPEED"}/>
+                    <SpeedAnomalyComponent carNumber={this.state.selectedCarNumber}
+                                           metric={"RPM"}
+                                           hideX={true}
+                                           rawDataColor="#2E7D32"
+                                           key={this.state.selectedCarNumber + "RPM"}/>
+                    <SpeedAnomalyComponent carNumber={this.state.selectedCarNumber}
+                                           metric={"THROTTLE"}
+                                           rawDataColor="#673AB7"
+                                           key={this.state.selectedCarNumber + "THROTTLE"}/>
                 </Card>
             </div>
         );

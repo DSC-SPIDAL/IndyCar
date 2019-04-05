@@ -22,15 +22,35 @@ public class RecordTiming implements Runnable {
 
     private final String tag;
 
+    private int pollTimeout = 1;
+
+    private boolean started = false;
+
     public RecordTiming(String tag,
                         RecordListener<IndycarRecord> recordListener,
                         int speed,
                         StreamEndListener streamEndListener) {
+        this(tag, recordListener, speed, streamEndListener, true);
+    }
+
+    public RecordTiming(String tag,
+                        RecordListener<IndycarRecord> recordListener,
+                        int speed,
+                        StreamEndListener streamEndListener, boolean start) {
         this.recordListener = recordListener;
         this.speed = speed;
         this.streamEndListener = streamEndListener;
         this.tag = tag;
-        new Thread(this, tag).start();
+        if (start) {
+            this.start();
+        }
+    }
+
+    public void start() {
+        if (!started) {
+            this.started = true;
+            new Thread(this, tag).start();
+        }
     }
 
     public long getLastRecordTime() {
@@ -65,13 +85,18 @@ public class RecordTiming implements Runnable {
 
     public void stop() {
         this.run = false;
+        this.started = false;
+    }
+
+    public void setPollTimeout(int pollTimeout) {
+        this.pollTimeout = pollTimeout;
     }
 
     @Override
     public void run() {
         while (this.run) {
             try {
-                IndycarRecord indycarRecord = this.queue.poll(1, TimeUnit.MINUTES);
+                IndycarRecord indycarRecord = this.queue.poll(this.pollTimeout, TimeUnit.MINUTES);
                 if (indycarRecord == null) {
                     this.idleCounter++;
                     if (this.idleCounter == 2) {

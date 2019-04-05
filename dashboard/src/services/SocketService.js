@@ -22,7 +22,8 @@ export class SocketService {
             reconnection: true,
             reconnectionDelay: 1000,
             reconnectionDelayMax: 5000,
-            reconnectionAttempts: 99999
+            reconnectionAttempts: 99999,
+            transports: ['websocket']
         });
 
         this.socket.on('connect', () => {
@@ -32,6 +33,11 @@ export class SocketService {
                 setTimeout(() => {
                     window.location.reload(true);
                 }, 5000);
+            });
+
+            //for latency calculation
+            this.socket.on('ping', () => {
+                this.send('pongi');
             });
             CarInformationService.init(this);
             cb();

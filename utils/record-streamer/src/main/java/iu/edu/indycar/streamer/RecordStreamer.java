@@ -179,6 +179,8 @@ public class RecordStreamer implements StreamEndListener {
                 if (e.isLog()) {
                     LOG.warn("Couldn't parse a record", e);
                 }
+            } catch (Exception ex) {
+                LOG.warn("Unexpected exception occurred when parsing the record {}", line, ex);
             } finally {
                 line = br.readLine();
             }
@@ -186,6 +188,10 @@ public class RecordStreamer implements StreamEndListener {
         br.close();
         this.fileEnded = true;
         LOG.info("End of File : {}", file.getName());
+
+        if (!this.realTiming && this.streamEndListener != null) {
+            this.streamEndListener.onStreamEnd();
+        }
     }
 
     @Override

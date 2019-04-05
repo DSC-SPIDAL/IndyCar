@@ -1,12 +1,16 @@
 package iu.edu.indycar;
 
+import iu.edu.indycar.models.AnomalyLabel;
+import iu.edu.indycar.models.CarPositionRecord;
 import iu.edu.indycar.streamer.RecordStreamer;
 import iu.edu.indycar.streamer.StreamEndListener;
 import iu.edu.indycar.streamer.records.TelemetryRecord;
 import iu.edu.indycar.streamer.records.policy.AbstractRecordAcceptPolicy;
+import iu.edu.indycar.tmp.AnomalyLabelsBank;
 import iu.edu.indycar.tmp.LatencyCalculator;
-import iu.edu.indycar.tmp.RecordPublisher;
+import iu.edu.indycar.mqtt.MQTTClient;
 import iu.edu.indycar.tmp.RecordWriter;
+import iu.edu.indycar.ws.ServerBoot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -22,7 +26,7 @@ public class PositionStreamer {
 
     private final ServerBoot serverBoot;
 
-    private final RecordPublisher recordPublisher;
+    private final MQTTClient mqttClient;
     private final StreamEndListener streamEndlistener;
 
     private RecordWriter recordWriter;
@@ -33,11 +37,13 @@ public class PositionStreamer {
 
     private static int resets = 0;
 
+    private RecordStreamer recordStreamer;
+
     public PositionStreamer(ServerBoot serverBoot,
-                            RecordPublisher recordPublisher,
+                            MQTTClient mqttClient,
                             StreamEndListener streamEndListener) {
         this.serverBoot = serverBoot;
-        this.recordPublisher = recordPublisher;
+        this.mqttClient = mqttClient;
 
         this.streamEndlistener = s -> {
             this.stop();
@@ -53,45 +59,93 @@ public class PositionStreamer {
 
     public void stop() {
         this.recordWriter.close();
+        if (this.recordStreamer != null) {
+            this.recordStreamer.stop();
+        }
     }
 
     public void start(String filePath) {
-        RecordStreamer recordStreamer = new RecordStreamer(
+        this.recordStreamer = new RecordStreamer(
                 new File(filePath),
                 true,
                 1,
                 s -> s.split("_")[2]
         );
 
-        recordStreamer.addRecordAcceptPolicy(TelemetryRecord.class, new AbstractRecordAcceptPolicy<TelemetryRecord>() {
-            @Override
-            public boolean evaluate(TelemetryRecord indycarRecord) {
-                if (foundFirstNonZero.containsKey(indycarRecord.getCarNumber())) {
-                    return true;
-                } else if (indycarRecord.getLapDistance() != 0) {
-                    foundFirstNonZero.put(indycarRecord.getCarNumber(), true);
-                    return true;
+        LOG.info("Streaming data for {} cars", ServerConstants.DEBUG_CARS);
+
+        recordStreamer.addRecordAcceptPolicy(
+                TelemetryRecord.class,
+                new AbstractRecordAcceptPolicy<TelemetryRecord>() {
+                    @Override
+                    public boolean evaluate(TelemetryRecord indycarRecord) {
+                        if (foundFirstNonZero.containsKey(indycarRecord.getCarNumber())) {
+                            return true;
+                        } else if (indycarRecord.getLapDistance() != 0 && (!ServerConstants.DEBUG_MODE || foundFirstNonZero.size() < ServerConstants.DEBUG_CARS)) {
+                            foundFirstNonZero.put(indycarRecord.getCarNumber(), true);
+                            return true;
+                        }
+                        return false;
+                    }
                 }
-                return false;
-            }
-        });
+        );
+
 
         recordStreamer.setTelemetryRecordListener(telemetryRecord -> {
+
+            //todo change if not necessary, normalizing lap distance
+            telemetryRecord.setLapDistance(Math.min(4023, telemetryRecord.getLapDistance()));
 
             AtomicLong atomicInteger = carCounter.computeIfAbsent(
                     telemetryRecord.getCarNumber(), (s) -> new AtomicLong());
             try {
                 long counter = atomicInteger.getAndIncrement();
-                this.recordPublisher.publishRecord(telemetryRecord.getCarNumber(),
-                        String.format("%f,%f,%f,%d,%f,%s",
-                                telemetryRecord.getVehicleSpeed(),
-                                telemetryRecord.getEngineSpeed(),
-                                telemetryRecord.getThrottle(),
-                                counter,
+                String uuid = telemetryRecord.getCarNumber() + "_" + counter;
+
+
+                if (ServerConstants.DIRECT_STREAM_DISTANCE) {
+                    if (!ServerConstants.DIRECT_STREAM_CAR_FILTER
+                            || ServerConstants.DIRECT_STREAM_CARS.contains(telemetryRecord.getCarNumber())) {
+                        AnomalyLabel anomalyForCarAt = AnomalyLabelsBank.getAnomalyForCarAt(
+                                telemetryRecord.getCarNumber(), telemetryRecord.getTimeOfDayLong());
+                        CarPositionRecord cpr = new CarPositionRecord(
                                 telemetryRecord.getLapDistance(),
-                                "5/27/18 " + telemetryRecord.getTimeOfDay()
-                        ));
-                LatencyCalculator.addSent(telemetryRecord.getCarNumber() + "_" + counter);
+                                telemetryRecord.getTimeField(),
+                                telemetryRecord.getCarNumber(),
+                                anomalyForCarAt
+                        );
+                        this.serverBoot.publishPositionEvent(cpr, counter);
+                    }
+                }
+
+                if (!ServerConstants.DEBUG_MODE) {
+                    this.mqttClient.publishRecord(
+                            telemetryRecord.getCarNumber(),
+                            String.format("%f,%f,%f,%d,%f,%s",
+                                    telemetryRecord.getVehicleSpeed(),
+                                    telemetryRecord.getEngineSpeed(),
+                                    telemetryRecord.getThrottle(),
+                                    counter,
+                                    telemetryRecord.getLapDistance(),
+                                    "5/27/18 " + telemetryRecord.getTimeOfDay()
+                            )
+                    );
+                } else {
+                    this.mqttClient.publishRecord(
+                            telemetryRecord.getCarNumber(),
+                            String.format("%s,%f,%f,%f,%d,%f,%s,%s",
+                                    uuid,
+                                    telemetryRecord.getVehicleSpeed(),
+                                    telemetryRecord.getEngineSpeed(),
+                                    telemetryRecord.getThrottle(),
+                                    counter,
+                                    telemetryRecord.getLapDistance(),
+                                    "5/27/18 " + telemetryRecord.getTimeOfDay(),
+                                    telemetryRecord.getCarNumber()
+                            )
+                    );
+                }
+                LatencyCalculator.addSent(uuid);
 //                this.recordWriter.write(
 //                        telemetryRecord.getCarNumber(),
 //                        String.valueOf(counter),
@@ -111,7 +165,13 @@ public class PositionStreamer {
         //Entry records
         recordStreamer.setEntryRecordRecordListener(this.serverBoot::publishEntryRecord);
 
-        recordStreamer.setCompleteLapRecordRecordListener(this.serverBoot::publishCompletedLapRecord);
+        recordStreamer.setCompleteLapRecordRecordListener(completeLapRecord -> {
+            try {
+                this.serverBoot.publishCompletedLapRecord(completeLapRecord);
+            } catch (InterruptedException e) {
+                LOG.warn("Error in submitting lap record", e);
+            }
+        });
 
         recordStreamer.setStreamEndListener(this.streamEndlistener);
 

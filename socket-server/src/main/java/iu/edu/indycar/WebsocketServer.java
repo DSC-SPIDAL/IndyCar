@@ -1,35 +1,51 @@
 package iu.edu.indycar;
 
-import iu.edu.indycar.tmp.LatencyCalculator;
-import iu.edu.indycar.tmp.RecordPublisher;
+import iu.edu.indycar.mqtt.MQTTClient;
+import iu.edu.indycar.streamer.StreamEndListener;
+import iu.edu.indycar.tmp.*;
+import iu.edu.indycar.ws.ServerBoot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
+import java.io.File;
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class WebsocketServer {
+public class WebsocketServer implements StreamResetListener, StreamEndListener {
 
     private final static Logger LOG = LogManager.getLogger(WebsocketServer.class);
+    private String logFilePath;
 
-    public static void startPositionStreamer(
-            ServerBoot serverBoot,
-            RecordPublisher recordPublisher,
-            MQTTTelemetryListener mqttAnomalyListener,
-            String path) {
-        PositionStreamer positionStreamer = new PositionStreamer(
-                serverBoot,
-                recordPublisher,
-                (tag) -> {
-                    LOG.info("Race ended.. Restarting...");
-                    LatencyCalculator.clear();
-                    serverBoot.reset();
-                    mqttAnomalyListener.reset();
-                    startPositionStreamer(serverBoot, recordPublisher, mqttAnomalyListener, path);
-                }
+    private ServerBoot serverBoot;
+    private MQTTClient mqttClient;
+    private TelemetryListener telemetryListener;
+    private PositionStreamer positionStreamer;
+
+    private Timer timer = new Timer();
+
+    public WebsocketServer(String logFilePath) {
+        this.logFilePath = logFilePath;
+        this.serverBoot = new ServerBoot("0.0.0.0", ServerConstants.WS_PORT);
+        this.mqttClient = new MQTTClient(this);
+    }
+
+    private void startNewStreamingSession() {
+        this.telemetryListener = new TelemetryListener(
+                serverBoot
         );
-        positionStreamer.start(path);
+        this.mqttClient.setTelemetryListener(this.telemetryListener);
+
+        this.positionStreamer = new PositionStreamer(
+                serverBoot,
+                mqttClient,
+                this
+        );
+
+        this.positionStreamer.start(this.logFilePath);
+        this.telemetryListener.start();
+
         LOG.info("Reloading client browsers in 30 seconds...");
         TimerTask tt = new TimerTask() {
             @Override
@@ -37,23 +53,81 @@ public class WebsocketServer {
                 serverBoot.sendReloadEvent();
             }
         };
-        new Timer().schedule(tt, 30000);
+        this.timer.schedule(tt, 30000);
+
+        //loading anomaly labels
+        File anomalyLabelsFile = new File("anomaly_labels.csv");
+        if (anomalyLabelsFile.exists()) {
+            LOG.info("Anomaly labels found. Loading...");
+            try {
+                AnomalyLabelsBank.loadLabelsFromCSV("anomaly_labels.csv");
+            } catch (IOException e) {
+                LOG.warn("Error in loading anomaly labels", e);
+            }
+        }
     }
 
-    public static void main(String[] args) throws MqttException {
+    public void start() {
+        this.mqttClient.connectToBroker();
+        this.serverBoot.start();
 
+        this.startNewStreamingSession();
+
+        //close in 10 minutes in debug mode
+        if (ServerConstants.DEBUG_MODE) {
+            new Timer().schedule(new TimerTask() {
+                @Override
+                public void run() {
+                    try {
+                        PingLatency.writeToFile();
+                        LatencyCalculator.writeToFile();
+                        System.exit(0);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
+                }
+            }, 10 * 60 * 1000);
+        }
+    }
+
+    public static void main(String[] args) {
         String filePath = args.length == 0 ? ServerConstants.LOG_FILE : args[0];
+        ServerConstants.DEBUG_CARS = args.length < 2 ? ServerConstants.DEBUG_CARS : Integer.valueOf(args[1]);
 
-        ServerBoot serverBoot = new ServerBoot("0.0.0.0", 5000);
+        WebsocketServer websocketServer = new WebsocketServer(filePath);
+        websocketServer.start();
+    }
 
-        RecordPublisher recordPublisher = new RecordPublisher();
-        recordPublisher.connectToBroker();
+    @Override
+    public void reset() {
+        LOG.info("Reset signal received from storm... Restarting stream...");
+        this.startNewStreamingSession();
+    }
 
-        MQTTTelemetryListener mqttAnomalyListener = new MQTTTelemetryListener(
-                serverBoot, ServerConstants.ANOMALY_TOPIC
-        );
-        serverBoot.start();
-        mqttAnomalyListener.start();
-        startPositionStreamer(serverBoot, recordPublisher, mqttAnomalyListener, filePath);
+    @Override
+    public void onStreamEnd(String s) {
+        LOG.info("Race ended.. Restarting...");
+
+        try {
+            LatencyCalculator.writeToFile();
+        } catch (IOException e) {
+            LOG.warn("Error in writing latency values to file", e);
+        }
+
+        LatencyCalculator.clear();
+        this.serverBoot.reset();
+
+        this.positionStreamer.stop();
+        this.telemetryListener.close();
+
+        AnomalyLabelsBank.reset();
+
+        LOG.info("Sending race end signal to storm");
+        try {
+            this.mqttClient.sendRaceEnded();
+            LOG.info("Waiting for storm to restart....");
+        } catch (MqttException e) {
+            LOG.error("Error in sending race end signal to storm", e);
+        }
     }
 }

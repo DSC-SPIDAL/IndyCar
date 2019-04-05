@@ -1,15 +1,17 @@
 import React from "react";
 import {Line} from "react-chartjs-2";
-import {Button, Card, Colors, Menu, Popover, Position, Switch} from "@blueprintjs/core";
-import CarInformationService, {CAR_INFO_LISTENER, CAR_LAP_LISTENER} from "../../services/CarInformationService";
+import {Card, Colors} from "@blueprintjs/core";
+import CarInformationService, {CAR_LAP_LISTENER} from "../../services/CarInformationService";
 import "./LapTimesComponent.css";
 
+const goodColors = ["#ef5350", "#EC407A", "#AB47BC",
+    "#42A5F5", "#26A69A", "#66BB6A",
+    "#FFA726", "#558B2F"];
+
 function getRandomColor() {
-    // let letters = '0123456789ABCDEF';
-    //     // let color = '#';
-    //     // for (let i = 0; i < 6; i++) {
-    //     //     color += letters[Math.floor(Math.random() * 16)];
-    //     // }
+    if (goodColors.length > 0) {
+        return goodColors.pop();
+    }
     let colors = Object.values(Colors);
     return Object.values(Colors)[Math.floor(Math.random() * colors.length)];
 }
@@ -39,19 +41,26 @@ export default class LapTimesComponent extends React.Component {
             carData: {},
             maxLap: 0
         };
+
+        this.setStateTimeout = -1;
     }
 
     onLapRecordReceived = (record) => {
-        let carData = this.state.carData;
-        if (!carData[record.carNumber]) {
-            carData[record.carNumber] = [];
+        if (record.carNumber !== "") {
+            clearTimeout(this.setStateTimeout);
+            let carData = this.state.carData;
+            if (!carData[record.carNumber]) {
+                carData[record.carNumber] = [];
+            }
+            let maxLap = this.state.maxLap;
+            carData[record.carNumber][record.completedLaps] = record.time;
+            if (record.completedLaps > maxLap) {
+                maxLap = record.completedLaps;
+            }
+            this.setStateTimeout = setTimeout(() => {
+                this.setState({carData, maxLap});
+            }, 1000);
         }
-        let maxLap = this.state.maxLap;
-        carData[record.carNumber][record.completedLaps] = record.time;
-        if (record.completedLaps > maxLap) {
-            maxLap = record.completedLaps;
-        }
-        this.setState({carData, maxLap});
     };
 
     onCarInformationChanged = () => {
@@ -114,13 +123,20 @@ export default class LapTimesComponent extends React.Component {
         let dataSet = [];
         Object.keys(this.state.carData).forEach(carNumber => {
             let lapTimes = this.state.carData[carNumber];
+            let color = getCarColor(carNumber);
             dataSet.push({
-                label: CarInformationService.getCarInformation(carNumber).driverName,
+                label: `[${carNumber}] ${CarInformationService.getCarInformation(carNumber).driverName}`,
                 data: lapTimes,
                 fill: false,
-                borderColor: getCarColor(carNumber),
-                backgroundColor: getCarColor(carNumber),
+                borderColor: color,
+                backgroundColor: color,
                 borderWidth: 0.5,
+                datasetKeyProvider: () => {
+                    return carNumber;
+                },
+                datalabels: {
+                    display: false
+                }
             });
         });
         //x axis
@@ -142,12 +158,12 @@ export default class LapTimesComponent extends React.Component {
                         labels: labels,
                         datasets: dataSet,
                     }}
-                          height={400}
+                          height={window.innerWidth > 800 ? 400 : 200}
                           options={{
                               responsive: true,
                               maintainAspectRatio: false,
                               legend: {
-                                  display: true,
+                                  display: window.innerWidth > 800,
                                   position: 'bottom',
                                   labels: {
                                       fontColor: 'white'
@@ -178,7 +194,7 @@ export default class LapTimesComponent extends React.Component {
                                       },
                                       ticks: {
                                           fontColor: "white",
-                                      },
+                                      }
                                   }],
                               }
                           }}/>
