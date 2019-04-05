@@ -79,6 +79,7 @@ public class ServerBoot {
                 ArrayList<CarPositionRecord> recordsList = null;
                 synchronized (carPositionRecords) {
                     Collection<CarPositionRecord> records = carPositionRecords.values();
+                    LOG.debug("Creating a bulk of {} position records", records.size());
                     if (!records.isEmpty()) {
                         recordsList = new ArrayList<>(records);
                         carPositionRecords.clear();
@@ -86,6 +87,7 @@ public class ServerBoot {
                 }
 
                 if (recordsList != null) {
+                    LOG.debug("Sending the  a bulk of {} position records", recordsList.size());
                     server.getRoomOperations("position").sendEvent("position", recordsList);
                     synchronized (pastRecords) {
                         pastRecords.add(recordsList);
@@ -109,6 +111,8 @@ public class ServerBoot {
     }
 
     public void publishPositionEvent(CarPositionRecord carPositionRecord, long counter) {
+        LOG.debug("Publishing position event {}. Record timing started : {}",
+                counter, recordTimingStarted.get());
         carPositionRecord.setSentTime(System.currentTimeMillis());
         synchronized (this.carPositionRecords) {
             this.carPositionRecords.put(carPositionRecord.getCarNumber(), carPositionRecord);
@@ -172,6 +176,7 @@ public class ServerBoot {
     }
 
     public void reset() {
+        LOG.info("Resetting ws server....");
         this.lastWeatherRecord = null;
         this.entryRecordSet = new HashSet<>();
         this.lapRecords = new HashMap<>();

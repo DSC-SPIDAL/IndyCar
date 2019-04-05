@@ -21,6 +21,7 @@ public class MQTTClient implements MqttCallback {
     }
 
     public void setTelemetryListener(TelemetryListener telemetryListener) {
+        LOG.info("Setting telemetry listener....");
         this.telemetryListener = telemetryListener;
     }
 
@@ -30,7 +31,7 @@ public class MQTTClient implements MqttCallback {
         conn.setAutomaticReconnect(true);
         conn.setCleanSession(true);
         conn.setConnectionTimeout(30);
-        conn.setKeepAliveInterval(300);
+        conn.setKeepAliveInterval(10);
         conn.setMaxInflight(1000);
         conn.setUserName(ServerConstants.USERNAME);
         conn.setPassword(ServerConstants.PASSWORD.toCharArray());
@@ -87,6 +88,7 @@ public class MQTTClient implements MqttCallback {
     public void messageArrived(String topic, MqttMessage message) {
         if (ServerConstants.STATUS_TOPIC.equals(topic)) {
             String msg = new String(message.getPayload());
+            LOG.info("Message received to status topic : {}", msg);
             if ("START".equals(msg)) {
                 if (streamResetListener != null) {
                     streamResetListener.reset();

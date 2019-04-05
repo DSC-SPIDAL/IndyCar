@@ -94,7 +94,12 @@ public class PositionStreamer {
         recordStreamer.setTelemetryRecordListener(telemetryRecord -> {
 
             //todo change if not necessary, normalizing lap distance
-            telemetryRecord.setLapDistance(Math.min(4023, telemetryRecord.getLapDistance()));
+            if (telemetryRecord.getLapDistance() > 4400) {
+                telemetryRecord.setLapDistance(Math.min(4023 * 2,
+                        telemetryRecord.getLapDistance()) % 4023);
+            } else {
+                telemetryRecord.setLapDistance(Math.min(4023, telemetryRecord.getLapDistance()));
+            }
 
             AtomicLong atomicInteger = carCounter.computeIfAbsent(
                     telemetryRecord.getCarNumber(), (s) -> new AtomicLong());

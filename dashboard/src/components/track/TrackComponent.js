@@ -249,8 +249,6 @@ export default class TrackComponent extends React.Component {
         }
 
         if (deltaDistance < 0) {
-            console.log("Negative Distance", carNumber, deltaDistance,
-                newRecord.distance, pastRecord.distance);
             //sometimes recorded distance is larger than totalTrack length
             let initDistance = deltaDistance;
             deltaDistance = ((this.path.length() / scale) - pastDistance + newDistance) * scale;

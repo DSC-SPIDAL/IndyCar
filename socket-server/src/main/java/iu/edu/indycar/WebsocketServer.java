@@ -25,6 +25,8 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
 
     private Timer timer = new Timer();
 
+    private TimerTask stormBackup;
+
     public WebsocketServer(String logFilePath) {
         this.logFilePath = logFilePath;
         this.serverBoot = new ServerBoot("0.0.0.0", ServerConstants.WS_PORT);
@@ -101,7 +103,13 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
     @Override
     public void reset() {
         LOG.info("Reset signal received from storm... Restarting stream...");
-        this.startNewStreamingSession();
+        System.exit(0);
+//        this.startNewStreamingSession();
+//        if (this.stormBackup != null) {
+//            LOG.info("Cancelling storm backup task");
+//            this.stormBackup.cancel();
+//            this.stormBackup = null;
+//        }
     }
 
     @Override
@@ -129,5 +137,16 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
         } catch (MqttException e) {
             LOG.error("Error in sending race end signal to storm", e);
         }
+
+        LOG.info("Registering storm backup to trigger in 5 minutes");
+        this.stormBackup = new TimerTask() {
+            @Override
+            public void run() {
+                LOG.info("Starting new backup session....");
+                reset();
+                //startNewStreamingSession();
+            }
+        };
+        this.timer.schedule(this.stormBackup, 1000 * 60 * 5);
     }
 }

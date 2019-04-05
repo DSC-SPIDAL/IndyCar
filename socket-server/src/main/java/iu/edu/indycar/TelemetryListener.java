@@ -39,6 +39,8 @@ public class TelemetryListener implements Runnable {
 
     private HashMap<String, SpeedAnomalyWriter> speedAnWriter = new HashMap<>();
 
+    private HashMap<String, AnomalyLabelProducer> anomalyLabelProducer = new HashMap<>();
+
     private boolean stopped;
 
     public TelemetryListener(ServerBoot serverBoot) {
@@ -84,16 +86,19 @@ public class TelemetryListener implements Runnable {
 
     private void processMessage(String payload) {
         try {
+
             JSONObject jsonObject = getJSONMessage(payload);
 
             String uuid = jsonObject.getString("UUID");
+
+            LOG.debug("Processing message received from broker {}", uuid);
 
             String carNumber = jsonObject.getString("carNumber");
             long counter = Long.valueOf(uuid.split("_")[1]);
 
             if (counter == 0) {
                 this.firstRecordDetected.put(carNumber, true);
-                System.out.println("First record for car " + carNumber);
+                LOG.debug("First record for car " + carNumber);
             }
 
             if (counter != 0 && !firstRecordDetected.getOrDefault(carNumber, false)) {
@@ -109,7 +114,14 @@ public class TelemetryListener implements Runnable {
             double throttle = Double.valueOf(jsonObject.getString("throttle"));
             double rpm = Double.valueOf(jsonObject.getString("engineSpeed"));
 
-            AnomalyLabel anomalyLabel = AnomalyLabelsBank.getAnomalyForCarAt(carNumber, timeOfDayLong);
+            AnomalyLabel anomalyLabel = anomalyLabelProducer.computeIfAbsent(
+                    carNumber,
+                    s -> new AnomalyLabelProducer()
+            ).getLabel(lapDistance, rpm, vehicleSpeed);
+
+            if (anomalyLabel == null) {
+                anomalyLabel = AnomalyLabelsBank.getAnomalyForCarAt(carNumber, timeOfDayLong);
+            }
 
             AnomalyMessage anomalyMessage = new AnomalyMessage();
             anomalyMessage.setIndex(timeOfDayLong);
@@ -142,6 +154,7 @@ public class TelemetryListener implements Runnable {
                     new CarPositionRecord(lapDistance, timeOfDayLong, carNumber, anomalyLabel),
                     anomalyMessage
             );
+            LOG.debug("Enqueuing message {} for broadcast...", uuid);
             this.enqueueForBroadcast(wsMessage);
 
 
@@ -182,7 +195,9 @@ public class TelemetryListener implements Runnable {
                         rpm,
                         rpmAnomaly.getAnomaly(),
                         throttle,
-                        throttleAnomaly.getAnomaly()
+                        throttleAnomaly.getAnomaly(),
+                        lapDistance,
+                        anomalyLabel != null ? anomalyLabel.getLabel() : ""
                 );
             }
 

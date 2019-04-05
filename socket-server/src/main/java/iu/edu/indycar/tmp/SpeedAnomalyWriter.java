@@ -27,10 +27,12 @@ public class SpeedAnomalyWriter {
                                    long timeOfDayLong,
                                    double speed, double speedAnomaly,
                                    double rpm, double rpmAnomaly,
-                                   double throttle, double throttleAnomaly) throws IOException {
+                                   double throttle, double throttleAnomaly,
+                                   double distance, String label) throws IOException {
         this.bufferedWriter.write(String.format(
-                "%s,%d,%f,%f,%f,%f,%f,%f", timeOfDay, timeOfDayLong,
-                speed, speedAnomaly, rpm, rpmAnomaly, throttle, throttleAnomaly
+                "%s,%d,%f,%f,%f,%f,%f,%f,%f,%s", timeOfDay, timeOfDayLong,
+                speed, speedAnomaly, rpm, rpmAnomaly, throttle, throttleAnomaly,
+                distance, label
         ));
         this.bufferedWriter.newLine();
     }

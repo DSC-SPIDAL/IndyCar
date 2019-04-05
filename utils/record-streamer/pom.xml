@@ -74,6 +74,14 @@
             <artifactId>log4j-slf4j-impl</artifactId>
             <version>2.11.1</version>
         </dependency>
+
+        <!-- https://mvnrepository.com/artifact/org.knowm.xchart/xchart -->
+        <dependency>
+            <groupId>org.knowm.xchart</groupId>
+            <artifactId>xchart</artifactId>
+            <version>3.5.4</version>
+        </dependency>
+
     </dependencies>
 
 

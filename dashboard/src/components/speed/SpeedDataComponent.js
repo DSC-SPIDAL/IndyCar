@@ -6,18 +6,6 @@ import {Line} from "react-chartjs-2";
 import CarInformationService, {CAR_LAP_LISTENER} from "../../services/CarInformationService";
 import PropTypes from 'prop-types';
 
-const DRIVERS_WITH_IMAGES = {
-    13: 13,
-    19: 19,
-    20: 20,
-    21: 21,
-    24: 24,
-    26: 26,
-    33: 33,
-    98: 98,
-    59: 59
-};
-
 /**
  * @author Chathura Widanage
  */
@@ -28,7 +16,8 @@ export default class SpeedDataComponent extends React.Component {
         this.state = {
             x: [],
             carInfo: {},
-            lapRecords: {}
+            lapRecords: {},
+            driverImage: `url(img/drivers/no.jpg)`
         };
 
         // for (let i = 0; i < 18; i++) {
@@ -39,9 +28,19 @@ export default class SpeedDataComponent extends React.Component {
     updateCarInformation = (props = this.props) => {
         //get car information
         let carInfo = CarInformationService.getCarInformation(props.carNumber);
-        this.setState({
-            carInfo
-        })
+
+        let rawImgUrl = `img/drivers/${carInfo.carNumber}.jpg`;
+        let imageUrl = `url(img/drivers/no.jpg)`;
+
+        this.imageExists(rawImgUrl, (exists) => {
+            if (exists) {
+                imageUrl = `url(img/drivers/${carInfo.carNumber}.jpg)`;
+            }
+            this.setState({
+                carInfo,
+                driverImage: imageUrl
+            });
+        });
     };
 
     onLapRecordReceived = (lapRecord) => {
@@ -80,13 +79,18 @@ export default class SpeedDataComponent extends React.Component {
         }
     }
 
-    imageExists = (image_url) => {
+    imageExists = (image_url, cb) => {
+        let xhr = new XMLHttpRequest();
 
-        let http = new XMLHttpRequest();
+        xhr.open('HEAD', image_url, true);
+        xhr.onload = function (e) {
+            cb(xhr.status !== 404)
+        };
+        xhr.onerror = function (e) {
+            cb(false)
+        };
 
-        http.open('HEAD', image_url, false);
-        http.send();
-        return http.status !== 404;
+        xhr.send();
     };
 
     render() {
@@ -110,13 +114,6 @@ export default class SpeedDataComponent extends React.Component {
             return lapR.time;
         });
 
-        let rawImgUrl = `img/drivers/${this.state.carInfo.carNumber}.jpg`;
-        let imageUrl = `url(img/drivers/no.jpg)`;
-
-        if (this.imageExists(rawImgUrl)) {
-            imageUrl = `url(img/drivers/${this.state.carInfo.carNumber}.jpg)`;
-        }
-
         return (
             <Card className="speed-data-component">
                 <div className="speed-data-rank-wrapper">
@@ -124,7 +121,7 @@ export default class SpeedDataComponent extends React.Component {
                         <div className="speed-data-car-info">
                             <div className="speed-data-car-info-middle">
                                 <div className="speed-data-car-info-number"
-                                     style={{backgroundImage: imageUrl}}>
+                                     style={{backgroundImage: this.state.driverImage}}>
                                     <span>
                                     {this.state.carInfo.carNumber}
                                     </span>

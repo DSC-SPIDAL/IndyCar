@@ -1,6 +1,6 @@
 import React from "react";
 import AnomalySubscriber from "../../subscribers/AnomalySubscriber";
-import {Bar, Line} from "react-chartjs-2";
+import {Bar} from "react-chartjs-2";
 import "chartjs-plugin-datalabels"
 import {SocketService} from "../../services/SocketService";
 
@@ -12,11 +12,12 @@ export default class SpeedAnomalyComponent extends React.Component {
             chartData: {
                 speedData: [],
                 anomalyData: [],
+                anomalyDataRaw: [],
                 anomalyColor: [],
                 labels: [],
                 anomalyLabels: [],
             },
-            windowSize: Math.min(50, 50 * window.innerWidth / 2500),
+            windowSize: Math.min(50, 50 * window.innerWidth / 1200),
             currentAnomalyLabel: {
                 id: undefined,
                 count: 0
@@ -27,9 +28,7 @@ export default class SpeedAnomalyComponent extends React.Component {
 
         this.chart = undefined;
 
-        this.chartUpdateInterval = -1;
-
-        this.needChartUpdate = false;
+        this.chartLastUpdated = -1;
 
         this.socket = new SocketService();
     }
@@ -40,9 +39,11 @@ export default class SpeedAnomalyComponent extends React.Component {
 
         let speedData = chartData.speedData;
         speedData.push(anomalyObject.rawData);
-        speedData.length > this.state.windowSize && speedData.splice(0, speedData.length - this.state.windowSize);
+        // speedData.length > this.state.windowSize && speedData.splice(0, speedData.length - this.state.windowSize);
 
         let anomalyData = chartData.anomalyData;
+        let anomalyDataRaw = chartData.anomalyDataRaw;
+        anomalyDataRaw.push(anomalyObject.anomaly);
 
         //colors
         let anomalyColor = chartData.anomalyColor;
@@ -56,8 +57,8 @@ export default class SpeedAnomalyComponent extends React.Component {
             anomalyColor.push("#388E3C");
             anomalyData.push(0.05);
         }
-        anomalyData.length > this.state.windowSize && anomalyData.splice(0, anomalyData.length - this.state.windowSize);
-        anomalyColor.length > this.state.windowSize && anomalyColor.splice(0, anomalyColor.length - this.state.windowSize);
+        //anomalyData.length > this.state.windowSize && anomalyData.splice(0, anomalyData.length - this.state.windowSize);
+        //anomalyColor.length > this.state.windowSize && anomalyColor.splice(0, anomalyColor.length - this.state.windowSize);
 
 
         /*let anomalyLabels = chartData.anomalyLabels;
@@ -83,26 +84,28 @@ export default class SpeedAnomalyComponent extends React.Component {
 
         let labels = chartData.labels;
         labels.push(data.timeOfDayString);
-        labels.length > this.state.windowSize && labels.splice(0, labels.length - this.state.windowSize);
+        //labels.length > this.state.windowSize && labels.splice(0, labels.length - this.state.windowSize);
 
-        this.needChartUpdate = true;
+        if (this.chart && this.chart.chartInstance && (Date.now() - this.chartLastUpdated) > 100) {
+            //resize to window
+            speedData.length > this.state.windowSize && speedData.splice(0, speedData.length - this.state.windowSize);
+            anomalyData.length > this.state.windowSize && anomalyData.splice(0, anomalyData.length - this.state.windowSize);
+            anomalyDataRaw.length > this.state.windowSize && anomalyDataRaw.splice(0, anomalyDataRaw.length - this.state.windowSize);
+            anomalyColor.length > this.state.windowSize && anomalyColor.splice(0, anomalyColor.length - this.state.windowSize);
+            labels.length > this.state.windowSize && labels.splice(0, labels.length - this.state.windowSize);
+
+            this.chart.chartInstance.update();
+            this.chartLastUpdated = Date.now();
+        }
     };
 
     componentDidMount() {
         console.log("Sending Join room Request");
         this.socket.subscribe("anomaly_" + this.props.carNumber, this.onReceiveChartData);
-
-        this.chartUpdateInterval = setInterval(() => {
-            if (this.chart && this.chart.chartInstance && this.needChartUpdate) {
-                this.chart.chartInstance.update();
-                this.needChartUpdate = false;
-            }
-        }, 1000 / 10);//10 frames per second
     }
 
     componentWillUnmount() {
         this.socket.unsubscribe("anomaly_" + this.props.carNumber, this.onReceiveChartData);
-        clearInterval(this.chartUpdateInterval);
     }
 
     shouldComponentUpdate(nextProps, nextState, nextContext) {
@@ -134,32 +137,35 @@ export default class SpeedAnomalyComponent extends React.Component {
                         data: this.state.chartData.anomalyData,
                         fill: true,
                         backgroundColor: this.state.chartData.anomalyColor,
-                        datalabels: {
-                            display: false
-                        }
                         // datalabels: {
-                        //     display: (context) => {
-                        //         return !!(this.state.chartData.anomalyLabels[context.dataIndex])
-                        //     },
-                        //     formatter: (value, context) => {
-                        //         return this.state.chartData.anomalyLabels[context.dataIndex] ?
-                        //             this.state.chartData.anomalyLabels[context.dataIndex].label : "";
-                        //     },
-                        //     color: '#293742',
-                        //     backgroundColor: 'white',
-                        //     borderColor: 'white',
-                        //     borderRadius: 4,
-                        //     font: {
-                        //         weight: 'bold'
-                        //     },
-                        //     padding: 5
+                        //     display: false
                         // }
+                        datalabels: {
+                            display: (context) => {
+                                return this.state.chartData.anomalyData[context.dataIndex] >= 0.1
+                            },
+                            formatter: (value, context) => {
+                                return this.state.chartData.anomalyDataRaw[context.dataIndex].toFixed(1);
+                            },
+                            color: 'white',
+                            backgroundColor: '#263238',
+                            borderColor: 'white',
+                            font: {
+                                size: 11,
+                                color: 'white'
+                            },
+                            padding: 2,
+                            align: 'end',
+                            offset: 2,
+                            anchor: 'end'
+                        }
                     }],
                 }} options={{
                     maintainAspectRatio: false,
                     animation: {
                         duration: 0
                     },
+                    events: [],
                     elements: {
                         line: {
                             tension: 0, // disables bezier curves
