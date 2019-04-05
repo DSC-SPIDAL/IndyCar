@@ -11,15 +11,24 @@ import java.io.OutputStreamWriter;
 public class CPUprocessing {
 	public static void main(String[] args) {
 		try {
-			BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream("/Users/sahiltyagi/Desktop/cpulog.txt")));
+			BufferedReader rdr = new BufferedReader(new InputStreamReader(
+							new FileInputStream("/Users/sahiltyagi/Desktop/benchmarks/HTMjava/modifiedHTMparams/htm99threads.txt")));
 			String str;
-			BufferedWriter wrtr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/Users/sahiltyagi/Desktop/resource_consumption.csv")));
+			BufferedWriter wrtr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/Users/sahiltyagi/Desktop/allcars99threads-cpumem.csv")));
 			int index=1;
+			//speed
+			//String proc_id = "6509";
+			//rpm
+			//String proc_id = "7448";
+			//throttle
+			//String proc_id = "6854";
+			//all cars 99 threads
+			String proc_id = "9040";
+			
 			while((str=rdr.readLine()) !=null) {
-				if(str.contains("java")) {
-					//System.out.println(str);
-					//System.out.println(str.split("\\s+")[str.split("\\s+").length -5]);
+				if(str.contains("java") && str.contains(proc_id)) {
 					//index, memory, cpu
+					System.out.println(str.split("\\s+")[str.split("\\s+").length -4]);
 					wrtr.write(index + "," + str.split("\\s+")[str.split("\\s+").length -4] + "," + str.split("\\s+")[str.split("\\s+").length -5] + "\n");
 					index++;
 				}
@@ -34,19 +43,5 @@ public class CPUprocessing {
 		} catch(IOException e) {
 			e.printStackTrace();
 		}
-	}
-	
-	public static void nupicDateTimeProcessing() throws IOException {
-		BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream("/Users/sahiltyagi/Desktop/dixon_indycar.csv")));
-		BufferedWriter wrtr = new BufferedWriter(new OutputStreamWriter(new FileOutputStream("/Users/sahiltyagi/Desktop/dixon_final.csv")));
-		String s;
-		while((s=rdr.readLine()) != null) {
-			//System.out.println(s.substring(0, s.indexOf(":") +3) + "," + s.split(",")[1]);
-			wrtr.write(s.substring(0, s.indexOf(":") +3) + "," + s.split(",")[1] + "\n");
-		}
-		
-		System.out.println("completed nupic datetime file");
-		wrtr.close();
-		rdr.close();
 	}
 }
