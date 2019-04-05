@@ -51,7 +51,7 @@ public class PositionStreamer {
         };
 
         try {
-            this.recordWriter = new RecordWriter("/tmp/records_in_" + resets++);
+            this.recordWriter = new RecordWriter("/N/u/styagi/recin/records_in_" + resets++);
         } catch (IOException e) {
             e.printStackTrace();
         }
