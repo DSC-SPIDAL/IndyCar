@@ -1,0 +1,206 @@
+name: "INTEL_TOPOLOGY_INDYCAR"
+config:
+  topology.workers: 2
+  topology.debug: false
+  topology.acker.executors: 0
+
+spouts:
+  - id: "telemetryspout-20"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "20"
+
+  - id: "telemetryspout-21"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "21"
+
+  - id: "telemetryspout-13"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "13"
+
+  - id: "telemetryspout-98"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "98"
+
+  - id: "telemetryspout-19"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "19"
+
+  - id: "telemetryspout-33"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "33"
+
+  - id: "telemetryspout-24"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "24"
+
+  - id: "telemetryspout-26"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "26"
+
+  - id: "telemetryspout-7"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "7"
+
+  - id: "telemetryspout-6"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "6"
+
+  - id: "telemetryspout-60"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "60"
+
+  - id: "telemetryspout-27"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "27"
+
+  - id: "telemetryspout-22"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "22"
+
+  - id: "telemetryspout-18"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "18"
+
+  - id: "telemetryspout-3"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "3"
+
+  - id: "telemetryspout-4"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "4"
+
+  - id: "telemetryspout-28"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "28"
+
+  - id: "telemetryspout-32"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "32"
+
+  - id: "telemetryspout-59"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "59"
+
+  - id: "telemetryspout-25"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "25"
+
+  - id: "telemetryspout-64"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "64"
+
+  - id: "telemetryspout-10"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "10"
+
+  - id: "telemetryspout-15"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "15"
+
+  - id: "telemetryspout-17"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "17"
+
+  - id: "telemetryspout-12"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "12"
+
+  - id: "telemetryspout-1"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "1"
+
+  - id: "telemetryspout-9"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "9"
+
+  - id: "telemetryspout-14"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "14"
+
+  - id: "telemetryspout-23"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "23"
+
+  - id: "telemetryspout-30"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "30"
+
+  - id: "telemetryspout-29"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "29"
+
+  - id: "telemetryspout-88"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "88"
+
+  - id: "telemetryspout-66"
+    className: "com.dsc.iu.streaming.AnomalyDetectionTask"
+    parallelism: 1
+    constructorArgs:
+      - "66"
+
+
