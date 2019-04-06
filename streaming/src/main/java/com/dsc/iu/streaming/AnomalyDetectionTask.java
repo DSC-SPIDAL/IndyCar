@@ -45,285 +45,289 @@ import joptsimple.OptionSet;
 
 public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback {
 
-	/**
-	 * 
-	 */
-	private static final long serialVersionUID = 1L;
-	private String carnum;
-	private ConcurrentLinkedQueue<String> nonblockingqueue;
-	private String data;
-	private Map<String, Double> prev_lkhood=null;
-	private AnomalyDetectionTask obj;
-	private Map<String, Publisher> recordpublish = null;
-	private String[] metrics = {"vehicleSpeed","engineSpeed","throttle"};
-	private ConcurrentHashMap<String, JSONObject> aggregator;
-	private MqttMessage mqttmsg;
-	private MqttClient mqttclient;
-	
-	public AnomalyDetectionTask(String carnum) {
-		// TODO Auto-generated constructor stub
-		this.carnum = carnum;
-	}
+    /**
+     *
+     */
+    private static final long serialVersionUID = 1L;
+    private String carnum;
+    private ConcurrentLinkedQueue<String> nonblockingqueue;
+    private String data;
+    private Map<String, Double> prev_lkhood = null;
+    private AnomalyDetectionTask obj;
+    private Map<String, Publisher> recordpublish = null;
+    private String[] metrics = {"vehicleSpeed", "engineSpeed", "throttle"};
+    private ConcurrentHashMap<String, JSONObject> aggregator;
+    private MqttMessage mqttmsg;
+    private MqttClient mqttclient;
 
-	@Override
-	public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
-		// TODO Auto-generated method stub
-		nonblockingqueue = new ConcurrentLinkedQueue<String>();
-		prev_lkhood = new HashMap<String, Double>();
-		recordpublish = new HashMap<String, Publisher>();
-		aggregator = new ConcurrentHashMap<String, JSONObject>();
-		obj = new AnomalyDetectionTask(carnum);
-		mqttmsg = new MqttMessage();
-		
-		MqttConnectOptions conn = new MqttConnectOptions();
-		//setting maximum # of in-flight messages
-		conn.setMaxInflight(OnlineLearningUtils.inflightMsgRate);
-		
-		conn.setAutomaticReconnect(true);
-		conn.setCleanSession(true);
-		conn.setConnectionTimeout(30);
-		conn.setKeepAliveInterval(30);
-		conn.setUserName(OnlineLearningUtils.mqttadmin);
-		conn.setPassword(OnlineLearningUtils.mqttpwd.toCharArray());
-		
-		try {
-			//subscribe for telemetry data
-			MqttClient mqttClient = new MqttClient(OnlineLearningUtils.brokerurl, MqttClient.generateClientId());
-			mqttClient.setCallback(this);
-			mqttClient.connect(conn);
-			mqttClient.subscribe(carnum, OnlineLearningUtils.QoS);
-			
-			//publish HTM data
-			mqttClient = new MqttClient(OnlineLearningUtils.brokerurl, MqttClient.generateClientId());
-			mqttClient.setCallback(this);
-			mqttClient.connect(conn);
-			
-		} catch(MqttException m) {
-			m.printStackTrace();
-		}
-		
-		//instantiate the HTM networks for all metrics
-		for(int i=0; i<metrics.length; i++) {
-			prev_lkhood.put(carnum + "_" + metrics[i], 0.);
-			obj.startHTMNetwork(metrics[i]);
-		}
-	}
+    public AnomalyDetectionTask(String carnum) {
+        // TODO Auto-generated constructor stub
+        this.carnum = carnum;
+    }
 
-	@Override
-	public void nextTuple() {
-		// TODO Auto-generated method stub
-		if(nonblockingqueue.size()>0) {
-			String record = nonblockingqueue.poll();
-			if (record.split(",").length == 6) {
-				double speed = Double.parseDouble(record.split(",")[0]);
-				int rpm = Integer.parseInt(data.split(",")[1]);
-				double throttle = Double.parseDouble(record.split(",")[2]);
-				int record_counter = Integer.parseInt(record.split(",")[3]);
-				String lapDistance = record.split(",")[4];
-				String timeOfDay = record.split(",")[5];
-				
-				for(int i=0; i<metrics.length; i++) {
-					String param=null;
-					if(metrics[i].equals("vehicleSpeed")) {
-						param = String.valueOf(speed);
-					} else if(metrics[i].equals("engineSpeed")) {
-						param = String.valueOf(rpm);
-					} else if(metrics[i].equals("throttle")) {
-						param = String.valueOf(throttle);
-					}
-					
-					recordpublish.get(metrics[i]).onNext(timeOfDay + "," + param);
-				}
-				
-				JSONObject recordobj = new JSONObject();
-				recordobj.put("carnum", carnum);
-				recordobj.put("lapDistance", lapDistance);
-				recordobj.put("timeOfDay", timeOfDay);
-				recordobj.put("UUID", carnum +"_" + record_counter);
-				aggregator.put(carnum +"_" + timeOfDay, recordobj);
-				
-				//write record accumulator from all running HTM networks here
-				//iterate over the whole map and when all metrics have been processed, remove the said element
-				//map key is carnum_timeOfDay
-				//CHECK REMOVAL AND ITERATION OF HASHMAP!!!
-				recordobj = null;
-				for(Map.Entry<String, JSONObject> entry : aggregator.entrySet()) {
-					recordobj = entry.getValue();
-					if(recordobj != null && recordobj.containsKey("engineSpeed") && recordobj.containsKey("vehicleSpeed") && recordobj.containsKey("throttle")) {
-						mqttmsg.setPayload(recordobj.toJSONString().getBytes());
-						mqttmsg.setQos(OnlineLearningUtils.QoS);
-						try {
-							mqttclient.publish(OnlineLearningUtils.sinkoutTopic, mqttmsg);
-						} catch(MqttException e) {
-							e.printStackTrace();
-						}
-						
-						aggregator.remove(entry.getKey());
-					}
-				}
-			}
-		}
-	}
+    @Override
+    public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
+        // TODO Auto-generated method stub
+        nonblockingqueue = new ConcurrentLinkedQueue<String>();
+        prev_lkhood = new HashMap<String, Double>();
+        recordpublish = new HashMap<String, Publisher>();
+        aggregator = new ConcurrentHashMap<String, JSONObject>();
+        obj = new AnomalyDetectionTask(carnum);
+        mqttmsg = new MqttMessage();
 
-	@Override
-	public void declareOutputFields(OutputFieldsDeclarer declarer) {
-		// TODO Auto-generated method stub
-		
-	}
+        MqttConnectOptions conn = new MqttConnectOptions();
+        //setting maximum # of in-flight messages
+        conn.setMaxInflight(OnlineLearningUtils.inflightMsgRate);
 
-	@Override
-	public void connectionLost(Throwable cause) {
-		// TODO Auto-generated method stub
-		System.err.println(cause.getMessage());
-	}
+        conn.setAutomaticReconnect(true);
+        conn.setCleanSession(true);
+        conn.setConnectionTimeout(30);
+        conn.setKeepAliveInterval(30);
+        conn.setUserName(OnlineLearningUtils.mqttadmin);
+        conn.setPassword(OnlineLearningUtils.mqttpwd.toCharArray());
 
-	@Override
-	public void messageArrived(String topic, MqttMessage message) throws Exception {
-		// TODO Auto-generated method stub
-		nonblockingqueue.add(new String(message.getPayload()));
-	}
+        try {
+            //subscribe for telemetry data
+            MqttClient mqttClient = new MqttClient(OnlineLearningUtils.brokerurl, MqttClient.generateClientId());
+            mqttClient.setCallback(this);
+            mqttClient.connect(conn);
+            mqttClient.subscribe(carnum, OnlineLearningUtils.QoS);
 
-	@Override
-	public void deliveryComplete(IMqttDeliveryToken token) {
-		// TODO Auto-generated method stub
-		
-	}
-	
-	private void startHTMNetwork(String metric) {
-		String config = "{\"input\":\"/Users/sahiltyagi/Desktop/numenta_indy2018-13-vspeed.csv\", \"output\":\"/Users/sahiltyagi/Desktop/javaNAB.csv\", "
-				+ "\"aggregationInfo\": {\"seconds\": 0, \"fields\": [], \"months\": 0, \"days\": 0, \"years\": 0, \"hours\": 0, \"microseconds\": 0, "
-				+ "\"weeks\": 0, \"minutes\": 0, \"milliseconds\": 0}, \"model\": \"HTMPrediction\", \"version\": 1, \"predictAheadTime\": null, "
-				+ "\"modelParams\": {\"sensorParams\": {\"sensorAutoReset\": null, \"encoders\": {\"value\": {\"name\": \"value\", "
-				+ "\"resolution\": 2.5143999999999997, \"seed\": 42, \"fieldname\": \"value\", \"type\": \"RandomDistributedScalarEncoder\"}, "
-				+ "\"timestamp_dayOfWeek\": null, \"timestamp_timeOfDay\": {\"fieldname\": \"timestamp\", \"timeOfDay\": [21, 9.49], "
-				+ "\"type\": \"DateEncoder\", \"name\": \"timestamp\"}, \"timestamp_weekend\": null}, \"verbosity\": 0}, "
-				+ "\"anomalyParams\": {\"anomalyCacheRecords\": null, \"autoDetectThreshold\": null, \"autoDetectWaitRecords\": 5030}, "
-				+ "\"spParams\": {\"columnCount\": 2048, \"synPermInactiveDec\": 0.0005, \"spatialImp\": \"cpp\", \"inputWidth\": 0, \"spVerbosity\": 0, "
-				+ "\"synPermConnected\": 0.2, \"synPermActiveInc\": 0.003, \"potentialPct\": 0.8, \"numActiveColumnsPerInhArea\": 40, \"boostStrength\": 0.0, "
-				+ "\"globalInhibition\": 1, \"seed\": 1956}, \"trainSPNetOnlyIfRequested\": false, \"clParams\": {\"alpha\": 0.035828933612158, "
-				+ "\"verbosity\": 0, \"steps\": \"1\", \"regionName\": \"SDRClassifierRegion\"}, \"tmParams\": {\"columnCount\": 2048, "
-				+ "\"activationThreshold\": 20, \"cellsPerColumn\": 32, \"permanenceDec\": 0.008, \"minThreshold\": 13, \"inputWidth\": 2048, "
-				+ "\"maxSynapsesPerSegment\": 128, \"outputType\": \"normal\", \"initialPerm\": 0.24, \"globalDecay\": 0.0, \"maxAge\": 0, "
-				+ "\"newSynapseCount\": 31, \"maxSegmentsPerCell\": 128, \"permanenceInc\": 0.04, \"temporalImp\": \"tm_cpp\", \"seed\": 1960, "
-				+ "\"verbosity\": 0, \"predictedSegmentDecrement\": 0.001}, \"tmEnable\": true, \"clEnable\": false, \"spEnable\": true, "
-				+ "\"inferenceType\": \"TemporalAnomaly\"}}";
-		
-		OptionParser parser = new OptionParser();
+            //publish HTM data
+            mqttClient = new MqttClient(OnlineLearningUtils.brokerurl, MqttClient.generateClientId());
+            mqttClient.setCallback(this);
+            mqttClient.connect(conn);
+
+        } catch (MqttException m) {
+            m.printStackTrace();
+        }
+
+        //instantiate the HTM networks for all metrics
+        for (int i = 0; i < metrics.length; i++) {
+            prev_lkhood.put(carnum + "_" + metrics[i], 0.);
+            obj.startHTMNetwork(metrics[i]);
+        }
+    }
+
+    @Override
+    public void nextTuple() {
+        // TODO Auto-generated method stub
+        if (nonblockingqueue.size() > 0) {
+            String record = nonblockingqueue.poll();
+            if (record.split(",").length == 6) {
+                double speed = Double.parseDouble(record.split(",")[0]);
+                int rpm = Integer.parseInt(data.split(",")[1]);
+                double throttle = Double.parseDouble(record.split(",")[2]);
+                int record_counter = Integer.parseInt(record.split(",")[3]);
+                String lapDistance = record.split(",")[4];
+                String timeOfDay = record.split(",")[5];
+
+                for (int i = 0; i < metrics.length; i++) {
+                    String param = null;
+                    if (metrics[i].equals("vehicleSpeed")) {
+                        param = String.valueOf(speed);
+                    } else if (metrics[i].equals("engineSpeed")) {
+                        param = String.valueOf(rpm);
+                    } else if (metrics[i].equals("throttle")) {
+                        param = String.valueOf(throttle);
+                    }
+
+                    recordpublish.get(metrics[i]).onNext(timeOfDay + "," + param);
+                }
+
+                JSONObject recordobj = new JSONObject();
+                recordobj.put("carnum", carnum);
+                recordobj.put("lapDistance", lapDistance);
+                recordobj.put("timeOfDay", timeOfDay);
+                recordobj.put("UUID", carnum + "_" + record_counter);
+                aggregator.put(carnum + "_" + timeOfDay, recordobj);
+
+                //write record accumulator from all running HTM networks here
+                //iterate over the whole map and when all metrics have been processed, remove the said element
+                //map key is carnum_timeOfDay
+                //CHECK REMOVAL AND ITERATION OF HASHMAP!!!
+                recordobj = null;
+                for (Map.Entry<String, JSONObject> entry : aggregator.entrySet()) {
+                    recordobj = entry.getValue();
+                    if (recordobj != null && recordobj.containsKey("engineSpeed") && recordobj.containsKey("vehicleSpeed") && recordobj.containsKey("throttle")) {
+                        mqttmsg.setPayload(recordobj.toJSONString().getBytes());
+                        mqttmsg.setQos(OnlineLearningUtils.QoS);
+                        try {
+                            mqttclient.publish(OnlineLearningUtils.sinkoutTopic, mqttmsg);
+                        } catch (MqttException e) {
+                            e.printStackTrace();
+                        }
+
+                        aggregator.remove(entry.getKey());
+                    }
+                }
+            }
+        }
+    }
+
+    @Override
+    public void declareOutputFields(OutputFieldsDeclarer declarer) {
+        // TODO Auto-generated method stub
+
+    }
+
+    @Override
+    public void connectionLost(Throwable cause) {
+        // TODO Auto-generated method stub
+        System.err.println(cause.getMessage());
+    }
+
+    @Override
+    public void messageArrived(String topic, MqttMessage message) throws Exception {
+        // TODO Auto-generated method stub
+        nonblockingqueue.add(new String(message.getPayload()));
+    }
+
+    @Override
+    public void deliveryComplete(IMqttDeliveryToken token) {
+        // TODO Auto-generated method stub
+
+    }
+
+    private void startHTMNetwork(String metric) {
+        String config = "{\"input\":\"/Users/sahiltyagi/Desktop/numenta_indy2018-13-vspeed.csv\", \"output\":\"/Users/sahiltyagi/Desktop/javaNAB.csv\", "
+                + "\"aggregationInfo\": {\"seconds\": 0, \"fields\": [], \"months\": 0, \"days\": 0, \"years\": 0, \"hours\": 0, \"microseconds\": 0, "
+                + "\"weeks\": 0, \"minutes\": 0, \"milliseconds\": 0}, \"model\": \"HTMPrediction\", \"version\": 1, \"predictAheadTime\": null, "
+                + "\"modelParams\": {\"sensorParams\": {\"sensorAutoReset\": null, \"encoders\": {\"value\": {\"name\": \"value\", "
+                + "\"resolution\": 2.5143999999999997, \"seed\": 42, \"fieldname\": \"value\", \"type\": \"RandomDistributedScalarEncoder\"}, "
+                + "\"timestamp_dayOfWeek\": null, \"timestamp_timeOfDay\": {\"fieldname\": \"timestamp\", \"timeOfDay\": [21, 9.49], "
+                + "\"type\": \"DateEncoder\", \"name\": \"timestamp\"}, \"timestamp_weekend\": null}, \"verbosity\": 0}, "
+                + "\"anomalyParams\": {\"anomalyCacheRecords\": null, \"autoDetectThreshold\": null, \"autoDetectWaitRecords\": 5030}, "
+                + "\"spParams\": {\"columnCount\": 2048, \"synPermInactiveDec\": 0.0005, \"spatialImp\": \"cpp\", \"inputWidth\": 0, \"spVerbosity\": 0, "
+                + "\"synPermConnected\": 0.2, \"synPermActiveInc\": 0.003, \"potentialPct\": 0.8, \"numActiveColumnsPerInhArea\": 40, \"boostStrength\": 0.0, "
+                + "\"globalInhibition\": 1, \"seed\": 1956}, \"trainSPNetOnlyIfRequested\": false, \"clParams\": {\"alpha\": 0.035828933612158, "
+                + "\"verbosity\": 0, \"steps\": \"1\", \"regionName\": \"SDRClassifierRegion\"}, \"tmParams\": {\"columnCount\": 2048, "
+                + "\"activationThreshold\": 20, \"cellsPerColumn\": 32, \"permanenceDec\": 0.008, \"minThreshold\": 13, \"inputWidth\": 2048, "
+                + "\"maxSynapsesPerSegment\": 128, \"outputType\": \"normal\", \"initialPerm\": 0.24, \"globalDecay\": 0.0, \"maxAge\": 0, "
+                + "\"newSynapseCount\": 31, \"maxSegmentsPerCell\": 128, \"permanenceInc\": 0.04, \"temporalImp\": \"tm_cpp\", \"seed\": 1960, "
+                + "\"verbosity\": 0, \"predictedSegmentDecrement\": 0.001}, \"tmEnable\": true, \"clEnable\": false, \"spEnable\": true, "
+                + "\"inferenceType\": \"TemporalAnomaly\"}}";
+
+        OptionParser parser = new OptionParser();
         parser.nonOptions("OPF parameters object (JSON)");
         parser.acceptsAll(Arrays.asList("p", "params"), "OPF parameters file (JSON).\n(default: first non-option argument)")
-            .withOptionalArg()
-            .ofType(File.class);
+                .withOptionalArg()
+                .ofType(File.class);
         parser.acceptsAll(Arrays.asList("i", "input"), "Input data file (csv).\n(default: stdin)")
-            .withOptionalArg()
-            .ofType(File.class);
+                .withOptionalArg()
+                .ofType(File.class);
         parser.acceptsAll(Arrays.asList("o", "output"), "Output results file (csv).\n(default: stdout)")
-            .withOptionalArg()
-            .ofType(File.class);
+                .withOptionalArg()
+                .ofType(File.class);
         parser.acceptsAll(Arrays.asList("s", "skip"), "Header lines to skip")
-            .withOptionalArg()
-            .ofType(Integer.class)
-            .defaultsTo(0);
+                .withOptionalArg()
+                .ofType(Integer.class)
+                .defaultsTo(0);
         parser.acceptsAll(Arrays.asList("h", "?", "help"), "Help");
         OptionSet options = parser.parse(config);
-        
+
         try {
-        		JsonNode params;
+            JsonNode params;
             ObjectMapper mapper = new ObjectMapper();
             if (options.has("p")) {
-                params = mapper.readTree((File)options.valueOf("p"));
-            } 
-            else if (options.nonOptionArguments().isEmpty()) {
-                try {}catch(Exception ignore) {}
-                if(options.has("o")) {
-                    try {}catch(Exception ignore) {}
+                params = mapper.readTree((File) options.valueOf("p"));
+            } else if (options.nonOptionArguments().isEmpty()) {
+                try {
+                } catch (Exception ignore) {
+                }
+                if (options.has("o")) {
+                    try {
+                    } catch (Exception ignore) {
+                    }
                 }
                 throw new IllegalArgumentException("Expecting OPF parameters. See 'help' for more information");
             } else {
-                params = mapper.readTree((String)options.nonOptionArguments().get(0));
+                params = mapper.readTree((String) options.nonOptionArguments().get(0));
             }
-            
+
             int skip = (int) options.valueOf("s");
 
             // Force timezone to UTC
             DateTimeZone.setDefault(DateTimeZone.UTC);
             AnomalyLikelihood likelihood = new AnomalyLikelihood(true, 8640, false, 375, 375);
-            
+
             PublisherSupplier supplier = PublisherSupplier.builder()
                     .addHeader("timestamp,value")
                     .addHeader("datetime,float")
                     .addHeader("T,B")
                     .build();
-            
+
             Parameters parameters = getModelParameters(params);
-            
+
             Network network = Network.create(carnum + " " + metric + " Network", parameters)
                     .add(Network.createRegion(carnum + " " + metric + " Region")
-                        .add(Network.createLayer(carnum + " " + metric + " Layer", parameters)
-                            .add(Anomaly.create())
-                            .add(new TemporalMemory())
-                            .add(new SpatialPooler())
-                            .add(Sensor.create(ObservableSensor::create,
-                                    SensorParams.create(SensorParams.Keys::obs, metric, supplier)))));
-            
+                            .add(Network.createLayer(carnum + " " + metric + " Layer", parameters)
+                                    .add(Anomaly.create())
+                                    .add(new TemporalMemory())
+                                    .add(new SpatialPooler())
+                                    .add(Sensor.create(ObservableSensor::create,
+                                            SensorParams.create(SensorParams.Keys::obs, metric, supplier)))));
+
             network.observe().subscribe((inference) -> {
                 double score = inference.getAnomalyScore();
-                double value = (Double)inference.getClassifierInput().get("value").get("inputValue");
-                DateTime timestamp = (DateTime)inference.getClassifierInput().get("timestamp").get("inputValue");
+                double value = (Double) inference.getClassifierInput().get("value").get("inputValue");
+                DateTime timestamp = (DateTime) inference.getClassifierInput().get("timestamp").get("inputValue");
                 double prev_likelihood = prev_lkhood.get(carnum + "_" + metric);
-                
+
                 double anomaly_likelihood = likelihood.anomalyProbability(value, score, timestamp);
-                
-                if (anomaly_likelihood >=0.99999 && prev_likelihood >= 0.99999){
+
+                if (anomaly_likelihood >= 0.99999 && prev_likelihood >= 0.99999) {
                     prev_likelihood = anomaly_likelihood;
                     anomaly_likelihood = 0.999;
-                }
-                else{
+                } else {
                     prev_likelihood = anomaly_likelihood;
                 }
-                
-                prev_lkhood.put(carnum+"_"+metric, prev_likelihood);
+
+                prev_lkhood.put(carnum + "_" + metric, prev_likelihood);
                 double logscore = AnomalyLikelihood.computeLogLikelihood(anomaly_likelihood);
-                
+
                 JSONObject recordobj = null;
                 //CHECK HOW DATETIME LOOKS IN TOSTRING REPRESENTATION
                 String key = carnum + "_" + timestamp.toString();
-                if(aggregator.containsKey(key)) {
-                		recordobj = aggregator.get(key);
+                if (aggregator.containsKey(key)) {
+                    recordobj = aggregator.get(key);
                 } else {
-                		recordobj = new JSONObject();
+                    recordobj = new JSONObject();
                 }
-                
+
                 recordobj.put(metric, value);
                 recordobj.put(metric + "Anomaly", logscore);
                 aggregator.put(key, recordobj);
-                
+
             }, (error) -> {
-                
+
             }, () -> {
-                
-               
+
+
             });
-            
+
             network.start();
             Publisher publisher = supplier.get();
             recordpublish.put(metric, publisher);
-            
-        } catch(IOException e) {e.printStackTrace();}
-        
-	}
-	
-	public Parameters getModelParameters(JsonNode params) {
+
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public Parameters getModelParameters(JsonNode params) {
         JsonNode modelParams = params.path("modelParams");
         Parameters p = Parameters.getAllDefaultParameters()
-            .union(getSpatialPoolerParams(modelParams))
-            .union(getTemporalMemoryParams(modelParams))
-            .union(getSensorParams(modelParams));
-        
+                .union(getSpatialPoolerParams(modelParams))
+                .union(getTemporalMemoryParams(modelParams))
+                .union(getSensorParams(modelParams));
+
         p.set(KEY.RANDOM, new UniversalRandom(42));
         return p;
     }
-	
-	public Parameters getSpatialPoolerParams(JsonNode modelParams) {
+
+    public Parameters getSpatialPoolerParams(JsonNode modelParams) {
         Parameters p = Parameters.getSpatialDefaultParameters();
         JsonNode spParams = modelParams.path("spParams");
         if (spParams.has("columnCount")) {
@@ -353,8 +357,8 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
 
         return p;
     }
-	
-	public Parameters getTemporalMemoryParams(JsonNode modelParams) {
+
+    public Parameters getTemporalMemoryParams(JsonNode modelParams) {
         Parameters p = Parameters.getTemporalDefaultParameters();
         JsonNode tpParams = modelParams.path("tpParams");
         if (tpParams.has("columnCount")) {
@@ -375,10 +379,10 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
         if (tpParams.has("initialPerm")) {
             p.set(KEY.INITIAL_PERMANENCE, tpParams.get("initialPerm").asDouble());
         }
-        if(tpParams.has("maxSegmentsPerCell")) {
+        if (tpParams.has("maxSegmentsPerCell")) {
             p.set(KEY.MAX_SEGMENTS_PER_CELL, tpParams.get("maxSegmentsPerCell").asInt());
         }
-        if(tpParams.has("maxSynapsesPerSegment")) {
+        if (tpParams.has("maxSynapsesPerSegment")) {
             p.set(KEY.MAX_SYNAPSES_PER_SEGMENT, tpParams.get("maxSynapsesPerSegment").asInt());
         }
         if (tpParams.has("permanenceDec")) {
@@ -393,8 +397,8 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
 
         return p;
     }
-	
-	public Parameters getSensorParams(JsonNode modelParams) {
+
+    public Parameters getSensorParams(JsonNode modelParams) {
         JsonNode sensorParams = modelParams.path("sensorParams");
         Map<String, Map<String, Object>> fieldEncodings = getFieldEncodingMap(sensorParams);
         Parameters p = Parameters.empty();
@@ -402,9 +406,9 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
         p.set(KEY.FIELD_ENCODING_MAP, fieldEncodings);
 
         return p;
-	}
-	
-	public Map<String, Map<String, Object>> getFieldEncodingMap(JsonNode modelParams) {
+    }
+
+    public Map<String, Map<String, Object>> getFieldEncodingMap(JsonNode modelParams) {
         Map<String, Map<String, Object>> fieldEncodings = new HashMap<>();
         String fieldName;
         Map<String, Object> fieldMap;
@@ -434,7 +438,7 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
                 fieldMap.put("resolution", node.get("resolution").asDouble());
             }
         }
-        
+
         return fieldEncodings;
     }
 
