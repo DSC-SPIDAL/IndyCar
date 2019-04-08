@@ -11,7 +11,8 @@ public class ServerConstants {
     public static final String USERNAME = "admin";
     public static final String PASSWORD = "xyi5b2YUcw8CHhAE";
 
-    public static final String ANOMALY_TOPIC = "streaming_output";
+    //public static final String ANOMALY_TOPIC = "streaming_output";
+    public static final String ANOMALY_TOPIC = "compact_topology_out";
     public static final String STATUS_TOPIC = "status";
 
     public static final String LOG_FILE = "/home/chathura/Downloads/indy_data/IPBroadcaster_Input_2018-05-27_0.log";

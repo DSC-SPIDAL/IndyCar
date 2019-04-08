@@ -33,7 +33,7 @@ public class OnlineLearningUtils {
 //	public static String brokerurl = "tcp://10.16.4.204:61613";
 //	public static String mqttadmin = "admin";
 //	public static String mqttpwd = "password";
-	public static String sinkoutTopic = "streaming_output_temp";
+	public static String sinkoutTopic = "compact_topology_out";
 	public static String restart_topic = "status";
 	public static String brokerurl = "tcp://j-093.juliet.futuresystems.org:61613";
 	public static String mqttadmin = "admin";

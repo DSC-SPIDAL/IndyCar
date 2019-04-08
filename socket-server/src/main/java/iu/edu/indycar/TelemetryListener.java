@@ -110,9 +110,9 @@ public class TelemetryListener implements Runnable {
             long timeOfDayLong = TimeUtils.convertTimestampToLong(timeOfDay);
             int carNumberInt = Integer.parseInt(carNumber);
             double lapDistance = jsonObject.getDouble("lapDistance");
-            double vehicleSpeed = Double.valueOf(jsonObject.getString("vehicleSpeed"));
-            double throttle = Double.valueOf(jsonObject.getString("throttle"));
-            double rpm = Double.valueOf(jsonObject.getString("engineSpeed"));
+            double vehicleSpeed = jsonObject.getDouble("vehicleSpeed");
+            double throttle = jsonObject.getDouble("throttle");
+            double rpm = jsonObject.getDouble("engineSpeed");
 
             AnomalyLabel anomalyLabel = anomalyLabelProducer.computeIfAbsent(
                     carNumber,

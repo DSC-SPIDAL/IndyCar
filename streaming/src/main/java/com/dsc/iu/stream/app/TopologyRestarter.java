@@ -49,7 +49,7 @@ public class TopologyRestarter implements MqttCallback {
 			if(q.size() >0) {
 				String msg = q.poll();
 				if(msg.equalsIgnoreCase("OK")) {
-					ProcessBuilder procbuildr = new 	ProcessBuilder("/scratch_ssd/sahil/apache-storm-1.0.4/bin/storm", "kill", "PRODUCTION-33-CARS", "-w", "0");
+					ProcessBuilder procbuildr = new 	ProcessBuilder("storm", "kill", "PRODUCTION-33-CARS", "-w", "0");
 					Process p = procbuildr.start();
 					Thread.sleep(20000);
 					System.out.println("going to kill topology");
