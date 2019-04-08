@@ -20,7 +20,7 @@ public class Displacement {
         File file = new File("/home/chathura/Downloads/indy_data/IPBroadcaster_Input_2018-05-27_0.log");
 
         RecordStreamer recordStreamer = new RecordStreamer(
-                file, true, 1000000000, s -> s.split("_")[2]);
+                file, false, 1000000000, s -> s.split("_")[2]);
 
 
         List<Double> displacement = new ArrayList<>(80000);
@@ -28,7 +28,7 @@ public class Displacement {
 
 
         recordStreamer.setTelemetryRecordListener(record -> {
-            if (record.getCarNumber().equals("21")) {
+            if (record.getCarNumber().equals("64")) {
                 times.add(record.getTimeOfDayLong());
                 displacement.add(record.getLapDistance());
             }
@@ -39,7 +39,7 @@ public class Displacement {
             LOG.info("End of stream");
             try {
                 BufferedWriter br = new BufferedWriter(
-                        new FileWriter(new File("car21_displacement_time.csv")));
+                        new FileWriter(new File("car64_displacement_time.csv")));
                 for (int i = 0; i < displacement.size(); i++) {
                     br.write(times.get(i) + "," + displacement.get(i));
                     br.newLine();

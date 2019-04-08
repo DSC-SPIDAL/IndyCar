@@ -45,33 +45,27 @@ import joptsimple.OptionSet;
 
 public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback {
 
-    /**
-     *
-     */
     private static final long serialVersionUID = 1L;
     private String carnum;
     private ConcurrentLinkedQueue<String> nonblockingqueue;
-    private String data;
     private Map<String, Double> prev_lkhood = null;
     private AnomalyDetectionTask obj;
     private Map<String, Publisher> recordpublish = null;
     private String[] metrics = {"vehicleSpeed", "engineSpeed", "throttle"};
     private ConcurrentHashMap<String, JSONObject> aggregator;
     private MqttMessage mqttmsg;
-    private MqttClient mqttclient;
+    private MqttClient mqttClient;
 
     public AnomalyDetectionTask(String carnum) {
-        // TODO Auto-generated constructor stub
         this.carnum = carnum;
     }
 
     @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
-        // TODO Auto-generated method stub
-        nonblockingqueue = new ConcurrentLinkedQueue<String>();
-        prev_lkhood = new HashMap<String, Double>();
-        recordpublish = new HashMap<String, Publisher>();
-        aggregator = new ConcurrentHashMap<String, JSONObject>();
+        nonblockingqueue = new ConcurrentLinkedQueue<>();
+        prev_lkhood = new HashMap<>();
+        recordpublish = new HashMap<>();
+        aggregator = new ConcurrentHashMap<>();
         obj = new AnomalyDetectionTask(carnum);
         mqttmsg = new MqttMessage();
 
@@ -88,7 +82,7 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
 
         try {
             //subscribe for telemetry data
-            MqttClient mqttClient = new MqttClient(OnlineLearningUtils.brokerurl, MqttClient.generateClientId());
+            this.mqttClient = new MqttClient(OnlineLearningUtils.brokerurl, MqttClient.generateClientId());
             mqttClient.setCallback(this);
             mqttClient.connect(conn);
             mqttClient.subscribe(carnum, OnlineLearningUtils.QoS);
@@ -111,12 +105,11 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
 
     @Override
     public void nextTuple() {
-        // TODO Auto-generated method stub
         if (nonblockingqueue.size() > 0) {
             String record = nonblockingqueue.poll();
             if (record.split(",").length == 6) {
                 double speed = Double.parseDouble(record.split(",")[0]);
-                int rpm = Integer.parseInt(data.split(",")[1]);
+                int rpm = Integer.parseInt(record.split(",")[1]);
                 double throttle = Double.parseDouble(record.split(",")[2]);
                 int record_counter = Integer.parseInt(record.split(",")[3]);
                 String lapDistance = record.split(",")[4];
@@ -153,7 +146,7 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
                         mqttmsg.setPayload(recordobj.toJSONString().getBytes());
                         mqttmsg.setQos(OnlineLearningUtils.QoS);
                         try {
-                            mqttclient.publish(OnlineLearningUtils.sinkoutTopic, mqttmsg);
+                            mqttClient.publish(OnlineLearningUtils.sinkoutTopic, mqttmsg);
                         } catch (MqttException e) {
                             e.printStackTrace();
                         }
