@@ -112,7 +112,7 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
             String[] splits = record.split(",");
             if (splits.length == 6) {
                 double speed = Double.parseDouble(splits[0]);
-                int rpm = Integer.parseInt(splits[1]);
+                double rpm = Double.parseDouble(splits[1]);
                 double throttle = Double.parseDouble(splits[2]);
                 int record_counter = Integer.parseInt(splits[3]);
                 String lapDistance = splits[4];
