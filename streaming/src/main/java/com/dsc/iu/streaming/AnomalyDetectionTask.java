@@ -273,7 +273,8 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
             network.observe().subscribe((inference) -> {
                 double score = inference.getAnomalyScore();
                 double value = (Double) inference.getClassifierInput().get("value").get("inputValue");
-                DateTime timestamp = (DateTime) inference.getClassifierInput().get("timestamp").get("inputValue");
+                DateTime timestamp = (DateTime) inference.getClassifierInput()
+                        .get("timestamp").get("inputValue");
                 double prev_likelihood = prev_lkhood.get(carnum + "_" + metric);
 
                 double anomaly_likelihood = likelihood.anomalyProbability(value, score, timestamp);
@@ -429,7 +430,7 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
             if (node.has("timeOfDay")) {
                 JsonNode timeOfDay = node.get("timeOfDay");
                 fieldMap.put("fieldType", "datetime");
-                fieldMap.put(KEY.DATEFIELD_PATTERN.getFieldName(), "YYYY-MM-dd HH:mm:ss");
+                fieldMap.put(KEY.DATEFIELD_PATTERN.getFieldName(), "MM/dd/YY HH:mm:ss.SSS");
                 fieldMap.put(KEY.DATEFIELD_TOFD.getFieldName(),
                         new Tuple(timeOfDay.get(0).asInt(), timeOfDay.get(1).asDouble()));
             } else {

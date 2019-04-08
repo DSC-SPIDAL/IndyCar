@@ -29,7 +29,7 @@ import rx.Subscriber;
 
 public class OnlineLearningUtils {
 	public static int inflightMsgRate = 5000;
-	public static int QoS = 2;
+	public static int QoS = 0;
 //	public static String brokerurl = "tcp://10.16.4.204:61613";
 //	public static String mqttadmin = "admin";
 //	public static String mqttpwd = "password";
