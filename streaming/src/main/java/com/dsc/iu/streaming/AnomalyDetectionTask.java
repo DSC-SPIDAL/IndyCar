@@ -8,6 +8,8 @@ import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -45,12 +47,13 @@ import joptsimple.OptionSet;
 
 public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback {
 
+    private final static Logger LOG = LogManager.getLogger(AnomalyDetectionTask.class);
+
     private static final long serialVersionUID = 1L;
     private String carnum;
-    private ConcurrentLinkedQueue<String> nonblockingqueue;
+    private ConcurrentLinkedQueue<String> incomingMessageQueue;
     private Map<String, Double> prev_lkhood = null;
-    private AnomalyDetectionTask obj;
-    private Map<String, Publisher> recordpublish = null;
+    private Map<String, Publisher> recordPublisherMap = null;
     private String[] metrics = {"vehicleSpeed", "engineSpeed", "throttle"};
     private ConcurrentHashMap<String, JSONObject> aggregator;
     private MqttMessage mqttmsg;
@@ -62,11 +65,10 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
 
     @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
-        nonblockingqueue = new ConcurrentLinkedQueue<>();
+        incomingMessageQueue = new ConcurrentLinkedQueue<>();
         prev_lkhood = new HashMap<>();
-        recordpublish = new HashMap<>();
+        recordPublisherMap = new HashMap<>();
         aggregator = new ConcurrentHashMap<>();
-        obj = new AnomalyDetectionTask(carnum);
         mqttmsg = new MqttMessage();
 
         MqttConnectOptions conn = new MqttConnectOptions();
@@ -99,21 +101,22 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
         //instantiate the HTM networks for all metrics
         for (int i = 0; i < metrics.length; i++) {
             prev_lkhood.put(carnum + "_" + metrics[i], 0.);
-            obj.startHTMNetwork(metrics[i]);
+            this.startHTMNetwork(metrics[i]);
         }
     }
 
     @Override
     public void nextTuple() {
-        if (nonblockingqueue.size() > 0) {
-            String record = nonblockingqueue.poll();
-            if (record.split(",").length == 6) {
-                double speed = Double.parseDouble(record.split(",")[0]);
-                int rpm = Integer.parseInt(record.split(",")[1]);
-                double throttle = Double.parseDouble(record.split(",")[2]);
-                int record_counter = Integer.parseInt(record.split(",")[3]);
-                String lapDistance = record.split(",")[4];
-                String timeOfDay = record.split(",")[5];
+        if (!incomingMessageQueue.isEmpty()) {
+            String record = incomingMessageQueue.poll();
+            String[] splits = record.split(",");
+            if (splits.length == 6) {
+                double speed = Double.parseDouble(splits[0]);
+                int rpm = Integer.parseInt(splits[1]);
+                double throttle = Double.parseDouble(splits[2]);
+                int record_counter = Integer.parseInt(splits[3]);
+                String lapDistance = splits[4];
+                String timeOfDay = splits[5];
 
                 for (int i = 0; i < metrics.length; i++) {
                     String param = null;
@@ -125,7 +128,7 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
                         param = String.valueOf(throttle);
                     }
 
-                    recordpublish.get(metrics[i]).onNext(timeOfDay + "," + param);
+                    recordPublisherMap.get(metrics[i]).onNext(timeOfDay + "," + param);
                 }
 
                 JSONObject recordobj = new JSONObject();
@@ -154,32 +157,38 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
                         aggregator.remove(entry.getKey());
                     }
                 }
+            } else {
+                LOG.warn("CSV of unknown length {} received. Expected 6", splits.length);
             }
         }
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
-        // TODO Auto-generated method stub
-
+        //nothing to do here
     }
 
     @Override
     public void connectionLost(Throwable cause) {
-        // TODO Auto-generated method stub
-        System.err.println(cause.getMessage());
+        LOG.warn("Disconnected from broker. Trying to reconnect...", cause);
+
+        if (!this.mqttClient.isConnected()) {
+            try {
+                this.mqttClient.reconnect();
+            } catch (MqttException e) {
+                LOG.error("Failed to reconnect to broker...", e);
+            }
+        }
     }
 
     @Override
     public void messageArrived(String topic, MqttMessage message) throws Exception {
-        // TODO Auto-generated method stub
-        nonblockingqueue.add(new String(message.getPayload()));
+        incomingMessageQueue.add(new String(message.getPayload()));
     }
 
     @Override
     public void deliveryComplete(IMqttDeliveryToken token) {
         // TODO Auto-generated method stub
-
     }
 
     private void startHTMNetwork(String metric) {
@@ -301,12 +310,11 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
 
             network.start();
             Publisher publisher = supplier.get();
-            recordpublish.put(metric, publisher);
-
+            LOG.info("Adding publisher {} to {}", publisher, recordPublisherMap);
+            recordPublisherMap.put(metric, publisher);
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 
     public Parameters getModelParameters(JsonNode params) {
