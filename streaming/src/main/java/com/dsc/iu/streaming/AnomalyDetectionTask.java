@@ -142,7 +142,6 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
                 //iterate over the whole map and when all metrics have been processed, remove the said element
                 //map key is carnum_timeOfDay
                 //CHECK REMOVAL AND ITERATION OF HASHMAP!!!
-                recordobj = null;
                 for (Map.Entry<String, JSONObject> entry : aggregator.entrySet()) {
                     recordobj = entry.getValue();
                     if (recordobj != null && recordobj.containsKey("engineSpeed") && recordobj.containsKey("vehicleSpeed") && recordobj.containsKey("throttle")) {
