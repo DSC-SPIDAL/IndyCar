@@ -18,7 +18,7 @@ public class StreamerTest {
     private static final Logger LOG = LogManager.getLogger(StreamerTest.class);
 
     public static void main(String[] args) throws IOException {
-        File file = new File(args[0]);
+        File file = new File("/home/chathura/Downloads/indy_data/IPBroadcaster_Input_2018-05-27_0.log");
 
         RecordStreamer recordStreamer = new RecordStreamer(
                 file, true, 10000000, s -> s.split("_")[2]);
@@ -28,14 +28,18 @@ public class StreamerTest {
         Map<String, Long> firstRecordTime = new ConcurrentHashMap<>();
         Map<String, Long> lastRecordTime = new ConcurrentHashMap<>();
 
-        recordStreamer.setTelemetryRecordListener(record -> {
-            if (!firstRecordTime.containsKey(record.getCarNumber())) {
-                firstRecordTime.put(record.getCarNumber(), record.getTimeOfDayLong());
-            }
-            lastRecordTime.put(record.getCarNumber(), record.getTimeOfDayLong());
+        AtomicInteger recordNumber = new AtomicInteger();
 
-            recordsCount.computeIfAbsent(record.getCarNumber(),
-                    s -> new AtomicInteger()).incrementAndGet();
+        recordStreamer.setTelemetryRecordListener(record -> {
+            if (record.getCarNumber().equals("22")) {
+                recordNumber.incrementAndGet();
+                if (recordNumber.get() > 27000 && recordNumber.get() < 29000) {
+                    System.out.println(recordNumber.get() + " : "
+                            + record.getTimeOfDay() + "|" + record.getVehicleSpeed()
+                            + "|" + record.getThrottle()
+                            + "|" + record.getEngineSpeed());
+                }
+            }
         });
 
         recordStreamer.setWeatherRecordListener(wr -> {
@@ -48,8 +52,9 @@ public class StreamerTest {
             //System.out.println(er.getCarNumber());
         });
 
+
         recordStreamer.setCompleteLapRecordRecordListener(cr -> {
-            //System.out.println(cr.getCarNumber() + "," + cr.getRank() + "," + cr.getElapsedTime());
+
         });
 
         recordStreamer.addRecordAcceptPolicy(CompleteLapRecord.class, new AbstractRecordAcceptPolicy<CompleteLapRecord>() {
@@ -79,6 +84,9 @@ public class StreamerTest {
     /*
       Adding a policy to skip all records until a non zero record is met for the first time
      */
+
+        final long startTime = TimeUtils.convertTimestampToLong("16:23:00.000");
+
         recordStreamer.addRecordAcceptPolicy(TelemetryRecord.class,
                 new AbstractRecordAcceptPolicy<TelemetryRecord>() {
 
@@ -86,9 +94,9 @@ public class StreamerTest {
 
                     @Override
                     public boolean evaluate(TelemetryRecord record) {
-                        if (metFirstNonZero.getOrDefault(record.getCarNumber(), false)) {
+                        if (metFirstNonZero.containsKey(record.getCarNumber())) {
                             return true;
-                        } else if (record.getLapDistance() > 5) {
+                        } else if (record.getTimeOfDayLong() > startTime) {
                             metFirstNonZero.put(record.getCarNumber(), true);
                             return true;
                         }

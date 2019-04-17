@@ -10,15 +10,19 @@ import iu.edu.indycar.tmp.*;
 import iu.edu.indycar.ws.ServerBoot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.eclipse.paho.client.mqttv3.*;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.JSONObject;
 
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Random;
 import java.util.UUID;
-import java.util.concurrent.*;
+import java.util.concurrent.BlockingQueue;
+import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicInteger;
+
+import static iu.edu.indycar.ServerConstants.NO_OF_STREAMING_CARS;
 
 public class TelemetryListener implements Runnable {
 
@@ -35,7 +39,7 @@ public class TelemetryListener implements Runnable {
     private HashMap<String, Boolean> firstRecordDetected = new HashMap<>();
     private HashMap<String, RecordTiming> recordTimingHashMap = new HashMap<>();
 
-    private AtomicInteger messagesToQueue = new AtomicInteger(33 * 30 * 8);
+    private AtomicInteger messagesToQueue = new AtomicInteger(NO_OF_STREAMING_CARS * 30 * 8);
 
     private HashMap<String, SpeedAnomalyWriter> speedAnWriter = new HashMap<>();
 

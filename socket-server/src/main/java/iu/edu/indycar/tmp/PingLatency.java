@@ -63,7 +63,7 @@ public class PingLatency {
     public static void writeToFile() throws IOException {
         BufferedWriter br = new BufferedWriter(
                 new FileWriter(
-                        new File("bench/ws_browser_latency_" + ServerConstants.DEBUG_CARS + ".csv")
+                        new File("bench/ws_browser_latency_" + ServerConstants.NO_OF_STREAMING_CARS + ".csv")
                 )
         );
 

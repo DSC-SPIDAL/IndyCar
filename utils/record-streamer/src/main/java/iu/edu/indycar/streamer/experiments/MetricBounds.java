@@ -1,6 +1,7 @@
 package iu.edu.indycar.streamer.experiments;
 
 import iu.edu.indycar.streamer.RecordStreamer;
+import iu.edu.indycar.streamer.TimeUtils;
 import iu.edu.indycar.streamer.records.TelemetryRecord;
 import iu.edu.indycar.streamer.records.policy.AbstractRecordAcceptPolicy;
 import org.apache.logging.log4j.LogManager;
@@ -22,7 +23,7 @@ public class MetricBounds {
         File file = new File("/home/chathura/Downloads/indy_data/IPBroadcaster_Input_2018-05-27_0.log");
 
         RecordStreamer recordStreamer = new RecordStreamer(
-                file, false, 100000000, s -> s.split("_")[2]);
+                file, true, 100000000, s -> s.split("_")[2]);
 
 
         class Tuple {
@@ -84,9 +85,12 @@ public class MetricBounds {
         });
 
 
+
     /*
       Adding a policy to skip all records until a non zero record is met for the first time
      */
+
+        long startTime = TimeUtils.convertTimestampToLong("16:23:00.000");
         recordStreamer.addRecordAcceptPolicy(TelemetryRecord.class,
                 new AbstractRecordAcceptPolicy<TelemetryRecord>() {
 
@@ -94,14 +98,15 @@ public class MetricBounds {
 
                     @Override
                     public boolean evaluate(TelemetryRecord record) {
-//                        if (metFirstNonZero.getOrDefault(record.getCarNumber(), false)) {
-//                            return true;
-//                        } else if (record.getLapDistance() > 2) {
-//                            metFirstNonZero.put(record.getCarNumber(), true);
-//                            return true;
-//                        }
-//                        return false;
-                        return true;
+                        if (metFirstNonZero.getOrDefault(record.getCarNumber(), false)) {
+                            return true;
+                        } else if (record.getTimeOfDayLong() > startTime
+                                && record.getLapDistance() > 0 && record.getLapDistance() < 3000) {
+                            //start streaming for this car
+                            metFirstNonZero.put(record.getCarNumber(), true);
+                            return true;
+                        }
+                        return false;
                     }
                 });
 

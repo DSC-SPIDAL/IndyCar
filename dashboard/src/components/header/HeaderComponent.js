@@ -15,8 +15,8 @@ export default class HeaderComponent extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            eventName: "Sweeps",
-            runName: "Sweep 05-27-2018",
+            eventName: "Indianapolis 500",
+            runName: "05-27-2018",
             startDate: "2018-05-27",
             weather: {
                 pressure: "...",

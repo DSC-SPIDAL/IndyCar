@@ -2,13 +2,14 @@ package iu.edu.indycar;
 
 import iu.edu.indycar.models.AnomalyLabel;
 import iu.edu.indycar.models.CarPositionRecord;
+import iu.edu.indycar.mqtt.MQTTClient;
 import iu.edu.indycar.streamer.RecordStreamer;
 import iu.edu.indycar.streamer.StreamEndListener;
+import iu.edu.indycar.streamer.TimeUtils;
 import iu.edu.indycar.streamer.records.TelemetryRecord;
 import iu.edu.indycar.streamer.records.policy.AbstractRecordAcceptPolicy;
 import iu.edu.indycar.tmp.AnomalyLabelsBank;
 import iu.edu.indycar.tmp.LatencyCalculator;
-import iu.edu.indycar.mqtt.MQTTClient;
 import iu.edu.indycar.tmp.RecordWriter;
 import iu.edu.indycar.ws.ServerBoot;
 import org.apache.logging.log4j.LogManager;
@@ -17,8 +18,14 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.io.File;
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Set;
 import java.util.concurrent.atomic.AtomicLong;
+
+import static iu.edu.indycar.ServerConstants.CARS_BY_ORDER_OF_RECORDS;
+import static iu.edu.indycar.ServerConstants.NO_OF_STREAMING_CARS;
 
 public class PositionStreamer {
 
@@ -72,7 +79,8 @@ public class PositionStreamer {
                 s -> s.split("_")[2]
         );
 
-        LOG.info("Streaming data for {} cars", ServerConstants.DEBUG_CARS);
+
+        final long startTime = TimeUtils.convertTimestampToLong("16:23:00.000");
 
         recordStreamer.addRecordAcceptPolicy(
                 TelemetryRecord.class,
@@ -81,7 +89,9 @@ public class PositionStreamer {
                     public boolean evaluate(TelemetryRecord indycarRecord) {
                         if (foundFirstNonZero.containsKey(indycarRecord.getCarNumber())) {
                             return true;
-                        } else if (indycarRecord.getLapDistance() != 0 && (!ServerConstants.DEBUG_MODE || foundFirstNonZero.size() < ServerConstants.DEBUG_CARS)) {
+                        } else if (indycarRecord.getTimeOfDayLong() > startTime
+                                && (!ServerConstants.DEBUG_MODE
+                                || foundFirstNonZero.size() < NO_OF_STREAMING_CARS)) {
                             foundFirstNonZero.put(indycarRecord.getCarNumber(), true);
                             return true;
                         }
@@ -90,8 +100,18 @@ public class PositionStreamer {
                 }
         );
 
+        Set<String> streamingCarsIds = new HashSet<>(Arrays.asList(
+                CARS_BY_ORDER_OF_RECORDS
+        ).subList(0, NO_OF_STREAMING_CARS));
+
+        LOG.info("Streaming data for {} cars. {}", NO_OF_STREAMING_CARS, streamingCarsIds);
+
 
         recordStreamer.setTelemetryRecordListener(telemetryRecord -> {
+
+            if (!streamingCarsIds.contains(telemetryRecord.getCarNumber())) {
+                return;
+            }
 
             //todo change if not necessary, normalizing lap distance
             if (telemetryRecord.getLapDistance() > 4400) {

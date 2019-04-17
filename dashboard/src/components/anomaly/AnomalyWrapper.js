@@ -83,7 +83,6 @@ export default class AnomalyWrapper extends React.Component {
                                 &&
                                 <div className="ic-anomaly-label">
                                     {this.state.anomalyLabel.label}
-                                    LABEL
                                 </div>
                             }
                         </div>

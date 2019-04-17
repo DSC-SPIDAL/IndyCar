@@ -1,43 +1,52 @@
 
 # IndyCar
 
-1) Break the large log file according to the different types of records
+## Live Demo
 
-   ```python createsmallfiles.py```
+[Demo](http://indycar.demo.2.s3-website-us-east-1.amazonaws.com)
 
-2) Replace characters of files having different length fields in their records
+## Deploying
 
-   ```python replacecharinfile.py```
+### Start an instance of a MQTT broker
 
-3) Add all records (except telemetry data) as documents to the database
+Live demo is currently powered by [Apollo MQTT Broker](https://github.com/apache/activemq-apollo). 
 
-   ```python addtodb.py```
+### Build Record Streamer
 
-4) Add first four columns in telemetry data to the database
+```cd utils/record-streamer```
+```mvn clean install```
 
-   ```python addtelemetrydatatodb.py```
+### Build Web Socket Server
 
-5) Start the web app using following command
+Update ```socket-server/src/main/java/iu/edu/indycar/ServerConstants.java``` with required configurations.
 
-   ```nohup python web_app.py &```
+```cd socket-server```
+```mvn clean install```
 
-6) Get general info such as race info, weather info using following commands respectively
+### Build Storm Topology
 
-- curl http://localhost:5000/raceinfo
-- curl http://localhost:5000/weather_data
+#### Install HTM Java to maven local
 
-7) Get cars list, valid laps, section details (length, name), how much time has it taken to complete the sections in the lap using the following commands respectively 
+```bash
+ mvn install:install-file -DcreateChecksum=true -Dpackaging=jar -Dfile=streaming/src/main/resources/htm.java-0.6.13-all.jar -DgroupId=org.numenta.nupic -DartifactId=htm-java -Dversion=0.6.13
+```
 
-- curl http://localhost:5000/carslist
-- curl http://localhost:5000/getvalidlaps?car_num=9
-- curl http://localhost:5000/sectioninfo
-- curl http://localhost:5000/sectiontiminginfo?car_num=9&lap_num=3
+### Build storm topology JAR with dependencies
 
-8) Get time of day and distance in meters from start of lap using the telemetry data using the following commands respectively
+```cd streaming```
+```mvn clean install```
 
-   curl http://localhost:5000/gettelemetrytiming?car_num=9
+### Starting Services
 
-9) Get overall rank of car and driver/car details using the following commands respectively
+## Start Storm Topology with Flux
 
-- curl http://localhost:5000/getoverallrank?car_num=9
-- curl http://localhost:5000/getentryinfo?car_num=9
+Flux template for 33 cars is available at ```streaming/intel_indycar.yaml```
+
+```storm jar Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar org.apache.storm.flux.Flux --remote  intel_indycar.yaml```
+
+## Start WebSocket Server
+
+```
+java -jar web-socket-1.0-SNAPSHOT-jar-with-dependencies.jar <path_to_indycar_log>
+```
+ 

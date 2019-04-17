@@ -94,7 +94,7 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
 
     public static void main(String[] args) {
         String filePath = args.length == 0 ? ServerConstants.LOG_FILE : args[0];
-        ServerConstants.DEBUG_CARS = args.length < 2 ? ServerConstants.DEBUG_CARS : Integer.valueOf(args[1]);
+        ServerConstants.NO_OF_STREAMING_CARS = args.length < 2 ? ServerConstants.NO_OF_STREAMING_CARS : Integer.valueOf(args[1]);
 
         WebsocketServer websocketServer = new WebsocketServer(filePath);
         websocketServer.start();

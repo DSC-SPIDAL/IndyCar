@@ -135,12 +135,7 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
 
                 this.outMessages.add(recordobj);
 
-                //aggregator.put(carnum + "_" + timeOfDay, recordobj);
 
-                //write record accumulator from all running HTM networks here
-                //iterate over the whole map and when all metrics have been processed, remove the said element
-                //map key is carnum_timeOfDay
-                //CHECK REMOVAL AND ITERATION OF HASHMAP!!!
                 boolean hasRecords = true;
 
                 for (int i = 0; i < metrics.length; i++) {

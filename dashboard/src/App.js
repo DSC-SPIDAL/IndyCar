@@ -5,6 +5,7 @@ import SpeedDataWrapper from "./components/speed/SpeedDataWrapper";
 import TrackComponent from "./components/track/TrackComponent";
 import LapTimesComponent from "./components/laps/LapTimesComponent";
 import AnomalyWrapper from "./components/anomaly/AnomalyWrapper";
+import VideosWrapper from "./components/videos/VideosWrapper";
 
 class App extends Component {
     render() {
@@ -16,6 +17,7 @@ class App extends Component {
                 <SpeedDataWrapper/>
                 <AnomalyWrapper/>
                 <LapTimesComponent/>
+                {/*<VideosWrapper/>*/}
             </div>
         );
     }
