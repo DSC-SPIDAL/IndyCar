@@ -5,6 +5,12 @@ import com.mongodb.client.MongoClient;
 import com.mongodb.client.MongoClients;
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
+import com.mongodb.client.model.IndexOptions;
+import com.mongodb.client.model.Indexes;
+import com.mongodb.client.model.UpdateOptions;
+import org.bson.BsonDocument;
+import org.bson.BsonValue;
 import org.bson.Document;
 
 import java.io.BufferedReader;
@@ -20,13 +26,12 @@ import java.util.stream.Collectors;
 public class MongoDriver {
 
     public static void main(String[] args) {
-        MongoClient mongoClient = MongoClients.create(new ConnectionString("mongodb://j-093.juliet.futuresystems.org"));
+        MongoClient mongoClient = MongoClients.create(new ConnectionString("mongodb://localhost"));
         MongoDatabase database = mongoClient.getDatabase("indycar");
-        MongoCollection<Document> collection = database.getCollection("telemetry");
 
         getLogsList("/home/chathura/Downloads/indy_data/").forEach(file -> {
             try {
-                writeToDB(file, collection);
+                writeToDB(file, database);
             } catch (IOException e) {
                 System.out.println("Error in witting data of file : " + file.getAbsolutePath());
             }
@@ -45,7 +50,11 @@ public class MongoDriver {
                 .filter(file -> file.getName().matches("IPBroadcaster_Input_\\d{4}-\\d{2}-\\d{2}_\\d+.log")).collect(Collectors.toList());
     }
 
-    public static void writeToDB(File file, MongoCollection<Document> collection) throws IOException {
+    public static void writeToDB(File file, MongoDatabase database) throws IOException {
+        MongoCollection<Document> telemetry = database.getCollection("telemetry");
+        MongoCollection<Document> drivers = database.getCollection("drivers");
+        drivers.createIndex(Indexes.ascending("uid"), new IndexOptions().unique(true));
+
         System.out.println("Parsing file " + file.getAbsolutePath());
 
         FileReader fis = new FileReader(file);
@@ -55,7 +64,8 @@ public class MongoDriver {
         BufferedReader br = new BufferedReader(fis);
         String line = br.readLine();
 
-        List<Document> docs = new ArrayList<>();
+        List<Document> telemetryRecords = new ArrayList<>();
+        List<Document> entryRecords = new ArrayList<>();
         while (line != null) {
             if (line.startsWith("$P")) {
                 String[] splits = line.split("�");
@@ -76,16 +86,30 @@ public class MongoDriver {
                 document.append("throttle", throttle);
                 document.append("date", date);
 
-                if (docs.size() == 100) {
-                    collection.insertMany(docs);
-                    docs.clear();
+                if (telemetryRecords.size() == 100) {
+                    telemetry.insertMany(telemetryRecords);
+                    telemetryRecords.clear();
                 } else {
-                    docs.add(document);
+                    telemetryRecords.add(document);
                 }
+            } else if (line.startsWith("$E")) {
+                String[] splits = line.split("�");
+                Document entryDoc = new Document();
+
+                entryDoc.append("car_num", splits[4]);
+                entryDoc.append("uid", splits[5]);
+                entryDoc.append("name", splits[6]);
+                entryDoc.append("license", splits[13]);
+                entryDoc.append("team", splits[14]);
+                entryDoc.append("engine", splits[16]);
+                entryDoc.append("home_town", splits[19]);
+
+                drivers.updateOne(Filters.eq("uid", splits[5]),
+                        new Document("$set", entryDoc), new UpdateOptions().upsert(true));
             }
             line = br.readLine();
         }
-        collection.insertMany(docs);
+        telemetry.insertMany(telemetryRecords);
         br.close();
     }
 }
