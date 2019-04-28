@@ -1,23 +1,18 @@
 package com.dsc.iu.streaming;
 
-import java.io.File;
-import java.io.IOException;
-import java.util.*;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.ConcurrentLinkedQueue;
-
+import com.dsc.iu.utils.OnlineLearningUtils;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import joptsimple.OptionParser;
+import joptsimple.OptionSet;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.storm.shade.com.google.common.util.concurrent.AtomicDouble;
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichSpout;
-import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
-import org.eclipse.paho.client.mqttv3.MqttCallback;
-import org.eclipse.paho.client.mqttv3.MqttClient;
-import org.eclipse.paho.client.mqttv3.MqttConnectOptions;
-import org.eclipse.paho.client.mqttv3.MqttException;
-import org.eclipse.paho.client.mqttv3.MqttMessage;
+import org.eclipse.paho.client.mqttv3.*;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.json.simple.JSONObject;
@@ -36,29 +31,48 @@ import org.numenta.nupic.network.sensor.SensorParams;
 import org.numenta.nupic.util.Tuple;
 import org.numenta.nupic.util.UniversalRandom;
 
-import com.dsc.iu.utils.OnlineLearningUtils;
-import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
+import java.io.File;
+import java.io.IOException;
+import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentLinkedQueue;
 
-import joptsimple.OptionParser;
-import joptsimple.OptionSet;
-
-public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback {
+public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCallback {
 
     private final static Logger LOG = LogManager.getLogger(AnomalyDetectionTask.class);
 
+
+    private final static String METRIC_VEHICLE_SPEED = "vehicleSpeed";
+    private final static String METRIC_ENGINE_SPEED = "engineSpeed";
+    private final static String METRIC_THROTTLE = "throttle";
+
+    private final static String PARAM_CAR_NUMBER = "carNumber";
+    private final static String PARAM_LAP_DISTANCE = "lapDistance";
+    private final static String PARAM_TIME_OF_DAY = "timeOfDay";
+    private final static String PARAM_UUID = "UUID";
+
+    private final static String STR_COMMA = ",";
+    private final static String STR_UCO = "_";
+    private final static String STR_SPACE = " ";
+    private final static String STR_ANOMALY = "Anomaly";
+
     private static final long serialVersionUID = 1L;
     private String carnum;
-    private ConcurrentLinkedQueue<String> incomingMessageQueue;
-    private Map<String, Double> prev_lkhood = null;
+    private ConcurrentLinkedQueue<MqttMessage> incomingMessageQueue;
     private Map<String, Publisher> recordPublisherMap = null;
-    private String[] metrics = {"vehicleSpeed", "engineSpeed", "throttle"};
+
+    private String[] metrics = {METRIC_VEHICLE_SPEED, METRIC_ENGINE_SPEED, METRIC_THROTTLE};
 
     private Queue<JSONObject> outMessages = new LinkedList<>();
-    private ConcurrentHashMap<String, Queue<Double>> anomalyScoreOuts = new ConcurrentHashMap<>();
+    private Map<String, Queue<Double>> anomalyScoreOuts = new HashMap<>();
 
     private MqttMessage mqttmsg;
-    private MqttClient mqttClient;
+
+    private Map<String, Long> times = new ConcurrentHashMap<>();
+
+    private MQTTClientInstance mqttClientInstance;
+
+    Map<String, Long> latency = new ConcurrentHashMap<>();
 
     public AnomalyDetectionTask(String carnum) {
         this.carnum = carnum;
@@ -67,130 +81,56 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
     @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
         incomingMessageQueue = new ConcurrentLinkedQueue<>();
-        prev_lkhood = new HashMap<>();
         recordPublisherMap = new HashMap<>();
+        mqttClientInstance = MQTTClientInstance.getInstance();
         mqttmsg = new MqttMessage();
 
-        MqttConnectOptions conn = new MqttConnectOptions();
-        //setting maximum # of in-flight messages
-        conn.setMaxInflight(OnlineLearningUtils.inflightMsgRate);
-
-        conn.setAutomaticReconnect(true);
-        conn.setCleanSession(true);
-        conn.setConnectionTimeout(30);
-        conn.setKeepAliveInterval(30);
-        conn.setUserName(OnlineLearningUtils.mqttadmin);
-        conn.setPassword(OnlineLearningUtils.mqttpwd.toCharArray());
+        //instantiate the HTM networks for all metrics
+        for (String metric : metrics) {
+            this.anomalyScoreOuts.put(metric, new ConcurrentLinkedQueue<>());
+            this.startHTMNetwork(metric);
+        }
 
         try {
-            //publish HTM data
-            this.mqttClient = new MqttClient(OnlineLearningUtils.brokerurl, MqttClient.generateClientId());
-            mqttClient.setCallback(this);
-            mqttClient.connect(conn);
-            mqttClient.subscribe(carnum, OnlineLearningUtils.QoS);
-        } catch (MqttException m) {
-            m.printStackTrace();
+            mqttClientInstance.subscribe(carnum, this);
+        } catch (MqttException e) {
+            LOG.error("Error in subscribing to topic{}", carnum, e);
         }
-        //instantiate the HTM networks for all metrics
+    }
+
+    private void syncAndEmit() {
+        boolean hasRecords = true;
         for (int i = 0; i < metrics.length; i++) {
-            prev_lkhood.put(carnum + "_" + metrics[i], 0.);
-            this.anomalyScoreOuts.put(metrics[i], new ConcurrentLinkedQueue<>());
-            this.startHTMNetwork(metrics[i]);
+            hasRecords &= !this.anomalyScoreOuts.get(metrics[i]).isEmpty();
+        }
+
+        if (hasRecords) {
+            JSONObject msgToSend = this.outMessages.poll();
+            for (int i = 0; i < metrics.length; i++) {
+                Double score = this.anomalyScoreOuts.get(metrics[i]).poll();
+                if (score == null) {//won't happen, just to make sure nothing breaks
+                    score = 0d;
+                }
+                msgToSend.put(metrics[i] + STR_ANOMALY, score);
+            }
+            mqttmsg.setPayload(msgToSend.toJSONString().getBytes());
+            mqttmsg.setQos(OnlineLearningUtils.QoS);
+            try {
+                mqttClientInstance.sendMessage(OnlineLearningUtils.sinkoutTopic, mqttmsg);
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
         }
     }
 
     @Override
     public void nextTuple() {
-        if (!incomingMessageQueue.isEmpty()) {
-            String record = incomingMessageQueue.poll();
-            String[] splits = record.split(",");
-            if (splits.length == 6) {
-                double speed = Double.parseDouble(splits[0]);
-                double rpm = Double.parseDouble(splits[1]);
-                double throttle = Double.parseDouble(splits[2]);
-                int record_counter = Integer.parseInt(splits[3]);
-                String lapDistance = splits[4];
-                String timeOfDay = splits[5];
-
-                for (String metric : metrics) {
-                    String param = null;
-                    if (metric.equals("vehicleSpeed")) {
-                        param = String.valueOf(speed);
-                    } else if (metric.equals("engineSpeed")) {
-                        param = String.valueOf(rpm);
-                    } else if (metric.equals("throttle")) {
-                        param = String.valueOf(throttle);
-                    }
-                    recordPublisherMap.get(metric).onNext(timeOfDay + "," + param);
-                }
-
-                JSONObject recordobj = new JSONObject();
-                recordobj.put("carNumber", carnum);
-                recordobj.put("lapDistance", lapDistance);
-                recordobj.put("timeOfDay", timeOfDay.split(" ")[1]);
-                recordobj.put("vehicleSpeed", speed);
-                recordobj.put("engineSpeed", rpm);
-                recordobj.put("throttle", throttle);
-                recordobj.put("UUID", carnum + "_" + record_counter);
-
-                this.outMessages.add(recordobj);
-
-
-                boolean hasRecords = true;
-
-                for (int i = 0; i < metrics.length; i++) {
-                    hasRecords &= !this.anomalyScoreOuts.get(metrics[i]).isEmpty();
-                }
-
-                if (hasRecords) {
-                    JSONObject msgToSend = this.outMessages.poll();
-                    for (int i = 0; i < metrics.length; i++) {
-                        Double score = this.anomalyScoreOuts.get(metrics[i]).poll();
-                        if (score == null) {//won't happen, just to make sure nothing breaks
-                            score = 0d;
-                        }
-                        msgToSend.put(metrics[i] + "Anomaly", score);
-                    }
-                    mqttmsg.setPayload(msgToSend.toJSONString().getBytes());
-                    mqttmsg.setQos(OnlineLearningUtils.QoS);
-                    try {
-                        mqttClient.publish(OnlineLearningUtils.sinkoutTopic, mqttmsg);
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
-                }
-            } else {
-                LOG.warn("CSV of unknown length {} received. Expected 6", splits.length);
-            }
-        }
+        this.syncAndEmit();
     }
 
     @Override
     public void declareOutputFields(OutputFieldsDeclarer declarer) {
         //nothing to do here
-    }
-
-    @Override
-    public void connectionLost(Throwable cause) {
-        LOG.warn("Disconnected from broker. Trying to reconnect...", cause);
-
-        if (!this.mqttClient.isConnected()) {
-            try {
-                this.mqttClient.reconnect();
-            } catch (MqttException e) {
-                LOG.error("Failed to reconnect to broker...", e);
-            }
-        }
-    }
-
-    @Override
-    public void messageArrived(String topic, MqttMessage message) throws Exception {
-        incomingMessageQueue.add(new String(message.getPayload()));
-    }
-
-    @Override
-    public void deliveryComplete(IMqttDeliveryToken token) {
-        // TODO Auto-generated method stub
     }
 
     private void startHTMNetwork(String metric) {
@@ -249,8 +189,6 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
                 params = mapper.readTree((String) options.nonOptionArguments().get(0));
             }
 
-            int skip = (int) options.valueOf("s");
-
             // Force timezone to UTC
             DateTimeZone.setDefault(DateTimeZone.UTC);
             AnomalyLikelihood likelihood = new AnomalyLikelihood(true, 8640, false, 375, 375);
@@ -272,12 +210,14 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
                                     .add(Sensor.create(ObservableSensor::create,
                                             SensorParams.create(SensorParams.Keys::obs, metric, supplier)))));
 
+            final AtomicDouble prev_lkhood = new AtomicDouble(0);
+
             network.observe().subscribe((inference) -> {
                 double score = inference.getAnomalyScore();
                 double value = (Double) inference.getClassifierInput().get("value").get("inputValue");
                 DateTime timestamp = (DateTime) inference.getClassifierInput()
                         .get("timestamp").get("inputValue");
-                double prev_likelihood = prev_lkhood.get(carnum + "_" + metric);
+                double prev_likelihood = prev_lkhood.get();
 
                 double anomaly_likelihood = likelihood.anomalyProbability(value, score, timestamp);
 
@@ -288,7 +228,7 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
                     prev_likelihood = anomaly_likelihood;
                 }
 
-                prev_lkhood.put(carnum + "_" + metric, prev_likelihood);
+                prev_lkhood.set(prev_likelihood);
                 double logscore = AnomalyLikelihood.computeLogLikelihood(anomaly_likelihood);
 
                 this.anomalyScoreOuts.get(metric).add(logscore);
@@ -420,7 +360,7 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
             if (node.has("timeOfDay")) {
                 JsonNode timeOfDay = node.get("timeOfDay");
                 fieldMap.put("fieldType", "datetime");
-                fieldMap.put(KEY.DATEFIELD_PATTERN.getFieldName(), "MM/dd/YY HH:mm:ss.SSS");
+                fieldMap.put(KEY.DATEFIELD_PATTERN.getFieldName(), "HH:mm:ss.SSS");
                 fieldMap.put(KEY.DATEFIELD_TOFD.getFieldName(),
                         new Tuple(timeOfDay.get(0).asInt(), timeOfDay.get(1).asDouble()));
             } else {
@@ -434,4 +374,43 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MqttCallback 
         return fieldEncodings;
     }
 
+    @Override
+    public void onMessage(String topic, MqttMessage mqttMessage) {
+        try {
+            String record = new String(mqttMessage.getPayload());
+            String[] splits = record.split(STR_COMMA);
+            if (splits.length == 6) {
+                double speed = Double.parseDouble(splits[0]);
+                double rpm = Double.parseDouble(splits[1]);
+                double throttle = Double.parseDouble(splits[2]);
+                int record_counter = Integer.parseInt(splits[3]);
+                String lapDistance = splits[4];
+                String timeOfDay = splits[5];
+
+                JSONObject recordobj = new JSONObject();
+                recordobj.put(PARAM_CAR_NUMBER, carnum);
+                recordobj.put(PARAM_LAP_DISTANCE, lapDistance);
+                recordobj.put(PARAM_TIME_OF_DAY, timeOfDay.split(STR_SPACE)[1]);
+                recordobj.put(METRIC_VEHICLE_SPEED, speed);
+                recordobj.put(METRIC_ENGINE_SPEED, rpm);
+                recordobj.put(METRIC_THROTTLE, throttle);
+                recordobj.put(PARAM_UUID, carnum + STR_UCO + record_counter);
+
+                times.put(recordobj.get(PARAM_UUID).toString(), System.currentTimeMillis());
+                outMessages.add(recordobj);
+                //incomingMessageQueue.add(recordobj);
+
+                //latency.put(recordobj.get(PARAM_UUID).toString(), System.currentTimeMillis());
+
+                for (String metric : metrics) {
+                    recordPublisherMap.get(metric).onNext(
+                            recordobj.get(PARAM_TIME_OF_DAY) + STR_COMMA + recordobj.get(metric));
+                }
+            } else {
+                LOG.warn("CSV of unknown length {} received. Expected 6", splits.length);
+            }
+        } catch (Exception ex) {
+            LOG.warn("Error in parsing record", ex);
+        }
+    }
 }
