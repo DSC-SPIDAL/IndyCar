@@ -82,7 +82,7 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
                 public void run() {
                     try {
                         PingLatency.writeToFile();
-                        LatencyCalculator.writeToFile();
+                        //LatencyCalculator.writeToFile();
                         System.exit(0);
                     } catch (IOException e) {
                         e.printStackTrace();
@@ -116,11 +116,11 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
     public void onStreamEnd(String s) {
         LOG.info("Race ended.. Restarting...");
 
-        try {
-            LatencyCalculator.writeToFile();
-        } catch (IOException e) {
-            LOG.warn("Error in writing latency values to file", e);
-        }
+//        try {
+//            LatencyCalculator.writeToFile();
+//        } catch (IOException e) {
+//            LOG.warn("Error in writing latency values to file", e);
+//        }
 
         LatencyCalculator.clear();
         this.serverBoot.reset();

@@ -2,11 +2,11 @@ package iu.edu.indycar.mongo;
 
 import com.mongodb.client.MongoCollection;
 import com.mongodb.client.MongoDatabase;
+import com.mongodb.client.model.Filters;
 import org.bson.Document;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.function.Consumer;
 
 public class DriverService {
 
@@ -21,7 +21,7 @@ public class DriverService {
     public List<Document> getAll() {
         List<Document> drivers = new ArrayList<>();
         //taking uids only
-        this.drivers.find().projection(new Document("uid", 1)).forEach((Consumer<Document>) drivers::add);
+        this.drivers.find().projection(new Document("uid", 1).append("_id", 0)).into(drivers);
         return drivers;
     }
 

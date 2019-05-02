@@ -12,7 +12,8 @@ import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichSpout;
-import org.eclipse.paho.client.mqttv3.*;
+import org.eclipse.paho.client.mqttv3.MqttException;
+import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.joda.time.DateTime;
 import org.joda.time.DateTimeZone;
 import org.json.simple.JSONObject;
@@ -33,7 +34,10 @@ import org.numenta.nupic.util.UniversalRandom;
 
 import java.io.File;
 import java.io.IOException;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Queue;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
@@ -50,6 +54,8 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
     private final static String PARAM_LAP_DISTANCE = "lapDistance";
     private final static String PARAM_TIME_OF_DAY = "timeOfDay";
     private final static String PARAM_UUID = "UUID";
+    private final static String PARAM_TIME_RECV = "recvTime";
+    private final static String PARAM_TIME_SEND = "sendTime";
 
     private final static String STR_COMMA = ",";
     private final static String STR_UCO = "_";
@@ -58,12 +64,11 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
 
     private static final long serialVersionUID = 1L;
     private String carnum;
-    private ConcurrentLinkedQueue<MqttMessage> incomingMessageQueue;
     private Map<String, Publisher> recordPublisherMap = null;
 
     private String[] metrics = {METRIC_VEHICLE_SPEED, METRIC_ENGINE_SPEED, METRIC_THROTTLE};
 
-    private Queue<JSONObject> outMessages = new LinkedList<>();
+    private Queue<JSONObject> outMessages = new ConcurrentLinkedQueue<>();
     private Map<String, Queue<Double>> anomalyScoreOuts = new HashMap<>();
 
     private MqttMessage mqttmsg;
@@ -72,15 +77,12 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
 
     private MQTTClientInstance mqttClientInstance;
 
-    Map<String, Long> latency = new ConcurrentHashMap<>();
-
     public AnomalyDetectionTask(String carnum) {
         this.carnum = carnum;
     }
 
     @Override
     public void open(Map conf, TopologyContext context, SpoutOutputCollector collector) {
-        incomingMessageQueue = new ConcurrentLinkedQueue<>();
         recordPublisherMap = new HashMap<>();
         mqttClientInstance = MQTTClientInstance.getInstance();
         mqttmsg = new MqttMessage();
@@ -113,6 +115,7 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
                 }
                 msgToSend.put(metrics[i] + STR_ANOMALY, score);
             }
+            msgToSend.put(PARAM_TIME_SEND, System.currentTimeMillis());
             mqttmsg.setPayload(msgToSend.toJSONString().getBytes());
             mqttmsg.setQos(OnlineLearningUtils.QoS);
             try {
@@ -394,13 +397,18 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
                 recordobj.put(METRIC_VEHICLE_SPEED, speed);
                 recordobj.put(METRIC_ENGINE_SPEED, rpm);
                 recordobj.put(METRIC_THROTTLE, throttle);
-                recordobj.put(PARAM_UUID, carnum + STR_UCO + record_counter);
 
-                times.put(recordobj.get(PARAM_UUID).toString(), System.currentTimeMillis());
+                final String uuid = carnum + STR_UCO + record_counter;
+
+                recordobj.put(PARAM_TIME_RECV, System.currentTimeMillis());
+
+                recordobj.put(PARAM_UUID, uuid);
+
+                times.put(uuid, System.nanoTime());
+
                 outMessages.add(recordobj);
-                //incomingMessageQueue.add(recordobj);
 
-                //latency.put(recordobj.get(PARAM_UUID).toString(), System.currentTimeMillis());
+                //incomingMessageQueue.add(recordobj);
 
                 for (String metric : metrics) {
                     recordPublisherMap.get(metric).onNext(

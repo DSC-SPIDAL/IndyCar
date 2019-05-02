@@ -40,7 +40,12 @@ public class GapsOfRecords {
         HashMap<String, AtomicLong> previousRecordsForCars = new HashMap<>();
         HashMap<String, HashMap<Long, AtomicInteger>> gapsForCars = new HashMap<>();
 
+        HashMap<String, AtomicLong> min = new HashMap<>();
+
         recordStreamer.setTelemetryRecordListener(record -> {
+            if (record.getCarNumber().equals("437")) {
+                return;
+            }
             HashMap<Long, AtomicInteger> gaps = gapsForCars.computeIfAbsent(
                     record.getCarNumber(), c -> new HashMap<>());
             AtomicLong previous = previousRecordsForCars.computeIfAbsent(
@@ -49,8 +54,17 @@ public class GapsOfRecords {
                 previous.set(record.getTimeOfDayLong());
             } else {
                 long previousTime = previous.get();
-                long binnedTimeGap = ((record.getTimeOfDayLong() - previousTime) / 100) * 100;//100ms gaps
+                long binnedTimeGap = ((record.getTimeOfDayLong() - previousTime) / 20) * 20;//20ms gaps
 
+                if (record.getTimeOfDayLong() - previousTime < min.computeIfAbsent(
+                        record.getCarNumber(), k -> {
+                            return new AtomicLong(Long.MAX_VALUE);
+                        }
+                ).get()) {
+                    if (record.getTimeOfDayLong() - previousTime != 0) {
+                        min.get(record.getCarNumber()).set(record.getTimeOfDayLong() - previousTime);
+                    }
+                }
                 gaps.computeIfAbsent(binnedTimeGap, s -> new AtomicInteger()).incrementAndGet();
                 previous.set(record.getTimeOfDayLong());
             }
@@ -59,6 +73,8 @@ public class GapsOfRecords {
 
         recordStreamer.setStreamEndListener(tag -> {
             LOG.info("End of stream");
+
+            System.out.println("Min : " + min);
             //all cars
             Map<Long, AtomicInteger> gaps = new ConcurrentHashMap<>();
             gapsForCars.keySet().parallelStream().forEach(carNumber -> {
@@ -76,7 +92,7 @@ public class GapsOfRecords {
                 drawForCar(carNumber, gapsForCar, 2000);
             });
 
-            drawForCar("ALL", gaps, 1000);
+            drawForCar("ALL", gaps, 2000);
         });
 
 
@@ -110,7 +126,7 @@ public class GapsOfRecords {
                     new FileWriter(new File("gaps/car" + carNumber + "_gaps.csv")));
             gaps.keySet().stream().sorted().forEach(key -> {
                 try {
-                    br.write(key + "," + gaps.get(key).get());
+                    br.write((key) + "-" + (key + 19) + "," + gaps.get(key).get());
                     br.newLine();
                 } catch (IOException e) {
                     e.printStackTrace();
@@ -148,7 +164,7 @@ public class GapsOfRecords {
             List<String> sortedRangeLabels = sortedGaps.stream().map(
                     g -> {
                         DecimalFormat df = df2;
-                        double up = g + 99, low = g;
+                        double up = g + 19, low = g;
                         String unit = "";
                         if (g > 1000 * 60) {
                             unit = "min";

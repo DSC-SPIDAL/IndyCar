@@ -108,6 +108,8 @@ public class TelemetryListener implements Runnable {
             if (counter != 0 && !firstRecordDetected.getOrDefault(carNumber, false)) {
                 System.out.println("Drop records for " + carNumber);
                 //return;
+            } else {
+                LatencyCalculator.addRecv(uuid, jsonObject);
             }
 
             String timeOfDay = jsonObject.getString("timeOfDay");
@@ -160,9 +162,6 @@ public class TelemetryListener implements Runnable {
             );
             LOG.debug("Enqueuing message {} for broadcast...", uuid);
             this.enqueueForBroadcast(wsMessage);
-
-
-            LatencyCalculator.addRecv(uuid);
 
             if (anomalyLabel != null) {
                 AnomalyLogger.AnomalyLabelDocument anomalyLabelDocument = AnomalyLogger.get(
