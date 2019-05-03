@@ -143,6 +143,8 @@ public class PositionStreamer {
                     }
                 }
 
+                LatencyCalculator.addSent(uuid);
+
                 if (!ServerConstants.DEBUG_MODE) {
                     this.mqttClient.publishRecord(
                             telemetryRecord.getCarNumber(),
@@ -170,7 +172,7 @@ public class PositionStreamer {
                             )
                     );
                 }
-                LatencyCalculator.addSent(uuid);
+
 //                this.recordWriter.write(
 //                        telemetryRecord.getCarNumber(),
 //                        String.valueOf(counter),
