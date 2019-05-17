@@ -35,18 +35,18 @@ public class OnlineLearningUtils {
 //	public static String mqttpwd = "password";
 	public static String sinkoutTopic = "compact_topology_out";
 	public static String restart_topic = "status";
-	public static String brokerurl = "tcp://j-093.juliet.futuresystems.org:61613";
+	public static String brokerurl = "tcp://10.0.16.40:61613";
 	public static String mqttadmin = "admin";
-	public static String mqttpwd = "rjXT53saWRpQyu4M";
+	public static String mqttpwd = "password";
 	
 //	public static String brokerurl = "tcp://10.16.0.23:61613";
 //	public static String mqttadmin = "admin";
 //	public static String mqttpwd = "password";
-	
-	public static Network createBasicLearningNetwork(Sensor<ObservableSensor<String[]>> sensor, Publisher manualPublisher) {	
+
+	public static Network createBasicLearningNetwork(Sensor<ObservableSensor<String[]>> sensor, Publisher manualPublisher) {
 		Parameters params = getLearningParameters();
 		params = params.union(getNetworkLearningEncoderParams());
-		
+
 		Network network =  Network.create("Network API Demo", params)
 							.add(Network.createRegion("Region 1")
 							.add(Network.createLayer("Layer 2/3", params)
@@ -55,7 +55,7 @@ public class OnlineLearningUtils {
 							.add(new TemporalMemory())
 							.add(new SpatialPooler())
 							.add(sensor)));
-		
+
 //		network = Network.create("Network API Demo", params)
 //		        .add(Network.createRegion("Region 1")
 //		                .add(Network.createLayer("Layer 2/3", params)
@@ -65,16 +65,16 @@ public class OnlineLearningUtils {
 //		                    .add(new SpatialPooler())
 //		                    .add(Sensor.create(FileSensor::create, SensorParams.create(
 //		                        Keys::path, "", ResourceLocator.path("/Users/sahiltyagi/Desktop/sample.csv"))))));
-		
+
 		return network;
 	}
-	
+
 	public static Parameters getLearningParameters() {
 		Parameters parameters = Parameters.getAllDefaultParameters();
         parameters.set(Parameters.KEY.INPUT_DIMENSIONS, new int[] { 8 });
         parameters.set(KEY.COLUMN_DIMENSIONS, new int[] { 20 });
         parameters.set(KEY.CELLS_PER_COLUMN, 6);
-        
+
         //SpatialPooler specific
         parameters.set(KEY.POTENTIAL_RADIUS, 12);//3
         parameters.set(KEY.POTENTIAL_PCT, 0.5);//0.5
@@ -91,7 +91,7 @@ public class OnlineLearningUtils {
         parameters.set(KEY.DUTY_CYCLE_PERIOD, 10);
         parameters.set(KEY.MAX_BOOST, 10.0);
         parameters.set(KEY.SEED, 42);
-        
+
         //Temporal Memory specific
         parameters.set(KEY.INITIAL_PERMANENCE, 0.2);
         parameters.set(KEY.CONNECTED_PERMANENCE, 0.8);
@@ -100,17 +100,17 @@ public class OnlineLearningUtils {
         parameters.set(KEY.PERMANENCE_INCREMENT, 0.05);
         parameters.set(KEY.PERMANENCE_DECREMENT, 0.05);
         parameters.set(KEY.ACTIVATION_THRESHOLD, 4);
-        
+
         return parameters;
 	}
-	
+
 	public static Map<String, Class<? extends Classifier>> getInferredFieldsMap(
             String field, Class<? extends Classifier> classifier) {
         Map<String, Class<? extends Classifier>> inferredFieldsMap = new HashMap<>();
         inferredFieldsMap.put(field, classifier);
         return inferredFieldsMap;
     }
-	
+
 	public static Map<String, Map<String, Object>> getNetworkDemoFieldEncodingMap() {
 		System.out.println("##################### in getNetworkDemoFieldEncodingMap() method ###################");
 //        Map<String, Map<String, Object>> fieldEncodings = setupMap(
@@ -125,26 +125,26 @@ public class OnlineLearningUtils {
 //                21, 
 //                -50, 300, 0, 0.1, null, Boolean.TRUE, null, 
 //                "consumption", "float", "ScalarEncoder");
-		
+
 		 Map<String, Map<String, Object>> fieldEncodings = setupMap(
-	                null, 
-	                50, 
-	                21, 
-	                -50, 300, 0, 0.1, null, Boolean.TRUE, null, 
+	                null,
+	                50,
+	                21,
+	                -50, 300, 0, 0.1, null, Boolean.TRUE, null,
 	                "consumption", "float", "ScalarEncoder");
-        
+
 //        fieldEncodings.get("timestamp").put(KEY.DATEFIELD_TOFD.getFieldName(), new Tuple(21,9.5)); // Time of day
 //        fieldEncodings.get("timestamp").put(KEY.DATEFIELD_PATTERN.getFieldName(), "MM/dd/YY HH:mm:ss.SSS");
-        
+
         return fieldEncodings;
     }
-	
+
 	 /**
      * Sets up an Encoder Mapping of configurable values.
-     *  
+     *
      * @param map               if called more than once to set up encoders for more
      *                          than one field, this should be the map itself returned
-     *                          from the first call to {@code #setupMap(Map, int, int, double, 
+     *                          from the first call to {@code #setupMap(Map, int, int, double,
      *                          double, double, double, Boolean, Boolean, Boolean, String, String, String)}
      * @param n                 the total number of bits in the output encoding
      * @param w                 the number of bits to use in the representation
@@ -189,7 +189,7 @@ public class OnlineLearningUtils {
 
         return map;
     }
-    
+
     public static Parameters getNetworkLearningEncoderParams() {
         Map<String, Map<String, Object>> fieldEncodings = getNetworkDemoFieldEncodingMap();
 
@@ -204,36 +204,36 @@ public class OnlineLearningUtils {
         p.set(KEY.SYN_PERM_INACTIVE_DEC, 0.0005);
         p.set(KEY.MAX_BOOST, 1.0);
         p.set(KEY.INFERRED_FIELDS, getInferredFieldsMap("consumption", SDRClassifier.class));
-        
+
         p.set(KEY.MAX_NEW_SYNAPSE_COUNT, 20);
         p.set(KEY.INITIAL_PERMANENCE, 0.21);
         p.set(KEY.PERMANENCE_INCREMENT, 0.1);
         p.set(KEY.PERMANENCE_DECREMENT, 0.1);
         p.set(KEY.MIN_THRESHOLD, 9);
         p.set(KEY.ACTIVATION_THRESHOLD, 12);
-        
+
         p.set(KEY.CLIP_INPUT, true);
         p.set(KEY.FIELD_ENCODING_MAP, fieldEncodings);
 
         return p;
     }
-    
+
     public static Publisher getPublisher() {
 //		Publisher manualPublisher = Publisher.builder()
 //								.addHeader("timestamp,consumption")
 //								.addHeader("datetime,float")
 //								.addHeader("B")
 //								.build();
-    	
+
     	Publisher manualPublisher = Publisher.builder()
 				.addHeader("consumption")
 				.addHeader("float")
 				.addHeader("B")
 				.build();
-		
+
 		return manualPublisher;
     }
-    
+
     Subscriber<Inference> getSubscriber(File outputFile, PrintWriter pw) {
         return new Subscriber<Inference>() {
             @Override public void onCompleted() {
@@ -249,7 +249,7 @@ public class OnlineLearningUtils {
             @Override public void onNext(Inference i) { writeToFileAnomalyOnly(i, "consumption", pw); }
         };
     }
-    
+
     private static void writeToFileAnomalyOnly(Inference infer, String classifierField, PrintWriter pw) {
         try {
             if(infer.getRecordNum() > 0) {

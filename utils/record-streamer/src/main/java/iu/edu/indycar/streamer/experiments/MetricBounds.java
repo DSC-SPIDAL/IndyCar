@@ -11,8 +11,8 @@ import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileWriter;
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.HashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class MetricBounds {
@@ -23,7 +23,7 @@ public class MetricBounds {
         File file = new File("/home/chathura/Downloads/indy_data/IPBroadcaster_Input_2018-05-27_0.log");
 
         RecordStreamer recordStreamer = new RecordStreamer(
-                file, true, 100000000, s -> s.split("_")[2]);
+                file, false, 100000000, s -> s.split("_")[2]);
 
 
         class Tuple {
@@ -55,6 +55,13 @@ public class MetricBounds {
 
         HashMap<String, MinMax> minMaxHashMap = new HashMap<>();
 
+        class Avg {
+            BigDecimal speed = BigDecimal.ZERO;
+            BigDecimal rpm = BigDecimal.ZERO;
+            BigDecimal throttle = BigDecimal.ZERO;
+            AtomicLong total = new AtomicLong(0);
+        }
+        final Avg avg = new Avg();
         recordStreamer.setTelemetryRecordListener(record -> {
             MinMax minMax = minMaxHashMap.computeIfAbsent(record.getCarNumber(), s -> new MinMax());
 
@@ -62,10 +69,18 @@ public class MetricBounds {
             minMax.rpm.report(record.getEngineSpeed());
             minMax.throttle.report(record.getThrottle());
             minMax.distanceFromStart.report(record.getLapDistance());
+            avg.speed = avg.speed.add(BigDecimal.valueOf(record.getVehicleSpeed()));
+            avg.rpm = avg.rpm.add(BigDecimal.valueOf(record.getEngineSpeed()));
+            avg.throttle = avg.throttle.add(BigDecimal.valueOf(record.getThrottle()));
+            avg.total.incrementAndGet();
         });
 
 
         recordStreamer.setStreamEndListener(tag -> {
+            System.out.println("Avg speed " + avg.speed.divide(BigDecimal.valueOf(avg.total.get()), BigDecimal.ROUND_HALF_UP));
+            System.out.println("Avg rpm " + avg.rpm.divide(BigDecimal.valueOf(avg.total.get()), BigDecimal.ROUND_HALF_UP));
+            System.out.println("Avg throttle " + avg.throttle.divide(BigDecimal.valueOf(avg.total.get()), BigDecimal.ROUND_HALF_UP));
+
             LOG.info("End of stream");
             try {
                 BufferedWriter br = new BufferedWriter(

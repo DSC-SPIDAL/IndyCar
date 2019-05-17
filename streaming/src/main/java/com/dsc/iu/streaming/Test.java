@@ -6,18 +6,7 @@ public class Test {
         new Thread(new Runnable() {
             @Override
             public void run() {
-                AnomalyDetectionTask anomalyDetectionTask = new AnomalyDetectionTask("20");
-                anomalyDetectionTask.open(null, null, null);
-                while (true) {
-                    anomalyDetectionTask.nextTuple();
-                }
-            }
-        }).start();
-
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                AnomalyDetectionTask anomalyDetectionTask = new AnomalyDetectionTask("22");
+                AnomalyDetectionTask anomalyDetectionTask = new AnomalyDetectionTask("21");
                 anomalyDetectionTask.open(null, null, null);
                 while (true) {
                     anomalyDetectionTask.nextTuple();

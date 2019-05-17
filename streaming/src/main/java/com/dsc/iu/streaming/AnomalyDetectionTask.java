@@ -34,11 +34,11 @@ import org.numenta.nupic.util.UniversalRandom;
 
 import java.io.File;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Queue;
-import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedQueue;
 
 public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCallback {
@@ -73,7 +73,7 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
 
     private MqttMessage mqttmsg;
 
-    private Map<String, Long> times = new ConcurrentHashMap<>();
+    //private Map<String, Long> times = new ConcurrentHashMap<>();
 
     private MQTTClientInstance mqttClientInstance;
 
@@ -377,6 +377,9 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
         return fieldEncodings;
     }
 
+    final SimpleDateFormat sdfOrigi = new SimpleDateFormat("MM/dd/yy HH:mm:ss.SSS");
+    final SimpleDateFormat to = new SimpleDateFormat("YYYY-MM-dd HH:mm:ss.SSS");
+
     @Override
     public void onMessage(String topic, MqttMessage mqttMessage) {
         try {
@@ -404,7 +407,7 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
 
                 recordobj.put(PARAM_UUID, uuid);
 
-                times.put(uuid, System.nanoTime());
+                //times.put(uuid, System.currentTimeMillis());
 
                 outMessages.add(recordobj);
 

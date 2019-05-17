@@ -27,9 +27,11 @@ public class RTLatencyAll {
             counts.put(i, new AtomicLong());
         }
 
+        List<Long> latencies = new ArrayList<>();
+
         while ((line = br.readLine()) != null) {
             String splits[] = line.split(",");
-            long latency = Long.valueOf(splits[4]) - Long.valueOf(splits[1]);
+            long latency = Long.valueOf(splits[3]) - Long.valueOf(splits[2]);
             if (latency < 0) {
                 System.out.println("LESS - Problem!");
             }
@@ -48,12 +50,22 @@ public class RTLatencyAll {
             } else {
                 counts.get(405L).incrementAndGet();
             }
+
+            latencies.add(latency);
         }
 
         System.out.println("Max : " + max);
         System.out.println("Min : " + min);
         System.out.println("Avg : " + sum.divide(BigDecimal.valueOf(count), BigDecimal.ROUND_DOWN));
 
+        Collections.sort(latencies);
+
+        //percentiles
+        int[] ps = {2, 98};
+        for (int p : ps) {
+            int percentile = latencies.size() * p / 100;
+            System.out.println(p + "P : " + (latencies.get(percentile) + latencies.get(percentile + 1)) / 2);
+        }
 
         ArrayList<Long> sorted = new ArrayList<>(counts.keySet());
         Collections.sort(sorted);
@@ -61,5 +73,7 @@ public class RTLatencyAll {
         sorted.forEach(k -> {
             System.out.println(k + "," + counts.get(k).get());
         });
+
+
     }
 }
