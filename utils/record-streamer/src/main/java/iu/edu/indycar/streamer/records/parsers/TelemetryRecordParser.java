@@ -27,7 +27,7 @@ public class TelemetryRecordParser extends AbstractRecordParser<TelemetryRecord>
         double lapDistance = Double.valueOf(splits[3]);
         double vehicleSpeed = Double.valueOf(splits[4]);
         double engineSpeed = Double.valueOf(splits[5]);
-        double throttle = Double.valueOf(splits[6]);
+        double throttle = Double.valueOf(splits[8]);
 
 
         TelemetryRecord tr = new TelemetryRecord();
