@@ -2,19 +2,12 @@
 
 .header {
   .title {
-    .title-typeface {
-      color: white;
-      //text-shadow: rgb(0, 0, 0) -1px -1px 0px, rgb(0, 0, 0) 1px -1px 0px, rgb(0, 0, 0) -1px 1px 0px, rgb(0, 0, 0) 2px 2px 0px;
-    }
-
-    //display: grid;
-    //grid-template-columns: auto auto;
 
     .event-name {
-      font-weight: 400;
-      font-family: 'Racing Sans One', cursive;
+      font-family: 'Teko', sans-serif;
       margin-bottom: 0;
       margin-right: 20px;
+      font-size: 48px;
 
       @media (max-width: 320px) {
         font-size: 32px;
@@ -22,7 +15,7 @@
     }
 
     .run-name {
-      font-family: 'Racing Sans One', cursive;
+      font-family: 'Teko', sans-serif;
       font-weight: 400;
       margin-top: 0;
       margin-bottom: 0;
@@ -35,10 +28,72 @@
   }
 }
 
+.weather-information-rect {
+  background-image: url("./img/rectangle-copy-2.svg");
+  height: 100px;
+  color: white;
+  font-family: "Teko", sans-serif;
+  font-size: 38px;
+  line-height: 100px;
+  padding: 0 20px 0 40px;
+
+  cursor: pointer;
+}
+
+.weather-information-rect-small {
+  position: absolute;
+  left: -20px;
+  background-image: url("./img/rectangle.svg");
+  height: 100px;
+  width: 40px;
+
+  &.weather-information-rect-small-2 {
+    left: -40px;
+  }
+}
+
+.weather-information-rect-content {
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+  grid-template-columns: 1fr 1fr;
+  font-family: "Teko", sans-serif;
+
+  .weather-indicator {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    font-size: 24px;
+
+    img {
+      width: 30px;
+      height: 30px;
+      position: relative;
+      left: 50%;
+      top: 50%;
+      transform: translateX(-50%) translateY(-50%);
+    }
+
+    .weather-indicator-value {
+      display: grid;
+      grid-template-rows: 1fr 1fr;
+
+      .weather-indicator-value-hint {
+        font-family: "Roboto", sans-serif;
+        font-size: 14px;
+      }
+
+      p {
+        margin: 0;
+        padding: 0;
+      }
+    }
+  }
+}
+
 .weather-information {
   .weather-indicator {
     display: grid;
     grid-template-columns: auto auto;
+
     img {
       margin-right: 10px;
       margin-top: 15px;

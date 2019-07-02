@@ -171,10 +171,12 @@ export default class SpeedDataComponent extends React.Component {
                             labels: sortedLapNumbers,
                             datasets: [
                                 {
-                                    borderColor: "#90A4AE",
-                                    backgroundColor: "#263238",
-                                    borderWidth: 0.5,
+                                    borderColor: "black",
+                                    backgroundColor: "transparent",
+                                    borderWidth: 1,
                                     data: sortedLaps,
+                                    pointRadius: 2,
+                                    pointBackgroundColor: "black",
                                     datalabels: {
                                         display: false
                                     }

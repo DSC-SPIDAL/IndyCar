@@ -1,10 +1,10 @@
 import React from "react";
 import "./TrackComponent.css";
 import SVG from "svg.js";
-import roadTexture from "./img/road_two.jpg";
 import CBuffer from "CBuffer";
 import {SocketService} from "../../services/SocketService";
 import LOADER from "./img/buffering.gif";
+import CarSVGs from "./img/CarSVGs";
 
 
 //GLOBAL CALCULATIONS//
@@ -151,8 +151,10 @@ export default class TrackComponent extends React.Component {
     positionCars = (carPosition) => {
         let trackOffsets = [-1.5, 1.5, 5];
         let key = carPosition.carNumber;
+        let carImages = ["R", "G", "B", "Y"];
         if (!this.cars[key]) {
-            this.cars[key] = this.addCar(`img/cars/car_${('' + key).padStart(2, '0')}.png`, trackOffsets[key % 3], key);
+            // this.cars[key] = this.addCar(`img/cars/car_${('' + key).padStart(2, '0')}.png`, trackOffsets[key % 3], key);
+            this.cars[key] = this.addCar(`img/cars_new/Car${carImages[key % carImages.length]}.png`, trackOffsets[key % 3], key);
         }
 
         this.cars[key].push(carPosition);
@@ -177,7 +179,7 @@ export default class TrackComponent extends React.Component {
         Q ${xc3} ${yc3} ${x4} ${y4}
         L${x3} ${y3}
         Q ${xc2} ${yc2} ${x2} ${y2}`)
-            .attr({stroke: roadTexture, fill: 'transparent', 'stroke-width': longStraightWay.width})
+            .attr({stroke: "#3E3E3E", fill: 'transparent', 'stroke-width': longStraightWay.width})
             .center(window.innerWidth / 2, (shortStraightWay.length + (2 * scaledRadius) + trackWidth * widthSCale * 2) / 2);
 
 //start pattern
@@ -220,7 +222,7 @@ export default class TrackComponent extends React.Component {
         car.rotate(angle);
     };
 
-    animateCar = (carNumber, carContainer, car, newRecord, cb) => {
+    animateCar = (carNumber, carContainer, carNumberTxt, trackOffset, car, newRecord, cb) => {
         //skip the first record
         if (!this.pastRecords[carNumber]) {
             this.pastRecords[carNumber] = newRecord;
@@ -268,7 +270,8 @@ export default class TrackComponent extends React.Component {
                     distance = distance - (this.path.length());
                 }
                 let p = this.path.pointAt(distance);
-                carContainer.center(p.x, p.y);
+                let xOffset = p.x;
+                let yOffset = p.y;
                 let angle;
                 if (distance < twoToOne) {
                     angle = 180;
@@ -287,7 +290,9 @@ export default class TrackComponent extends React.Component {
                 } else if (distance < threeToTwo) {
                     angle = 270 + (distance - fourToThree) / scalledTurnArc * -90;
                 }
+                carContainer.center(p.x, p.y);
                 car.rotate(angle);
+                carNumberTxt.center(p.x, p.y);
             }).after(() => {
 
             this.pastRecords[carNumber] = newRecord;
@@ -317,14 +322,27 @@ export default class TrackComponent extends React.Component {
     };
 
     addCar = (image, trackOffset = 1.8, carNumber) => {
-        let carContainer = this.draw.group();
-        let car = carContainer.image(image).size(4.8 * carScale, 1.8 * carScale);
-        let boundingBoxMax = Math.sqrt(Math.pow(4.8 * carScale, 2) * 2);
-        carContainer.rect(boundingBoxMax, boundingBoxMax).fill('transparent');
-        car.move(boundingBoxMax / 2 - 4.8 * carScale / 2, boundingBoxMax / 2 - trackOffset * carScale / 2);
-        car.rotate(180);
 
+
+        let carContainer = this.draw.group();
+        let boundingBoxMax = trackWidth * widthSCale;//Math.sqrt(Math.pow(4.8 * carScale, 2) * 2);
+
+        let car = carContainer.image(image).size(4.8 * carScale, 1.8 * carScale);
+        carContainer.rect(boundingBoxMax, boundingBoxMax).fill('transparent').stroke("black");
+        //car.move(boundingBoxMax / 2 - 4.8 * carScale / 2, boundingBoxMax / 2 - trackOffset * carScale / 2);
+        car.center(carContainer.cx(), carContainer.cy());
+        car.rotate(180);
         car.opacity(0);
+
+        let carNumberGroup = this.draw.group();
+        carNumberGroup.center(carContainer.cx(), carContainer.cy());
+        carNumberGroup.circle(20 * carScale / 9.230726182704274).attr({
+            fill: "white",
+            stroke: "#3E3E3E",
+            "stroke-width": 1
+        }).center(carContainer.cx(), carContainer.cy());
+        carNumberGroup.text(carNumber).center(carContainer.cx(), carContainer.cy());
+
 
         this.timeReducers[carNumber] = 1;
         this.bufferingCars++;
@@ -342,7 +360,8 @@ export default class TrackComponent extends React.Component {
                 console.log("Buffer size", frameBuffer.length);
             }
             if (data) {
-                this.animateCar(carNumber, carContainer, car, data, animationCallback);
+                this.animateCar(carNumber, carContainer, carNumberGroup,
+                    trackOffset * carScale, car, data, animationCallback);
             } else {
                 //could be because it has run out of buffer
                 console.log("No records in buffer", carNumber);

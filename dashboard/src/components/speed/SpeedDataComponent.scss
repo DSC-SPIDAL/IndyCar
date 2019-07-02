@@ -1,4 +1,5 @@
 @import "../../../node_modules/@blueprintjs/core/lib/scss/variables";
+@import "../../colors";
 
 .speed-data-component {
   padding: 0;
@@ -33,10 +34,14 @@
           left: 50%;
           transform: translateX(-50%) translateY(-50%);
 
+          .speed-data-car-info-engine {
+            font-size: 18px;
+          }
+
           .speed-data-car-info-number {
-            font-family: 'Oswald', sans-serif;
-            border: 1px dashed $pt-code-background-color;
-            border-radius: 500px;
+            font-family: 'Teko', sans-serif;
+            border: 1px solid $border_red;
+            border-radius: 5px;
             width: 80px;
             height: 80px;
             padding: 10px;
@@ -46,7 +51,7 @@
             background-position: center;
 
             span {
-              border: 1px dashed $pt-code-background-color;
+              border: 1px solid $border_red;
               font-size: 21px;
               position: absolute;
               background-color: white;
@@ -69,10 +74,18 @@
         grid-template-rows: auto auto;
         grid-row-gap: 10px;
         margin-left: 15px;
+        font-family: 'Roboto', sans-serif;
+        font-size: 18px;
+
+        .pt-icon {
+          width: 18px;
+          height: 18px;
+        }
 
         .speed-data-driver-info-bio {
           .speed-data-driver-name {
-            font-size: 26px;
+            font-family: 'Teko', sans-serif;
+            font-size: 36px;
             margin-bottom: 5px;
             //border-bottom: 1px solid $pt-dark-divider-white;
 
@@ -93,6 +106,8 @@
         .speed-data-driver-info-other {
           display: grid;
           grid-template-columns: repeat(3, 1fr);
+          font-family: 'Roboto', sans-serif;
+          font-size: 18px;
 
           .speed-data-driver-info-other-col {
             display: grid;

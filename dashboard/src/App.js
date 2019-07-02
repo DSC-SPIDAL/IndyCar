@@ -6,6 +6,7 @@ import TrackComponent from "./components/track/TrackComponent";
 import LapTimesComponent from "./components/laps/LapTimesComponent";
 import AnomalyWrapper from "./components/anomaly/AnomalyWrapper";
 import VideosWrapper from "./components/videos/VideosWrapper";
+import LeaderboardAndVideo from "./components/LeaderboardAndVideo";
 
 class App extends Component {
     render() {
@@ -14,10 +15,11 @@ class App extends Component {
                 <HeaderComponent/>
                 {/*<TrackCanvasComponent/>*/}
                 <TrackComponent/>
-                <SpeedDataWrapper/>
+                <LeaderboardAndVideo/>
+                {/*<SpeedDataWrapper/>*/}
                 <AnomalyWrapper/>
-                <LapTimesComponent/>
                 {/*<VideosWrapper/>*/}
+                <LapTimesComponent/>
             </div>
         );
     }

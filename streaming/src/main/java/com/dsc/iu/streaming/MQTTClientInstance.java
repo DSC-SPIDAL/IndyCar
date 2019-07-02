@@ -4,6 +4,7 @@ import com.dsc.iu.utils.OnlineLearningUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.*;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 import java.io.Serializable;
 import java.util.ArrayList;
@@ -40,7 +41,8 @@ public class MQTTClientInstance implements MqttCallback, Serializable {
 
         try {
             //publish HTM data
-            this.mqttClient = new MqttClient(OnlineLearningUtils.brokerurl, MqttClient.generateClientId());
+            this.mqttClient = new MqttClient(OnlineLearningUtils.brokerurl,
+                    MqttClient.generateClientId(), new MemoryPersistence());
             mqttClient.setCallback(this);
             mqttClient.connect(conn);
         } catch (MqttException m) {

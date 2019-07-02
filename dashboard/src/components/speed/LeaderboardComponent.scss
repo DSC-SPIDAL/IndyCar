@@ -1,0 +1,39 @@
+.leader-board-wrapper {
+  position: relative;
+
+  @media only screen and (max-width: 600px) {
+    & {
+      height: 400px;
+    }
+  }
+
+  div {
+    padding-left: 10px;
+    padding-right: 10px;
+  }
+
+  .leader-board-list {
+    position: absolute;
+    overflow-y: scroll;
+    height: calc(100% - 50px);
+    width: 100%;
+  }
+
+  .leader-board-title {
+    font-family: "Teko", sans-serif;
+    background-color: black;
+    color: white;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    .leader-board-title-main {
+      font-size: 40px;
+    }
+
+    .leader-board-title-sub {
+      font-size: 24px;
+      line-height: 50px;
+      text-align: right;
+    }
+  }
+}

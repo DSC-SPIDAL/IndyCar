@@ -148,7 +148,7 @@ export default class LapTimesComponent extends React.Component {
         return (
             <div className="ic-section ic-lap-time-wrapper">
                 <Card>
-                    <h5>Lap Times</h5>
+                    <h5 className="ic-section-title">Lap Times</h5>
                     {/*<Popover content={<Menu>*/}
                     {/*{carsListSwitch}*/}
                     {/*</Menu>} position={Position.RIGHT_TOP}>*/}
@@ -166,7 +166,7 @@ export default class LapTimesComponent extends React.Component {
                                   display: window.innerWidth > 800,
                                   position: 'bottom',
                                   labels: {
-                                      fontColor: 'white'
+                                      fontColor: 'black'
                                   }
                               },
                               scales: {
@@ -180,7 +180,7 @@ export default class LapTimesComponent extends React.Component {
                                           color: "#90A4AE"
                                       },
                                       ticks: {
-                                          fontColor: "white",
+                                          fontColor: "black",
                                       },
                                   }],
                                   xAxes: [{
@@ -193,7 +193,7 @@ export default class LapTimesComponent extends React.Component {
                                           color: "#90A4AE"
                                       },
                                       ticks: {
-                                          fontColor: "white",
+                                          fontColor: "black",
                                       }
                                   }],
                               }

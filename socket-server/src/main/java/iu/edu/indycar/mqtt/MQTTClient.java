@@ -6,6 +6,7 @@ import iu.edu.indycar.tmp.StreamResetListener;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.eclipse.paho.client.mqttv3.*;
+import org.eclipse.paho.client.mqttv3.persist.MemoryPersistence;
 
 public class MQTTClient implements MqttCallback {
 
@@ -38,10 +39,14 @@ public class MQTTClient implements MqttCallback {
         conn.setSocketFactory(new MQTTSocketFactory());
 
         try {
+            MqttClientPersistence clientPersistence = new MemoryPersistence();
+
             client = new MqttClient(
                     ServerConstants.CONNECTION_URL,
-                    MqttClient.generateClientId()
+                    MqttClient.generateClientId(),
+                    clientPersistence
             );
+
             client.setCallback(this);
             client.connect(conn);
             client.subscribe(ServerConstants.STATUS_TOPIC);

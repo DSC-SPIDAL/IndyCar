@@ -1,0 +1,14 @@
+.lb-and-video-wrapper {
+  display: grid;
+  position: relative;
+  grid-template-columns: 1fr 1fr;
+  grid-template-rows: 1fr;
+
+  @media only screen and (max-width: 600px) {
+    & {
+      grid-template-rows: 1fr auto !important;
+      grid-template-columns: 1fr;
+      height: auto !important;
+    }
+  }
+}

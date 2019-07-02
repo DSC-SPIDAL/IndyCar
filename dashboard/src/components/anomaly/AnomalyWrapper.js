@@ -61,7 +61,7 @@ export default class AnomalyWrapper extends React.Component {
         return (
             <div className="ic-section ic-anomaly-wrapper">
                 <Card>
-                    <h5>Anomaly Scores</h5>
+                    <h5 className="ic-section-title">Anomaly Scores</h5>
                     <div className="ic-anomaly-header">
                         <div className="ic-anomaly-selection">
                             <label className="pt-label">
@@ -90,17 +90,20 @@ export default class AnomalyWrapper extends React.Component {
 
                     <SpeedAnomalyComponent carNumber={this.state.selectedCarNumber}
                                            metric={"SPEED"}
-                                           rawDataColor="#1565C0"
+                                           rawDataColor="black"
+                        // rawDataColor="#1565C0"
                                            hideX={true}
                                            key={this.state.selectedCarNumber + "SPEED"}/>
                     <SpeedAnomalyComponent carNumber={this.state.selectedCarNumber}
                                            metric={"RPM"}
                                            hideX={true}
-                                           rawDataColor="#2E7D32"
+                                           rawDataColor="black"
+                        // rawDataColor="#2E7D32"
                                            key={this.state.selectedCarNumber + "RPM"}/>
                     <SpeedAnomalyComponent carNumber={this.state.selectedCarNumber}
                                            metric={"THROTTLE"}
-                                           rawDataColor="#673AB7"
+                                           rawDataColor="black"
+                        // rawDataColor="#673AB7"
                                            key={this.state.selectedCarNumber + "THROTTLE"}/>
                 </Card>
             </div>

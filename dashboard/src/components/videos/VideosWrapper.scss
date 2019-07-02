@@ -1,9 +1,11 @@
 .ic-video-wrapper {
   padding: 5px;
+  margin-top: 0 !important;
+  height: auto;
 
   .ic-videos {
     display: grid;
-    grid-template-columns: 1fr 1fr;
+    grid-template-columns: 1fr;
     grid-column-gap: 10px;
 
     .ic-video-container {

@@ -1,0 +1,16 @@
+.leader-board-item {
+  display: grid;
+  grid-template-columns: 60px auto 40px;
+  font-family: "Teko", sans-serif;
+  font-size: 30px;
+  padding: 5px 0 5px 0;
+  border-bottom: 1px solid #d8d8d8;
+
+  .leader-board-item-engine {
+    font-family: "Roboto", sans-serif;
+    font-size: 20px;
+    line-height: 30px;
+    color: #d8d8d8;
+    padding-left: 10px;
+  }
+}

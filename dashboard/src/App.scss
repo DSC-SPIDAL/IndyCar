@@ -5,9 +5,15 @@ body {
   max-width: 100vw;
   padding: 0;
   margin: 0;
-  background-color: #293742;
+  //background-color: #293742;
+  font-family: 'Roboto', sans-serif;
 
   .ic-section {
     margin-top: 10px;
+
+    .ic-section-title {
+      font-family: "Teko", sans-serif;
+      font-size: 40px;
+    }
   }
 }

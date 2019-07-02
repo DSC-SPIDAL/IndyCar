@@ -9,7 +9,7 @@ public class ServerConstants {
 
     public static final String CONNECTION_URL = "tcp://j-093.juliet.futuresystems.org:61613";
     public static final String USERNAME = "admin";
-    public static final String PASSWORD = "rjXT53saWRpQyu4M";
+    public static final String PASSWORD = "qq6bTB3cZ9Fb8bgR";
 
     //public static final String ANOMALY_TOPIC = "streaming_output";
     public static final String ANOMALY_TOPIC = "compact_topology_out";
