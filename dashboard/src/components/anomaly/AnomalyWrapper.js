@@ -47,13 +47,19 @@ export default class AnomalyWrapper extends React.Component {
         this.subscribe();
     }
 
-    onCarChange = (event) => {
+    componentWillReceiveProps(nextProps, nextContext) {
+        if (nextProps.selectedCarNumber !== this.state.selectedCarNumber) {
+            this.onCarChange(nextProps.selectedCarNumber);
+        }
+    }
+
+    onCarChange = (newSelection) => {
         this.socket.send("EVENT_UNSUB", {
             roomName: "anomaly_" + this.state.selectedCarNumber
         });
         this.socket.unsubscribe("anomaly_" + this.state.selectedCarNumber, this.onReceiveChartData);
         this.setState({
-            selectedCarNumber: event.target.value
+            selectedCarNumber: newSelection
         }, this.subscribe);
     };
 
@@ -63,20 +69,20 @@ export default class AnomalyWrapper extends React.Component {
                 <Card>
                     <h5 className="ic-section-title">Anomaly Scores</h5>
                     <div className="ic-anomaly-header">
-                        <div className="ic-anomaly-selection">
-                            <label className="pt-label">
-                                Car
-                                <div className="pt-select">
-                                    <select onChange={this.onCarChange} value={this.state.selectedCarNumber}>
-                                        {
-                                            this.state.carNumbers.map(carNum => {
-                                                return <option value={carNum} key={carNum}>{carNum}</option>
-                                            })
-                                        }
-                                    </select>
-                                </div>
-                            </label>
-                        </div>
+                        {/*<div className="ic-anomaly-selection">*/}
+                        {/*    <label className="pt-label">*/}
+                        {/*        Car*/}
+                        {/*        <div className="pt-select">*/}
+                        {/*            <select onChange={this.onCarChange} value={this.state.selectedCarNumber}>*/}
+                        {/*                {*/}
+                        {/*                    this.state.carNumbers.map(carNum => {*/}
+                        {/*                        return <option value={carNum} key={carNum}>{carNum}</option>*/}
+                        {/*                    })*/}
+                        {/*                }*/}
+                        {/*            </select>*/}
+                        {/*        </div>*/}
+                        {/*    </label>*/}
+                        {/*</div>*/}
                         <div className="ic-anomaly-label-wrapper">
                             {
                                 this.state.anomalyLabel

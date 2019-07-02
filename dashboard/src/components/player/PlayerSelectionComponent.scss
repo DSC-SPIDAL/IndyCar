@@ -1,0 +1,63 @@
+.player-selection-wrapper {
+  height: 100px;
+
+  .player-selection-car-label {
+    font-family: Roboto, sans-serif;
+    font-size: 18px;
+    margin-right: 10px;
+  }
+
+  .player-information {
+    .player-image {
+      height: 80px;
+      width: 80px;
+      border: 1px solid red;
+      border-radius: 10px;
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+    }
+
+    .player-name-and-engine {
+      margin-left: 20px;
+
+      .player-name {
+        font-family: Teko, sans-serif;
+        font-size: 36px;
+      }
+
+      .player-engine {
+        font-family: Roboto, sans-serif;
+        font-size: 18px;
+      }
+    }
+
+    .player-team {
+      margin-left: 40px;
+      display: grid;
+      grid-template-columns: auto auto;
+      grid-column-gap: 10px;
+
+      .player-team-name {
+        font-family: Roboto, sans-serif;
+        font-size: 18px;
+      }
+    }
+
+    .player-car {
+      margin-left: 40px;
+      display: grid;
+      grid-template-columns: auto auto;
+      grid-column-gap: 10px;
+
+      img {
+        margin-top: 4px;
+      }
+
+      .player-car-name {
+        font-family: Roboto, sans-serif;
+        font-size: 18px;
+      }
+    }
+  }
+}

@@ -7,17 +7,19 @@ import LapTimesComponent from "./components/laps/LapTimesComponent";
 import AnomalyWrapper from "./components/anomaly/AnomalyWrapper";
 import VideosWrapper from "./components/videos/VideosWrapper";
 import LeaderboardAndVideo from "./components/LeaderboardAndVideo";
+import PlayerSelectionComponent from "./components/player/PlayerSelectionComponent";
 
 class App extends Component {
     render() {
         return (
             <div className="App">
                 <HeaderComponent/>
+                <PlayerSelectionComponent/>
                 {/*<TrackCanvasComponent/>*/}
-                <TrackComponent/>
-                <LeaderboardAndVideo/>
+                {/*<TrackComponent/>*/}
+                {/*<LeaderboardAndVideo/>*/}
                 {/*<SpeedDataWrapper/>*/}
-                <AnomalyWrapper/>
+                {/*<AnomalyWrapper/>*/}
                 {/*<VideosWrapper/>*/}
                 <LapTimesComponent/>
             </div>

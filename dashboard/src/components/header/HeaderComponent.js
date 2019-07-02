@@ -153,45 +153,6 @@ export default class HeaderComponent extends React.Component {
                         </div>
                     </NavbarGroup>
                 </Navbar>
-                {/*<Navbar>*/}
-                {/*    <NavbarGroup className='weather-information' align={Alignment.RIGHT}>*/}
-                {/*        <Tooltip content="Ambient Temperature" position={Position.BOTTOM}>*/}
-                {/*            <div className="weather-indicator">*/}
-                {/*                <img src={THERMO_IMG} alt="thermometer"/>*/}
-                {/*                <div className="weather-indicator-value">*/}
-                {/*                    {this.state.weather.temperature}*/}
-                {/*                </div>*/}
-                {/*            </div>*/}
-                {/*        </Tooltip>*/}
-                {/*        <NavbarDivider/>*/}
-                {/*        <Tooltip content="Barometer" position={Position.BOTTOM}>*/}
-                {/*            <div className="weather-indicator">*/}
-                {/*                <img src={BARO_IMG} alt="barometer"/>*/}
-                {/*                <div className="weather-indicator-value">*/}
-                {/*                    {this.state.weather.pressure}*/}
-                {/*                </div>*/}
-                {/*            </div>*/}
-                {/*        </Tooltip>*/}
-                {/*        <NavbarDivider/>*/}
-                {/*        <Tooltip content="Relative Humidity" position={Position.BOTTOM}>*/}
-                {/*            <div className="weather-indicator">*/}
-                {/*                <img src={HUMIDITY_IMG} alt="humidity"/>*/}
-                {/*                <div className="weather-indicator-value">*/}
-                {/*                    {this.state.weather.relativeHumidity}%*/}
-                {/*                </div>*/}
-                {/*            </div>*/}
-                {/*        </Tooltip>*/}
-                {/*        <NavbarDivider/>*/}
-                {/*        <Tooltip content="Time of the Day" position={Position.BOTTOM}>*/}
-                {/*            <div className="weather-indicator">*/}
-                {/*                <img src={CLOCK_IMG} alt="time"/>*/}
-                {/*                <div className="weather-indicator-value">*/}
-                {/*                    {this.state.weather.timeOfDay}*/}
-                {/*                </div>*/}
-                {/*            </div>*/}
-                {/*        </Tooltip>*/}
-                {/*    </NavbarGroup>*/}
-                {/*</Navbar>*/}
             </div>
         );
     }
