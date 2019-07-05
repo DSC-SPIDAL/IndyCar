@@ -21,7 +21,7 @@ class App extends Component {
                 {/*<SpeedDataWrapper/>*/}
                 {/*<AnomalyWrapper/>*/}
                 {/*<VideosWrapper/>*/}
-                <LapTimesComponent/>
+                {/*<LapTimesComponent/>*/}
             </div>
         );
     }

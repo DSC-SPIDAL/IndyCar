@@ -59,5 +59,22 @@
         font-size: 18px;
       }
     }
+
+    .player-rank {
+      margin-left: 40px;
+      display: grid;
+      grid-template-columns: auto auto;
+      grid-column-gap: 10px;
+
+      img {
+        margin-top: 4px;
+      }
+
+      .player-rank-name {
+        font-family: Roboto, sans-serif;
+        font-size: 18px;
+        padding-top: 5px;
+      }
+    }
   }
 }

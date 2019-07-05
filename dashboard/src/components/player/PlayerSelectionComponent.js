@@ -1,12 +1,14 @@
 import React from "react";
 import "./PlayerSelectionComponent.css";
-import {Navbar, NavbarDivider, NavbarGroup, Alignment} from "@blueprintjs/core";
+import {Navbar, NavbarDivider, NavbarGroup, Alignment, Spinner} from "@blueprintjs/core";
 import TEAM_ICO from "./img/teamIcon.svg";
 import CAR_ICO from "./img/carNumberIcon.svg";
-import CarInformationService, {CAR_INFO_LISTENER} from "../../services/CarInformationService";
+import RANK_ICO from "./img/rank.png";
+import CarInformationService, {CAR_INFO_LISTENER, CAR_RANK_LISTENER} from "../../services/CarInformationService";
 import TrackComponent from "../track/TrackComponent";
 import LeaderboardAndVideo from "../LeaderboardAndVideo";
 import AnomalyWrapper from "../anomaly/AnomalyWrapper";
+import LapTimesComponent from "../laps/LapTimesComponent";
 
 /**
  * @author Chathura Widanage
@@ -17,7 +19,8 @@ export default class PlayerSelectionComponent extends React.Component {
         super(props);
         this.state = {
             cars: {},
-            selected: 21
+            selected: 21,
+            rankMap: {}
         };
     }
 
@@ -30,6 +33,10 @@ export default class PlayerSelectionComponent extends React.Component {
                 });
             }
         });
+
+        CarInformationService.addEventListener(CAR_RANK_LISTENER, (rankMap) => {
+            this.setState({rankMap: rankMap});
+        })
     }
 
 
@@ -39,14 +46,11 @@ export default class PlayerSelectionComponent extends React.Component {
         }
 
         let options = Object.keys(this.state.cars).map(carNumber => {
-            return <option value={carNumber} key={carNumber}>{carNumber}</option>
+            return <option value={carNumber}
+                           key={carNumber}>{carNumber}</option>
         });
 
-        console.log(this.state.cars);
-
         let selectedCar = this.state.cars[this.state.selected];
-
-        console.log(selectedCar)
 
         return (
             <div>
@@ -92,13 +96,22 @@ export default class PlayerSelectionComponent extends React.Component {
                                     {this.state.selected}
                                 </div>
                             </div>
+                            <div className="player-rank">
+                                <div>
+                                    <img src={RANK_ICO} height={25}/>
+                                </div>
+                                <div className={"player-rank-name"}>
+                                    {selectedCar.rank || <Spinner small={true}/>}
+                                </div>
+                            </div>
                         </NavbarGroup>
                     </Navbar>
                 </div>
 
-                <TrackComponent selectedPlayer={this.state.selected}/>
+                <TrackComponent selectedCarNumberselectedCarNumber={this.state.selected}/>
                 <LeaderboardAndVideo/>
                 <AnomalyWrapper selectedCarNumber={this.state.selected}/>
+                <LapTimesComponent selectedCarNumber={this.state.selected}/>
             </div>
         );
     }

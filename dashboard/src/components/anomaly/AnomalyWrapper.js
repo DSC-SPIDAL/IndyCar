@@ -83,15 +83,15 @@ export default class AnomalyWrapper extends React.Component {
                         {/*        </div>*/}
                         {/*    </label>*/}
                         {/*</div>*/}
-                        <div className="ic-anomaly-label-wrapper">
-                            {
-                                this.state.anomalyLabel
-                                &&
-                                <div className="ic-anomaly-label">
-                                    {this.state.anomalyLabel.label}
-                                </div>
-                            }
-                        </div>
+                        {/*<div className="ic-anomaly-label-wrapper">*/}
+                        {/*    {*/}
+                        {/*        this.state.anomalyLabel*/}
+                        {/*        &&*/}
+                        {/*        <div className="ic-anomaly-label">*/}
+                        {/*            {this.state.anomalyLabel.label}*/}
+                        {/*        </div>*/}
+                        {/*    }*/}
+                        {/*</div>*/}
                     </div>
 
                     <SpeedAnomalyComponent carNumber={this.state.selectedCarNumber}

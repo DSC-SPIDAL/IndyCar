@@ -121,7 +121,7 @@ export default class LeaderboardItem extends React.Component {
                     #{this.props.rank}
                 </div>
                 <div className="leader-board-item-name">
-                    {this.state.carInfo.driverName}
+                    {this.state.carInfo.driverName} [{this.state.carInfo.carNumber}]
                     <span className="leader-board-item-engine">{this.state.carInfo.engine}</span>
                 </div>
                 <div className="leader-board-last-lap">

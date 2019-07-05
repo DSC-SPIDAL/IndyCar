@@ -1,3 +1,13 @@
 .ic-lap-time-wrapper {
   padding: 5px;
+
+  .ic-lap-time-header {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+
+    .ic-lap-time-header-controls {
+      text-align: right;
+      padding-top: 15px;
+    }
+  }
 }

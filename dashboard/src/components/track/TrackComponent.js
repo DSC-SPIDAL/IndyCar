@@ -222,7 +222,7 @@ export default class TrackComponent extends React.Component {
         car.rotate(angle);
     };
 
-    animateCar = (carNumber, carContainer, carNumberTxt, trackOffset, car, newRecord, cb) => {
+    animateCar = (carNumber, carContainer, carNumberTxt, numberOffset, car, newRecord, cb) => {
         //skip the first record
         if (!this.pastRecords[carNumber]) {
             this.pastRecords[carNumber] = newRecord;
@@ -272,17 +272,21 @@ export default class TrackComponent extends React.Component {
                 let p = this.path.pointAt(distance);
                 let xOffset = p.x;
                 let yOffset = p.y;
+                let halfOfBox = numberOffset;
                 let angle;
                 if (distance < twoToOne) {
                     angle = 180;
+                    //xOffset -= halfOfBox;
                 } else if (distance < oneToEight) {
                     angle = 180 - (distance - twoToOne) / scalledTurnArc * 90;
                 } else if (distance < eightToSeven) {
                     angle = 90;
+                    //yOffset -= numberOffset;
                 } else if (distance < sevenToSix) {
                     angle = 90 - (distance - eightToSeven) / scalledTurnArc * 90;
                 } else if (distance < sixToFive) {
                     angle = 0;
+                    //xOffset -= halfOfBox;
                 } else if (distance < fiveToFour) {
                     angle = (distance - sixToFive) / scalledTurnArc * -90;
                 } else if (distance < fourToThree) {
@@ -292,7 +296,7 @@ export default class TrackComponent extends React.Component {
                 }
                 carContainer.center(p.x, p.y);
                 car.rotate(angle);
-                carNumberTxt.center(p.x, p.y);
+                carNumberTxt.center(xOffset, yOffset);
             }).after(() => {
 
             this.pastRecords[carNumber] = newRecord;
@@ -336,12 +340,15 @@ export default class TrackComponent extends React.Component {
 
         let carNumberGroup = this.draw.group();
         carNumberGroup.center(carContainer.cx(), carContainer.cy());
-        carNumberGroup.circle(20 * carScale / 9.230726182704274).attr({
+        let radius = 18 * carScale / 9.230726182704274;
+        carNumberGroup.circle(18 * carScale / 9.230726182704274).attr({
             fill: "white",
             stroke: "#3E3E3E",
             "stroke-width": 1
         }).center(carContainer.cx(), carContainer.cy());
-        carNumberGroup.text(carNumber).center(carContainer.cx(), carContainer.cy());
+        carNumberGroup.text(carNumber).font({size: 14 * carScale / 9.230726182704274}).center(carContainer.cx(), carContainer.cy());
+
+        let numberOffset = (boundingBoxMax - radius) / 2;
 
 
         this.timeReducers[carNumber] = 1;
@@ -361,7 +368,7 @@ export default class TrackComponent extends React.Component {
             }
             if (data) {
                 this.animateCar(carNumber, carContainer, carNumberGroup,
-                    trackOffset * carScale, car, data, animationCallback);
+                    numberOffset, car, data, animationCallback);
             } else {
                 //could be because it has run out of buffer
                 console.log("No records in buffer", carNumber);

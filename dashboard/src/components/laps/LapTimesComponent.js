@@ -1,8 +1,9 @@
 import React from "react";
 import {Line} from "react-chartjs-2";
-import {Card, Colors} from "@blueprintjs/core";
-import CarInformationService, {CAR_LAP_LISTENER} from "../../services/CarInformationService";
+import {Button, Card, Colors} from "@blueprintjs/core";
+import CarInformationService, {CAR_LAP_LISTENER, CAR_RANK_LISTENER} from "../../services/CarInformationService";
 import "./LapTimesComponent.css";
+import {ButtonGroup} from "@blueprintjs/core/lib/cjs";
 
 const goodColors = ["#ef5350", "#EC407A", "#AB47BC",
     "#42A5F5", "#26A69A", "#66BB6A",
@@ -17,6 +18,12 @@ function getRandomColor() {
 }
 
 let colorCache = {};
+
+const DISPLAY_OPTIONS = {
+    ONLY_SELECTED: 0,
+    NEIGHBOURS: 1,
+    ALL: 2
+};
 
 /**
  * to prevent color change on next poll
@@ -39,7 +46,12 @@ export default class LapTimesComponent extends React.Component {
             datasets: [],
             carsList: [],
             carData: {},
-            maxLap: 0
+            maxLap: 0,
+            displayOption: DISPLAY_OPTIONS.NEIGHBOURS,
+            rankMap: {
+                carToRank: {},
+                rankToCar: {}
+            }
         };
 
         this.setStateTimeout = -1;
@@ -63,14 +75,10 @@ export default class LapTimesComponent extends React.Component {
         }
     };
 
-    onCarInformationChanged = () => {
-        let carListObj = CarInformationService.getCarList();
-        if (carListObj) {
-            let carsList = Object.keys(carListObj).map(carNumber => {
-                return carListObj[carNumber];
-            });
-            this.setState({carsList});
-        }
+    onRankMapReceived = (rankMap) => {
+        this.setState({
+            rankMap: rankMap
+        });
     };
 
     componentDidMount() {
@@ -80,48 +88,55 @@ export default class LapTimesComponent extends React.Component {
         });
 
         CarInformationService.addEventListener(CAR_LAP_LISTENER, this.onLapRecordReceived);
+        CarInformationService.addEventListener(CAR_RANK_LISTENER, this.onRankMapReceived);
     }
 
     componentWillUnmount() {
         CarInformationService.removeEventListener(CAR_LAP_LISTENER, this.onLapRecordReceived);
+        CarInformationService.removeEventListener(CAR_RANK_LISTENER, this.onRankMapReceived);
     }
 
-    fetchDataForCar = (carNumber) => {
-        CarInformationService.getCarLapTimes(carNumber).then(response => {
-            this.setState({
-                carData: {
-                    ...this.state.carData,
-                    [carNumber]: response.data
-                }
-            })
+    changeDisplayOption = (displayOption) => {
+        this.setState({
+            displayOption
         });
     };
 
-    onCarDriverSwitchChange = (carNumber, checked) => {
-        if (!checked) {
-            let carData = this.state.carData;
-            delete carData[carNumber];
-            this.setState({
-                carData
-            })
-        } else {
-            this.fetchDataForCar(carNumber);
-        }
-    };
-
     render() {
-        // let carsListSwitch = this.state.carsList.map(car => {
-        //     return <Switch label={car.driverName} key={car.carNumber}
-        //                    onChange={(event) => {
-        //                        this.onCarDriverSwitchChange(car.carNumber, event.target.checked)
-        //                    }}
-        //                    checked={this.state.carData[car.carNumber] !== undefined}/>
-        // });
 
+        let neighbours = {
+            [this.props.selectedCarNumber]: true
+        };
+
+        if (this.state.displayOption === DISPLAY_OPTIONS.NEIGHBOURS) {
+            //find and add neighbours
+            let subjectRank = this.state.rankMap.carToRank[this.props.selectedCarNumber];
+
+            if (!isNaN(subjectRank)) {
+                let lowerRank = Math.max(1, subjectRank - 2);
+
+                let higherRank = Math.min(33, subjectRank + 2);
+
+                if (higherRank - lowerRank < 4) {
+                    let diff = 4 - (higherRank - lowerRank);
+                    if (lowerRank === 1) { //capped in lower rank
+                        higherRank += diff;
+                    } else {
+                        lowerRank -= diff;
+                    }
+                }
+
+                for (let i = lowerRank; i <= higherRank; i++) {
+                    neighbours[parseInt(this.state.rankMap.rankToCar[i])] = true;
+                }
+            }
+        }
 
         //update the chart
         let dataSet = [];
-        Object.keys(this.state.carData).forEach(carNumber => {
+        Object.keys(this.state.carData).filter(carNumber => {
+            return this.state.displayOption === DISPLAY_OPTIONS.ALL || neighbours[carNumber];
+        }).forEach(carNumber => {
             let lapTimes = this.state.carData[carNumber];
             let color = getCarColor(carNumber);
             dataSet.push({
@@ -148,17 +163,35 @@ export default class LapTimesComponent extends React.Component {
         return (
             <div className="ic-section ic-lap-time-wrapper">
                 <Card>
-                    <h5 className="ic-section-title">Lap Times</h5>
-                    {/*<Popover content={<Menu>*/}
-                    {/*{carsListSwitch}*/}
-                    {/*</Menu>} position={Position.RIGHT_TOP}>*/}
-                    {/*<Button icon="share" text="Select Drivers" className="ic-lap-times-driver-selection"/>*/}
-                    {/*</Popover>*/}
+                    <div className="ic-lap-time-header">
+                        <div className="ic-section-title">
+                            Lap Time (s)
+                        </div>
+                        <div className="ic-lap-time-header-controls">
+                            <ButtonGroup>
+                                <Button onClick={(e => {
+                                    this.changeDisplayOption(DISPLAY_OPTIONS.ONLY_SELECTED)
+                                })} active={this.state.displayOption === DISPLAY_OPTIONS.ONLY_SELECTED}>
+                                    Only {this.props.selectedCarNumber}
+                                </Button>
+                                <Button onClick={(e => {
+                                    this.changeDisplayOption(DISPLAY_OPTIONS.NEIGHBOURS)
+                                })} active={this.state.displayOption === DISPLAY_OPTIONS.NEIGHBOURS}>
+                                    Neighbours
+                                </Button>
+                                <Button onClick={(e => {
+                                    this.changeDisplayOption(DISPLAY_OPTIONS.ALL)
+                                })} active={this.state.displayOption === DISPLAY_OPTIONS.ALL}>
+                                    All
+                                </Button>
+                            </ButtonGroup>
+                        </div>
+                    </div>
                     <Line data={{
                         labels: labels,
                         datasets: dataSet,
                     }}
-                          height={window.innerWidth > 800 ? 400 : 200}
+                          height={window.innerWidth > 800 ? 300 : 200}
                           options={{
                               responsive: true,
                               maintainAspectRatio: false,

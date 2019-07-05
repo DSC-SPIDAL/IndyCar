@@ -1,18 +1,14 @@
-import axios from "axios";
-import RestService from "./RestService";
-
 export const CAR_INFO_LISTENER = "CAR_INFO_LISTENER";
 export const CAR_LAP_LISTENER = "CAR_LAP_LISTENER";
 export const CAR_LAP_BULK_LISTENER = "CAR_LAP_BULK_LISTENER";
+export const CAR_RANK_LISTENER = "CAR_RANK_LISTENER";
 
 let eventListeners = {
     [CAR_INFO_LISTENER]: [],
     [CAR_LAP_LISTENER]: [],
-    [CAR_LAP_BULK_LISTENER]: []
+    [CAR_LAP_BULK_LISTENER]: [],
+    [CAR_RANK_LISTENER]: []
 };
-
-let carDistances = {};
-let rankSubscribers = [];
 
 let carInformation = {};
 
@@ -56,6 +52,21 @@ export default class CarInformationService {
         socket.subscribe("lap-record", (lapRecord) => {
             addLapRecord(lapRecord);
         });
+
+        socket.subscribe("ranks", (ranks) => {
+            let rankMap = {
+                rankToCar: {},
+                carToRank: {},
+            };
+            ranks && ranks.forEach((car, i) => {
+                if (car && car.carNumber && carInformation[car.carNumber]) {
+                    carInformation[car.carNumber].rank = i + 1;
+                }
+                rankMap.rankToCar[i + 1] = car.carNumber;
+                rankMap.carToRank[car.carNumber] = i + 1;
+            });
+            this.notifyListeners(CAR_RANK_LISTENER, rankMap);
+        });
     }
 
     static notifyListeners = (listeners, data) => {
@@ -83,7 +94,6 @@ export default class CarInformationService {
     }
 
     static getCarInformation(carNumber) {
-        // return axios.get(RestService.getUrl(`getentryinfo?car_num=${carNumber}`));
         return carInformation[carNumber] || {};
     }
 
@@ -97,27 +107,5 @@ export default class CarInformationService {
 
     static getCarList() {
         return carInformation;
-    }
-
-    static getCarRank(carNumber) {
-        return axios.get(RestService.getUrl(`getoverallrank?car_num=${carNumber}`));
-    }
-
-    static subscribeToRankChanges(cb) {
-        rankSubscribers.push(cb);
-    }
-
-    static reportDistance(carNumber, distance, currentLap) {
-        carDistances[carNumber] = {
-            distance, currentLap, carNumber
-        };
-
-        rankSubscribers.forEach(subs => {
-            subs(carDistances);
-        })
-    }
-
-    static getSectionTiming(carNumber, lapNumber) {
-        return axios.get(RestService.getUrl(`sectiontiminginfo?car_num=${carNumber}&lap_num=${lapNumber}`));
     }
 }
