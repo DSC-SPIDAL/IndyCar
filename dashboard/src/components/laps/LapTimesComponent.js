@@ -226,7 +226,10 @@ export default class LapTimesComponent extends React.Component {
                                           color: "#90A4AE"
                                       },
                                       ticks: {
+                                          beginAtZero: true,
                                           fontColor: "black",
+                                          max: 200,
+                                          stepSize: 1
                                       }
                                   }],
                               }

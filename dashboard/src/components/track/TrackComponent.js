@@ -5,6 +5,8 @@ import CBuffer from "CBuffer";
 import {SocketService} from "../../services/SocketService";
 import LOADER from "./img/buffering.gif";
 import CarSVGs from "./img/CarSVGs";
+import PlayerSelectionComponent from "../player/PlayerSelectionComponent";
+import {PlayerRawDataComponent} from "../player/PlayerRawDataComponent";
 
 
 //GLOBAL CALCULATIONS//
@@ -153,8 +155,8 @@ export default class TrackComponent extends React.Component {
         let key = carPosition.carNumber;
         let carImages = ["R", "G", "B", "Y"];
         if (!this.cars[key]) {
-            // this.cars[key] = this.addCar(`img/cars/car_${('' + key).padStart(2, '0')}.png`, trackOffsets[key % 3], key);
-            this.cars[key] = this.addCar(`img/cars_new/Car${carImages[key % carImages.length]}.png`, trackOffsets[key % 3], key);
+            this.cars[key] = this.addCar(`img/cars/car_${('' + key).padStart(2, '0')}.png`, trackOffsets[key % 3], key);
+            //this.cars[key] = this.addCar(`img/cars_new/Car${carImages[key % carImages.length]}.png`, trackOffsets[key % 3], key);
         }
 
         this.cars[key].push(carPosition);
@@ -222,7 +224,7 @@ export default class TrackComponent extends React.Component {
         car.rotate(angle);
     };
 
-    animateCar = (carNumber, carContainer, carNumberTxt, numberOffset, car, newRecord, cb) => {
+    animateCar = (carNumber, carContainer, carNumberGroup, numberOffset, car, newRecord, cb) => {
         //skip the first record
         if (!this.pastRecords[carNumber]) {
             this.pastRecords[carNumber] = newRecord;
@@ -296,7 +298,7 @@ export default class TrackComponent extends React.Component {
                 }
                 carContainer.center(p.x, p.y);
                 car.rotate(angle);
-                carNumberTxt.center(xOffset, yOffset);
+                //carNumberGroup.center(xOffset, yOffset);
             }).after(() => {
 
             this.pastRecords[carNumber] = newRecord;
@@ -332,23 +334,26 @@ export default class TrackComponent extends React.Component {
         let boundingBoxMax = trackWidth * widthSCale;//Math.sqrt(Math.pow(4.8 * carScale, 2) * 2);
 
         let car = carContainer.image(image).size(4.8 * carScale, 1.8 * carScale);
-        carContainer.rect(boundingBoxMax, boundingBoxMax).fill('transparent').stroke("black");
-        //car.move(boundingBoxMax / 2 - 4.8 * carScale / 2, boundingBoxMax / 2 - trackOffset * carScale / 2);
-        car.center(carContainer.cx(), carContainer.cy());
+        carContainer.rect(boundingBoxMax, boundingBoxMax).fill('transparent');//.stroke("black");
+        car.move(boundingBoxMax / 2 - 4.8 * carScale / 2, boundingBoxMax / 2 - trackOffset * carScale / 2);
+        //car.center(carContainer.cx(), carContainer.cy());
         car.rotate(180);
         car.opacity(0);
 
-        let carNumberGroup = this.draw.group();
-        carNumberGroup.center(carContainer.cx(), carContainer.cy());
-        let radius = 18 * carScale / 9.230726182704274;
-        carNumberGroup.circle(18 * carScale / 9.230726182704274).attr({
-            fill: "white",
-            stroke: "#3E3E3E",
-            "stroke-width": 1
-        }).center(carContainer.cx(), carContainer.cy());
-        carNumberGroup.text(carNumber).font({size: 14 * carScale / 9.230726182704274}).center(carContainer.cx(), carContainer.cy());
+        // let carNumberGroup = this.draw.group();
+        // carNumberGroup.center(carContainer.cx(), carContainer.cy());
+        // let radius = 18 * carScale / 9.230726182704274;
+        // carNumberGroup.circle(18 * carScale / 9.230726182704274).attr({
+        //     fill: "white",
+        //     stroke: "#3E3E3E",
+        //     "stroke-width": 1
+        // }).center(carContainer.cx(), carContainer.cy());
+        //
+        // carNumberGroup.text(carNumber).font({size: 14 * carScale / 9.230726182704274})
+        //     .center(carContainer.cx(), carContainer.cy());
+        // carNumberGroup.opacity(0);
 
-        let numberOffset = (boundingBoxMax - radius) / 2;
+        let numberOffset = 0;// (boundingBoxMax - radius) / 2;
 
 
         this.timeReducers[carNumber] = 1;
@@ -367,13 +372,14 @@ export default class TrackComponent extends React.Component {
                 console.log("Buffer size", frameBuffer.length);
             }
             if (data) {
-                this.animateCar(carNumber, carContainer, carNumberGroup,
+                this.animateCar(carNumber, carContainer, null,
                     numberOffset, car, data, animationCallback);
             } else {
                 //could be because it has run out of buffer
                 console.log("No records in buffer", carNumber);
                 this.bufferingCars++;
                 car.opacity(0.5);
+                //carNumberGroup.opacity(0.5);
                 firstTime = true;
                 excessCount = 0;
                 // this.setState({
@@ -403,6 +409,7 @@ export default class TrackComponent extends React.Component {
                 animationCallback(startingRecord);
                 setTimeout(() => {
                     car.opacity(1);
+                    //carNumberGroup.opacity(1);
                 }, 1000);
                 if (this.state.buffering || this.state.intermediateBuffering) {
                     this.setState({
@@ -425,6 +432,7 @@ export default class TrackComponent extends React.Component {
                 }} className="ic-track-wrapper" style={{visibility: !this.state.buffering ? 'visible' : 'hidden'}}
                      id="drawing">
                 </div>
+                <PlayerRawDataComponent selectedCarNumber={this.props.selectedCarNumber}/>
                 <div className="ic-track-buffering"
                      style={{visibility: this.state.buffering || this.state.intermediateBuffering ? 'visible' : 'hidden'}}>
                     <div>

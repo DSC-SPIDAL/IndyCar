@@ -12,9 +12,9 @@ import {
     Position,
     Tooltip
 } from "@blueprintjs/core";
-import THERMO_IMG from "./img/noun-temperature-1492955.svg";
-import BARO_IMG from "./img/noun-pressure-1928050.svg";
-import HUMIDITY_IMG from "./img/noun-humidity-2500693.svg";
+import THERMO_IMG from "./img/temp.svg";
+import BARO_IMG from "./img/baro.svg";
+import HUMIDITY_IMG from "./img/humidity.svg";
 import WEATHER_IMG from "./img/weather-icon.svg";
 import {SocketService} from "../../services/SocketService";
 import TimeListenerService from "../../services/TimeListenerService";
@@ -115,33 +115,42 @@ export default class HeaderComponent extends React.Component {
                         <div className="weather-information-rect-small weather-information-rect-small-2">
                         </div>
                         <div className="weather-information-rect">
-                            <Popover content={
-                                <Card interactive={true} elevation={Elevation.TWO}>
-                                    <div className="weather-information-rect-content">
-                                        <div className="weather-indicator">
-                                            <img src={THERMO_IMG} alt="thermometer"/>
-                                            <div className="weather-indicator-value">
-                                                <p>{this.state.weather.temperature} &deg; F</p>
-                                                <p className="weather-indicator-value-hint">Temperature</p>
-                                            </div>
-                                        </div>
-                                        <div className="weather-indicator">
-                                            <img src={BARO_IMG} alt="barometer"/>
-                                            <div className="weather-indicator-value">
-                                                <p>{this.state.weather.pressure}</p>
-                                                <p className="weather-indicator-value-hint">Pressure</p>
-                                            </div>
-                                        </div>
-                                        <div className="weather-indicator">
-                                            <img src={HUMIDITY_IMG} alt="humidity"/>
-                                            <div className="weather-indicator-value">
-                                                <p> {this.state.weather.relativeHumidity}%</p>
-                                                <p className="weather-indicator-value-hint">Humidity</p>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </Card>
-                            } position={Position.BOTTOM_RIGHT}>
+                            {/*<Popover content={*/}
+                            {/*    <Card interactive={true} elevation={Elevation.TWO}>*/}
+                            {/*        <div className="weather-information-rect-content">*/}
+                            {/*            <div className="weather-indicator">*/}
+                            {/*                <img src={THERMO_IMG} alt="thermometer"/>*/}
+                            {/*                <div className="weather-indicator-value">*/}
+                            {/*                    <p>{this.state.weather.temperature} &deg; F</p>*/}
+                            {/*                    <p className="weather-indicator-value-hint">Temperature</p>*/}
+                            {/*                </div>*/}
+                            {/*            </div>*/}
+                            {/*            <div className="weather-indicator">*/}
+                            {/*                <img src={BARO_IMG} alt="barometer"/>*/}
+                            {/*                <div className="weather-indicator-value">*/}
+                            {/*                    <p>{this.state.weather.pressure}</p>*/}
+                            {/*                    <p className="weather-indicator-value-hint">Pressure</p>*/}
+                            {/*                </div>*/}
+                            {/*            </div>*/}
+                            {/*            <div className="weather-indicator">*/}
+                            {/*                <img src={HUMIDITY_IMG} alt="humidity"/>*/}
+                            {/*                <div className="weather-indicator-value">*/}
+                            {/*                    <p> {this.state.weather.relativeHumidity}%</p>*/}
+                            {/*                    <p className="weather-indicator-value-hint">Humidity</p>*/}
+                            {/*                </div>*/}
+                            {/*            </div>*/}
+                            {/*        </div>*/}
+                            {/*    </Card>*/}
+                            {/*} position={Position.BOTTOM_RIGHT}>*/}
+                            {/*    <p style={{letterSpacing: 5}}>*/}
+                            {/*        T+ {this.state.timeOfDay}*/}
+                            {/*        <img*/}
+                            {/*            src={WEATHER_IMG}*/}
+                            {/*            height={30}*/}
+                            {/*            style={{paddingLeft: 20}}/>*/}
+                            {/*    </p>*/}
+                            {/*</Popover>*/}
+                            <div className="weather-information-time">
                                 <p style={{letterSpacing: 5}}>
                                     T+ {this.state.timeOfDay}
                                     <img
@@ -149,7 +158,21 @@ export default class HeaderComponent extends React.Component {
                                         height={30}
                                         style={{paddingLeft: 20}}/>
                                 </p>
-                            </Popover>
+                            </div>
+                            <div className="weather-information-indicators">
+                                <div>
+                                    <img src={THERMO_IMG} alt="thermometer"/>
+                                    <p>{this.state.weather.temperature} &deg; F</p>
+                                </div>
+                                <div>
+                                    <img src={BARO_IMG} alt="barometer"/>
+                                    <p>{this.state.weather.pressure}</p>
+                                </div>
+                                <div>
+                                    <img src={HUMIDITY_IMG} alt="humidity"/>
+                                    <p> {this.state.weather.relativeHumidity}%</p>
+                                </div>
+                            </div>
                         </div>
                     </NavbarGroup>
                 </Navbar>

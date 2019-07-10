@@ -69,31 +69,7 @@ export default class AnomalyWrapper extends React.Component {
                 <Card>
                     <h5 className="ic-section-title">Anomaly Scores</h5>
                     <div className="ic-anomaly-header">
-                        {/*<div className="ic-anomaly-selection">*/}
-                        {/*    <label className="pt-label">*/}
-                        {/*        Car*/}
-                        {/*        <div className="pt-select">*/}
-                        {/*            <select onChange={this.onCarChange} value={this.state.selectedCarNumber}>*/}
-                        {/*                {*/}
-                        {/*                    this.state.carNumbers.map(carNum => {*/}
-                        {/*                        return <option value={carNum} key={carNum}>{carNum}</option>*/}
-                        {/*                    })*/}
-                        {/*                }*/}
-                        {/*            </select>*/}
-                        {/*        </div>*/}
-                        {/*    </label>*/}
-                        {/*</div>*/}
-                        {/*<div className="ic-anomaly-label-wrapper">*/}
-                        {/*    {*/}
-                        {/*        this.state.anomalyLabel*/}
-                        {/*        &&*/}
-                        {/*        <div className="ic-anomaly-label">*/}
-                        {/*            {this.state.anomalyLabel.label}*/}
-                        {/*        </div>*/}
-                        {/*    }*/}
-                        {/*</div>*/}
                     </div>
-
                     <SpeedAnomalyComponent carNumber={this.state.selectedCarNumber}
                                            metric={"SPEED"}
                                            rawDataColor="black"

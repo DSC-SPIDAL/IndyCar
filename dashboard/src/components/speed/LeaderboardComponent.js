@@ -3,6 +3,7 @@ import "./LeaderboardComponent.css";
 import CarInformationService, {CAR_INFO_LISTENER} from "../../services/CarInformationService";
 import {SocketService} from "../../services/SocketService";
 import LeaderboardItem from "./LeaderboardItem";
+import {Spinner} from "@blueprintjs/core";
 
 const VIEW_MODE = {
     ALL: 10000,
@@ -82,7 +83,7 @@ export default class LeaderboardComponent extends React.Component {
     render() {
 
 
-        let speedDataComponents = this.state.ranks
+        let leaderBoardItems = this.state.ranks
             .slice(0, this.state.viewMode)
             .map((rankObj, index) => {
                 return <LeaderboardItem carNumber={rankObj.carNumber}
@@ -90,6 +91,8 @@ export default class LeaderboardComponent extends React.Component {
                                         key={rankObj.carNumber}
                                         rank={index + 1}/>
             });
+
+        let stillLoading = leaderBoardItems.length === 0;
 
         return (
             <div className="leader-board-wrapper">
@@ -101,9 +104,13 @@ export default class LeaderboardComponent extends React.Component {
                         Last lap time(s)
                     </div>
                 </div>
-                <div className="leader-board-list">
-                    {speedDataComponents}
-                </div>
+                {stillLoading ?
+                    <Spinner large={true} className="leader-board-loader"/>
+                    :
+                    <div className="leader-board-list">
+                        {leaderBoardItems}
+                    </div>
+                }
             </div>
         );
     }

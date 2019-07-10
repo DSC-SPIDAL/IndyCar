@@ -34,10 +34,38 @@
   color: white;
   font-family: "Teko", sans-serif;
   font-size: 38px;
-  line-height: 100px;
+  //line-height: 100px;
   padding: 0 20px 0 40px;
 
-  cursor: pointer;
+  text-align: center;
+
+  display: grid;
+  grid-template-rows: 1fr 1fr;
+
+  .weather-information-time {
+    margin-top: 10px;
+
+    p {
+      margin: 0;
+      line-height: 50px;
+    }
+  }
+
+  .weather-information-indicators {
+    font-size: 20px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    grid-column-gap: 10px;
+
+    div {
+      display: grid;
+      grid-template-columns: 20px auto;
+
+      img {
+        height: 20px;
+      }
+    }
+  }
 }
 
 .weather-information-rect-small {

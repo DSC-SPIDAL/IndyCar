@@ -4,6 +4,9 @@ import {Bar} from "react-chartjs-2";
 import "chartjs-plugin-datalabels"
 import {SocketService} from "../../services/SocketService";
 import TimeListenerService from "../../services/TimeListenerService";
+import SPEED_ICO from "./img/speedIcon.svg";
+import RPM_ICO from "./img/RPMIcon.svg";
+import GEAR_ICO from "./img/gearIcon.svg";
 
 const METRIC_UPPER_BOUNDS = {
     SPEED: 240,
@@ -125,128 +128,141 @@ export default class SpeedAnomalyComponent extends React.Component {
     render() {
 
         return (
-            <div style={{position: 'relative', height: !(this.props.hideX) ? 265 : 150}}>
-                <Bar data={{
-                    labels: this.state.chartData.labels,
-                    datasets: [{
-                        label: this.props.metric,
-                        yAxisID: "Metric",
-                        data: this.state.chartData.speedData,
-                        fill: false,
-                        borderColor: this.props.rawDataColor,
-                        backgroundColor: this.props.rawDataColor,
-                        borderWidth: 1,
-                        pointRadius: 0,
-                        type: 'line',
-                        datalabels: {
-                            display: false
-                        }
-                    }, {
-                        label: "Anomaly Score",
-                        yAxisID: "Anomaly",
-                        data: this.state.chartData.anomalyData,
-                        fill: true,
-                        backgroundColor: this.state.chartData.anomalyColor,
-                        // datalabels: {
-                        //     display: false
-                        // }
-                        datalabels: {
-                            display: (context) => {
-                                return this.state.chartData.anomalyData[context.dataIndex] >= 0.1
-                            },
-                            formatter: (value, context) => {
-                                return this.state.chartData.anomalyDataRaw[context.dataIndex].toFixed(1);
-                            },
-                            color: 'black',
-                            backgroundColor: 'white',
-                            borderColor: 'black',
-                            font: {
-                                size: 11,
-                                color: 'black'
-                            },
-                            padding: 2,
-                            align: 'end',
-                            offset: 2,
-                            anchor: 'end'
-                        }
-                    }],
-                }} options={{
-                    maintainAspectRatio: false,
-                    animation: {
-                        duration: 0
-                    },
-                    events: [],
-                    elements: {
-                        line: {
-                            tension: 0, // disables bezier curves
-                        }
-                    },
-                    hover: {
-                        animationDuration: 0, // duration of animations when hovering an item
-                    },
-                    responsiveAnimationDuration: 0, // animation duration after a resize,
-                    legend: {
-                        display: false
-                    },
-                    scales: {
-                        xAxes: [{
-                            display: !(this.props.hideX),
-                            ticks: {
-                                display: true,
-                                autoSkip: false,
-                                maxRotation: 90,
-                                minRotation: 90,
-                                fontColor: "black"
-                            },
-                            scaleLabel: {
-                                display: true,
-                                labelString: "Time of Day",
-                                fontColor: 'black'
-                            },
-                            gridLines: {
+            <div>
+                <div style={{position: 'relative', height: !(this.props.hideX) ? 265 : 150}}>
+                    {/*<div style={{*/}
+                    {/*    position: "absolute", textAlign: "center", top: "50%",*/}
+                    {/*    transform: "translateY(-50%)"*/}
+                    {/*}}>*/}
+                    {/*    <div style={{marginBottom: 10}}>*/}
+                    {/*        <img src={GEAR_ICO} width={16}/>*/}
+                    {/*    </div>*/}
+                    {/*    <div style={{transform: "rotate(-90deg)"}}>*/}
+                    {/*        {this.props.metric}*/}
+                    {/*    </div>*/}
+                    {/*</div>*/}
+                    <Bar data={{
+                        labels: this.state.chartData.labels,
+                        datasets: [{
+                            label: this.props.metric,
+                            yAxisID: "Metric",
+                            data: this.state.chartData.speedData,
+                            fill: false,
+                            borderColor: this.props.rawDataColor,
+                            backgroundColor: this.props.rawDataColor,
+                            borderWidth: 1,
+                            pointRadius: 0,
+                            type: 'line',
+                            datalabels: {
                                 display: false
-                            },
-                        }],
-                        yAxes: [{
-                            id: 'Metric',
-                            type: 'linear',
-                            position: 'left',
-                            ticks: {
-                                min: 0,
-                                fontColor: "black",
-                                max: METRIC_UPPER_BOUNDS[this.props.metric]
-                            },
-                            scaleLabel: {
-                                display: true,
-                                labelString: this.props.metric,
-                                fontColor: 'black'
-                            },
-                            afterFit: function (scaleInstance) {
-                                scaleInstance.width = 70; // sets the width to 100px
                             }
                         }, {
-                            id: 'Anomaly',
-                            type: 'linear',
-                            position: 'right',
-                            ticks: {
-                                max: 1,
-                                min: 0,
-                                display: false
-                            },
-                            scaleLabel: {
-                                display: false,
-                                labelString: "Anomaly Score"
-                            },
-                            gridLines: {
-                                display: false
+                            label: "Anomaly Score",
+                            yAxisID: "Anomaly",
+                            data: this.state.chartData.anomalyData,
+                            fill: true,
+                            backgroundColor: this.state.chartData.anomalyColor,
+                            // datalabels: {
+                            //     display: false
+                            // }
+                            datalabels: {
+                                display: (context) => {
+                                    return this.state.chartData.anomalyData[context.dataIndex] >= 0.1
+                                },
+                                formatter: (value, context) => {
+                                    return this.state.chartData.anomalyDataRaw[context.dataIndex].toFixed(1);
+                                },
+                                color: 'black',
+                                backgroundColor: 'white',
+                                borderColor: 'black',
+                                font: {
+                                    size: 11,
+                                    color: 'black'
+                                },
+                                padding: 2,
+                                align: 'end',
+                                offset: 2,
+                                anchor: 'end'
                             }
+                        }],
+                    }} options={{
+                        maintainAspectRatio: false,
+                        animation: {
+                            duration: 0
+                        },
+                        events: [],
+                        elements: {
+                            line: {
+                                tension: 0, // disables bezier curves
+                            }
+                        },
+                        hover: {
+                            animationDuration: 0, // duration of animations when hovering an item
+                        },
+                        responsiveAnimationDuration: 0, // animation duration after a resize,
+                        legend: {
+                            display: false
+                        },
+                        scales: {
+                            xAxes: [{
+                                display: !(this.props.hideX),
+                                ticks: {
+                                    display: true,
+                                    autoSkip: false,
+                                    maxRotation: 90,
+                                    minRotation: 90,
+                                    fontColor: "black"
+                                },
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: "Time of Day",
+                                    fontColor: 'black'
+                                },
+                                gridLines: {
+                                    display: false
+                                },
+                            }],
+                            yAxes: [{
+                                id: 'Metric',
+                                type: 'linear',
+                                position: 'left',
+                                ticks: {
+                                    min: 0,
+                                    fontColor: "black",
+                                    max: METRIC_UPPER_BOUNDS[this.props.metric]
+                                },
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: this.props.metric,
+                                    fontColor: 'black'
+                                },
+                                afterFit: function (scaleInstance) {
+                                    scaleInstance.width = 70; // sets the width to 100px
+                                }
+                            }, {
+                                id: 'Anomaly',
+                                type: 'linear',
+                                position: 'right',
+                                ticks: {
+                                    max: 1,
+                                    min: 0,
+                                    display: false
+                                },
+                                scaleLabel: {
+                                    display: false,
+                                    labelString: "Anomaly Score"
+                                },
+                                gridLines: {
+                                    display: false
+                                }
+                            }
+                            ]
                         }
-                        ]
-                    }
-                }} ref={(ref) => {
-                    this.chart = ref
-                }}/>
+                    }} ref={(ref) => {
+                        this.chart = ref
+                    }}/>
 
+                </div>
             </div>
         )
     }

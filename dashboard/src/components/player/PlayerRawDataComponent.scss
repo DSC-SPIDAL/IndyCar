@@ -1,0 +1,42 @@
+.player-raw-data-wrapper {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  //width: 100%;
+  text-align: center;
+  transform: translateY(-50%) translateX(-50%);
+  font-family: Jura, sans-serif;
+  font-weight: bolder;
+
+  display: grid;
+  grid-template-columns: 100px auto;
+  grid-column-gap: 20px;
+
+  .player-img {
+    img {
+      width: 100px;
+    }
+  }
+
+  .player-raw-data-widget {
+    text-align: left;
+
+    .player-raw-data-metric {
+      display: grid;
+      grid-template-columns: 40px auto;
+      margin-bottom: 10px;
+
+      .player-raw-data-metric-value {
+        font-size: 24px;
+
+        &.metric-value-red {
+          color: #b71c1c;
+        }
+
+        &.metric-value-yellow {
+          color: #F57F17;
+        }
+      }
+    }
+  }
+}

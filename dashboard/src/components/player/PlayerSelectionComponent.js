@@ -108,7 +108,7 @@ export default class PlayerSelectionComponent extends React.Component {
                     </Navbar>
                 </div>
 
-                <TrackComponent selectedCarNumberselectedCarNumber={this.state.selected}/>
+                <TrackComponent selectedCarNumber={this.state.selected}/>
                 <LeaderboardAndVideo/>
                 <AnomalyWrapper selectedCarNumber={this.state.selected}/>
                 <LapTimesComponent selectedCarNumber={this.state.selected}/>
