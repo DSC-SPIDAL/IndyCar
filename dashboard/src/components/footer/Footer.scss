@@ -1,0 +1,25 @@
+.footer {
+  display: grid;
+  grid-template-columns: auto auto;
+  background-color: black;
+  color: white;
+  line-height: 28px;
+  padding: 0 10px 0 10px;
+  font-size: 11px;
+
+  p {
+    margin-bottom: 0;
+  }
+
+  .footer-buttons {
+    text-align: right;
+
+    a {
+      color: white;
+
+      &:last-of-type {
+        margin-left: 10px;
+      }
+    }
+  }
+}

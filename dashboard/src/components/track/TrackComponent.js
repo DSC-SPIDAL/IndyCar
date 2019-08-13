@@ -20,16 +20,18 @@ let turnRadius = turnArc * 4 / (2 * Math.PI);
 
 let widthOffset = 0;
 
-if (window.innerWidth > 1000) {
+let widgetWidth = window.innerWidth / 2;
+
+if (widgetWidth > 1000) {
     widthOffset = 200;
 }
 
 //calculating optimum scale for screen size
-let scale = Math.min((window.innerWidth - widthOffset) / (trackLongLength + (turnRadius * 2)), (window.innerHeight) / (trackShortLength + turnRadius * 2));
+let scale = Math.min((widgetWidth - widthOffset) / (trackLongLength + (turnRadius * 2)), (window.innerHeight) / (trackShortLength + turnRadius * 2));
 let widthSCale = scale * 5;
 
 //calculate the scale with feedback
-scale = Math.min((window.innerWidth - widthOffset - trackWidth * widthSCale * 2) / (trackLongLength + (turnRadius * 2)), (window.innerHeight) / (trackShortLength + turnRadius * 2));
+scale = Math.min((widgetWidth - widthOffset - trackWidth * widthSCale * 2) / (trackLongLength + (turnRadius * 2)), (window.innerHeight) / (trackShortLength + turnRadius * 2));
 let carScale = 15 * scale;
 
 //scaled dimensions
@@ -50,7 +52,7 @@ let shortStraightWay = {
 
 //adding display padding for clarity
 let paddingTop = 0;//100;//(window.innerHeight - shortStraightWay.length - 2 * scaledRadius) / 2;
-let paddingLeft = 0;//(window.innerWidth - longStraightWay.length - 2 * scaledRadius) / 2;
+let paddingLeft = 0;//(widgetWidth - longStraightWay.length - 2 * scaledRadius) / 2;
 
 //------------------------------//
 //          TRACK POINTS        //
@@ -135,6 +137,10 @@ export default class TrackComponent extends React.Component {
     componentWillUnmount() {
         console.log("Track Component Un-mounting...");
         this.socketService.unsubscribe("position", this.positionEventReceiver);
+        Object.values(this.cars).forEach(frameBuffer => {
+            frameBuffer.carContainer.stop();
+        });
+        this.draw.clear();
         this.cars = {};
         this.pastRecords = {};
         this.diffs = {};
@@ -168,7 +174,7 @@ export default class TrackComponent extends React.Component {
 
         /* let outerTrack = draw.rect(longStraightWay.length + (2 * scaledRadius), shortStraightWay.length + (2 * scaledRadius))
              .attr({ fill: 'transparent', stroke: roadTexture, 'stroke-width': 15.2 * widthSCale }).radius(turnRadius * scale);
-         outerTrack.center(window.innerWidth / 2, window.innerHeight / 2);*/
+         outerTrack.center(widgetWidth / 2, window.innerHeight / 2);*/
 
 
 // drawing track (counter-clock direction)
@@ -182,7 +188,7 @@ export default class TrackComponent extends React.Component {
         L${x3} ${y3}
         Q ${xc2} ${yc2} ${x2} ${y2}`)
             .attr({stroke: "#3E3E3E", fill: 'transparent', 'stroke-width': longStraightWay.width})
-            .center(window.innerWidth / 2, (shortStraightWay.length + (2 * scaledRadius) + trackWidth * widthSCale * 2) / 2);
+            .center(widgetWidth / 2, (shortStraightWay.length + (2 * scaledRadius) + trackWidth * widthSCale * 2) / 2);
 
 //start pattern
         let pattern = this.draw.pattern(20, 20, function (add) {
@@ -363,6 +369,7 @@ export default class TrackComponent extends React.Component {
         carContainer.center(initPoint.x, initPoint.y);
 
         let frameBuffer = new CBuffer(this.bufferSize);
+        frameBuffer.carContainer = carContainer;
 
         let firstTime = true;
         let excessCount = 0;
@@ -432,7 +439,7 @@ export default class TrackComponent extends React.Component {
                 }} className="ic-track-wrapper" style={{visibility: !this.state.buffering ? 'visible' : 'hidden'}}
                      id="drawing">
                 </div>
-                <PlayerRawDataComponent selectedCarNumber={this.props.selectedCarNumber}/>
+                {/*<PlayerRawDataComponent selectedCarNumber={this.props.selectedCarNumber}/>*/}
                 <div className="ic-track-buffering"
                      style={{visibility: this.state.buffering || this.state.intermediateBuffering ? 'visible' : 'hidden'}}>
                     <div>

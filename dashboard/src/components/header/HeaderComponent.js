@@ -10,7 +10,7 @@ import {
     NavbarGroup,
     Popover,
     Position,
-    Tooltip
+    Tooltip, ButtonGroup
 } from "@blueprintjs/core";
 import THERMO_IMG from "./img/temp.svg";
 import BARO_IMG from "./img/baro.svg";
@@ -18,6 +18,7 @@ import HUMIDITY_IMG from "./img/humidity.svg";
 import WEATHER_IMG from "./img/weather-icon.svg";
 import {SocketService} from "../../services/SocketService";
 import TimeListenerService from "../../services/TimeListenerService";
+import {Link, HashRouter as Router} from "react-router-dom";
 
 /**
  * @author Chathura Widanage
@@ -96,6 +97,7 @@ export default class HeaderComponent extends React.Component {
     }
 
     render() {
+        console.log(this.props);
         return (
             <div>
                 <Navbar style={{height: '100px', paddingRight: 0}}>
@@ -159,23 +161,70 @@ export default class HeaderComponent extends React.Component {
                                         style={{paddingLeft: 20}}/>
                                 </p>
                             </div>
-                            <div className="weather-information-indicators">
+
+                        </div>
+                    </NavbarGroup>
+                </Navbar>
+                <Navbar style={{height: '100px', backgroundColor: "#181818"}}>
+                    <NavbarGroup className="header" style={{height: '100px'}}>
+                        <div className="weather-information-indicators">
+                            <div className="weather-indicator-title">
+                                <p>Track Conditions</p>
+                            </div>
+                            <div className="weather-indicator">
+                                <img src={THERMO_IMG} alt="thermometer"/>
                                 <div>
-                                    <img src={THERMO_IMG} alt="thermometer"/>
-                                    <p>{this.state.weather.temperature} &deg; F</p>
+                                    <p className="weather-indicator-value">{this.state.weather.temperature} &deg; F</p>
+                                    <p className="weather-indicator-name">Temperature</p>
                                 </div>
+                            </div>
+                            <div className="weather-indicator">
+                                <img src={BARO_IMG} alt="barometer"/>
                                 <div>
-                                    <img src={BARO_IMG} alt="barometer"/>
-                                    <p>{this.state.weather.pressure}</p>
+                                    <p className="weather-indicator-value">{this.state.weather.pressure}</p>
+                                    <p className="weather-indicator-name">Surface</p>
                                 </div>
+                            </div>
+                        </div>
+                    </NavbarGroup>
+                    <NavbarGroup align={Alignment.RIGHT} style={{height: '100px'}}>
+                        <div className="weather-information-indicators">
+                            <div className="weather-indicator-title">
+                                <p>Ambient Conditions</p>
+                            </div>
+                            <div className="weather-indicator">
+                                <img src={THERMO_IMG} alt="thermometer"/>
                                 <div>
-                                    <img src={HUMIDITY_IMG} alt="humidity"/>
-                                    <p> {this.state.weather.relativeHumidity}%</p>
+                                    <p className="weather-indicator-value">{this.state.weather.temperature} &deg; F</p>
+                                    <p className="weather-indicator-name">Temperature</p>
+                                </div>
+                            </div>
+                            <div className="weather-indicator">
+                                <img src={BARO_IMG} alt="barometer"/>
+                                <div>
+                                    <p className="weather-indicator-value">{this.state.weather.pressure}</p>
+                                    <p className="weather-indicator-name">Pressure</p>
+                                </div>
+                            </div>
+                            <div className="weather-indicator">
+                                <img src={HUMIDITY_IMG} alt="humidity"/>
+                                <div>
+                                    <p className="weather-indicator-value"> {this.state.weather.relativeHumidity}%</p>
+                                    <p className="weather-indicator-name">Humidity</p>
                                 </div>
                             </div>
                         </div>
                     </NavbarGroup>
                 </Navbar>
+                <div className="sub-menu">
+                    <ButtonGroup minimal={true} className="sub-menu-buttons">
+                        <Router>
+                            <Link to="/start" className="pt-button">Starting Grid</Link>
+                            <Link to="/overview" className="pt-button">Overview</Link>
+                            <Link to="/focus" className="pt-button">Focus View</Link>
+                        </Router>
+                    </ButtonGroup>
+                </div>
             </div>
         );
     }
