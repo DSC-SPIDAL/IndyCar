@@ -20,7 +20,9 @@ let turnRadius = turnArc * 4 / (2 * Math.PI);
 
 let widthOffset = 0;
 
-let widgetWidth = window.innerWidth / 2;
+let widgetWidth = window.innerWidth - 360;
+
+console.log(widgetWidth);
 
 if (widgetWidth > 1000) {
     widthOffset = 200;

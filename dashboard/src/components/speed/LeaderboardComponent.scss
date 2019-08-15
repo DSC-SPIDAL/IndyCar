@@ -1,9 +1,35 @@
 .leader-board-wrapper {
   position: relative;
+  //height: 600px;
+  //
+  //@media only screen and (max-width: 600px) {
+  //  & {
+  //    height: 400px;
+  //  }
+  //}
 
-  @media only screen and (max-width: 600px) {
-    & {
-      height: 400px;
+  table {
+    width: 100%;
+    background-color: white;
+
+    tr {
+      box-shadow: 0 2px 0px 0 rgba(0, 0, 0, 0.1);
+
+      td {
+        padding: 10px;
+        font-family: Teko, sans-serif;
+        font-size: 24px;
+      }
+    }
+
+    thead {
+      tr {
+        box-shadow: 0 2px 4px 0 rgba(0, 0, 0, 0.2);
+      }
+
+      td {
+        color: gray;
+      }
     }
   }
 
@@ -22,7 +48,7 @@
   }
 
   .leader-board-list {
-    position: absolute;
+    //position: absolute;
     overflow-y: scroll;
     height: calc(100% - 50px);
     width: 100%;

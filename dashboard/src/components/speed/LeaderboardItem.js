@@ -1,5 +1,4 @@
 import React from "react";
-import {Card} from "@blueprintjs/core";
 import "./SpeedDataComponent.css";
 import CarInformationService, {CAR_LAP_LISTENER} from "../../services/CarInformationService";
 import PropTypes from 'prop-types';
@@ -116,18 +115,26 @@ export default class LeaderboardItem extends React.Component {
         let lastLapTime = sortedLaps.length > 0 ? sortedLaps[sortedLaps.length - 1] : "N/A";
 
         return (
-            <div className="leader-board-item">
-                <div className="leader-board-item-rank">
-                    #{this.props.rank}
-                </div>
-                <div className="leader-board-item-name">
-                    {this.state.carInfo.driverName} [{this.state.carInfo.carNumber}]
-                    <span className="leader-board-item-engine">{this.state.carInfo.engine}</span>
-                </div>
-                <div className="leader-board-last-lap">
+            <tr>
+                <td>
+                    [{this.state.carInfo.carNumber}]
+                </td>
+                <td>
+                    {this.state.carInfo.driverName}
+                </td>
+                <td>
+                    {this.props.rank}
+                </td>
+                <td>
+                    -
+                </td>
+                <td>
+                    -
+                </td>
+                <td>
                     {lastLapTime}
-                </div>
-            </div>
+                </td>
+            </tr>
         );
     }
 }

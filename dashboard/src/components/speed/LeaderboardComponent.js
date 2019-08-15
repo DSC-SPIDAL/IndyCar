@@ -96,20 +96,36 @@ export default class LeaderboardComponent extends React.Component {
 
         return (
             <div className="leader-board-wrapper">
-                <div className="leader-board-title">
-                    <div className="leader-board-title-main">
-                        Leaderboard
-                    </div>
-                    <div className="leader-board-title-sub">
-                        Last lap time(s)
-                    </div>
-                </div>
                 {stillLoading ?
                     <Spinner large={true} className="leader-board-loader"/>
                     :
-                    <div className="leader-board-list">
+                    <table>
+                        <thead>
+                        <tr>
+                            <td>
+                                Car No.
+                            </td>
+                            <td>
+                                Driver
+                            </td>
+                            <td>
+                                Current Pos.
+                            </td>
+                            <td>
+                                Predicted Pos.
+                            </td>
+                            <td>
+                                Fastest Lap(s)
+                            </td>
+                            <td>
+                                Last Lap(s)
+                            </td>
+                        </tr>
+                        </thead>
+                        <tbody>
                         {leaderBoardItems}
-                    </div>
+                        </tbody>
+                    </table>
                 }
             </div>
         );
