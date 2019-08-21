@@ -411,7 +411,7 @@ export default class TrackComponent extends React.Component {
 
         frameBuffer.eventAdded = (data) => {
             excessCount++;
-            if (firstTime && excessCount === 3) { // five seconds buffering
+            if (firstTime && excessCount === 1) { // five seconds buffering
                 let startingRecord = frameBuffer.shift();
                 this.diffs[carNumber] = Date.now() - startingRecord.time;
                 firstTime = false;

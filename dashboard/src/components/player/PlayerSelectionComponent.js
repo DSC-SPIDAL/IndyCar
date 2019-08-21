@@ -1,56 +1,36 @@
 import React from "react";
 import "./PlayerSelectionComponent.css";
-import {Navbar, NavbarDivider, NavbarGroup, Alignment, Spinner} from "@blueprintjs/core";
+import {Alignment, Navbar, NavbarDivider, NavbarGroup, Spinner} from "@blueprintjs/core";
 import TEAM_ICO from "./img/teamIcon.svg";
 import CAR_ICO from "./img/carNumberIcon.svg";
 import RANK_ICO from "./img/rank.png";
-import CarInformationService, {CAR_INFO_LISTENER, CAR_RANK_LISTENER} from "../../services/CarInformationService";
-import TrackComponent from "../track/TrackComponent";
-import LeaderboardAndVideo from "../LeaderboardAndVideo";
 import AnomalyWrapper from "../anomaly/AnomalyWrapper";
 import LapTimesComponent from "../laps/LapTimesComponent";
+import {connect} from "react-redux";
 
 /**
  * @author Chathura Widanage
  */
-export default class PlayerSelectionComponent extends React.Component {
+class PlayerSelectionComponent extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            cars: {},
-            selected: 21,
-            rankMap: {}
+            selected: 21
         };
     }
 
-    componentDidMount() {
-        CarInformationService.addEventListener(CAR_INFO_LISTENER, (player) => {
-            let carNumber = parseInt(player.carNumber);
-            if (!isNaN(carNumber)) {
-                this.setState({
-                    cars: {...this.state.cars, [carNumber]: player}
-                });
-            }
-        });
-
-        CarInformationService.addEventListener(CAR_RANK_LISTENER, (rankMap) => {
-            this.setState({rankMap: rankMap});
-        })
-    }
-
-
     render() {
-        if (!this.state.cars[this.state.selected]) {
+        if (!this.props.players[this.state.selected]) {
             return null;
         }
 
-        let options = Object.keys(this.state.cars).map(carNumber => {
-            return <option value={carNumber}
-                           key={carNumber}>{carNumber}</option>
+        let options = Object.values(this.props.players).map(player => {
+            return <option value={player.carNumber}
+                           key={player.carNumber}>{player.carNumber}</option>
         });
 
-        let selectedCar = this.state.cars[this.state.selected];
+        let selectedCar = this.props.players[this.state.selected];
 
         return (
             <div>
@@ -108,8 +88,8 @@ export default class PlayerSelectionComponent extends React.Component {
                     </Navbar>
                 </div>
 
-                <TrackComponent selectedCarNumber={this.state.selected}/>
-                <LeaderboardAndVideo/>
+                {/*<TrackComponent selectedCarNumber={this.state.selected}/>*/}
+                {/*<LeaderboardAndVideo/>*/}
                 <AnomalyWrapper selectedCarNumber={this.state.selected}/>
                 <LapTimesComponent selectedCarNumber={this.state.selected}/>
             </div>
@@ -122,3 +102,13 @@ export default class PlayerSelectionComponent extends React.Component {
         })
     }
 }
+
+const playerSelection = connect(state => {
+    let players = {};
+    if (state.PlayerInfo.players) {
+        players = state.PlayerInfo.players;
+    }
+    return {players}
+})(PlayerSelectionComponent);
+
+export default playerSelection;

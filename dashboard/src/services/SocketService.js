@@ -5,7 +5,7 @@ export class SocketService {
 
     static instance;
 
-    constructor(host, port) {
+    constructor(host, port, store) {
         if (SocketService.instance) {
             return SocketService.instance;
         }
@@ -14,6 +14,7 @@ export class SocketService {
 
         this.host = host;
         this.port = port;
+        this.store = store;
         this.socket = undefined;
     }
 
@@ -39,7 +40,7 @@ export class SocketService {
             this.socket.on('ping', () => {
                 this.send('pongi');
             });
-            CarInformationService.init(this);
+            CarInformationService.init(this, this.store);
             cb();
         });
     };

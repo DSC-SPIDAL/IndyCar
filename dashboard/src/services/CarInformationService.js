@@ -1,3 +1,9 @@
+import {
+    ACTION_PLAYER_INFO_RECEIVED,
+    ACTION_PLAYER_LAP_RECORD_RECEIVED,
+    ACTION_PLAYER_RANK_RECEIVED
+} from "../reducers/PlayerInfoReducer";
+
 export const CAR_INFO_LISTENER = "CAR_INFO_LISTENER";
 export const CAR_LAP_LISTENER = "CAR_LAP_LISTENER";
 export const CAR_LAP_BULK_LISTENER = "CAR_LAP_BULK_LISTENER";
@@ -10,6 +16,14 @@ let eventListeners = {
     [CAR_RANK_LISTENER]: []
 };
 
+let cache = {
+    [CAR_INFO_LISTENER]: {},
+    [CAR_RANK_LISTENER]: {
+        rankToCar: {},
+        carToRank: {},
+    }
+};
+
 let carInformation = {};
 
 let carLapRecords = {};
@@ -19,11 +33,17 @@ let carLapRecords = {};
  */
 export default class CarInformationService {
 
-    static init(socket) {
+    static init(socket, store) {
         //Car entries
         let addEntry = (entry) => {
             carInformation[entry.carNumber] = entry;
             this.notifyListeners(CAR_INFO_LISTENER, entry);
+
+            store.dispatch({
+                type: ACTION_PLAYER_INFO_RECEIVED,
+                carNumber: entry.carNumber,
+                player: entry
+            })
         };
         socket.subscribe("entry", (entry) => {
             addEntry(entry);
@@ -42,6 +62,12 @@ export default class CarInformationService {
             }
             carLapRecords[lapRecord.carNumber].push(lapRecord);
             this.notifyListeners(CAR_LAP_LISTENER, lapRecord);
+
+            store.dispatch({
+                type: ACTION_PLAYER_LAP_RECORD_RECEIVED,
+                carNumber: lapRecord.carNumber,
+                lapRecord: lapRecord
+            });
         };
         socket.subscribe("lap-records", (lapRecords) => {
             Object.keys(lapRecords).forEach(carNum => {
@@ -66,6 +92,12 @@ export default class CarInformationService {
                 rankMap.carToRank[car.carNumber] = i + 1;
             });
             this.notifyListeners(CAR_RANK_LISTENER, rankMap);
+            cache[CAR_RANK_LISTENER] = rankMap;
+
+            store.dispatch({
+                type: ACTION_PLAYER_RANK_RECEIVED,
+                ranks: rankMap
+            });
         });
     }
 
@@ -76,6 +108,11 @@ export default class CarInformationService {
     };
 
     static addEventListener(listener, func) {
+        if (listener === CAR_INFO_LISTENER) {
+            return carInformation;
+        } else if (listener === CAR_RANK_LISTENER) {
+            return cache[CAR_RANK_LISTENER];
+        }
         eventListeners[listener].push(func);
     }
 

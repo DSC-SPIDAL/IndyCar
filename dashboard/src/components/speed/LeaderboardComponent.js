@@ -1,9 +1,8 @@
 import React from "react";
 import "./LeaderboardComponent.css";
-import CarInformationService, {CAR_INFO_LISTENER} from "../../services/CarInformationService";
-import {SocketService} from "../../services/SocketService";
 import LeaderboardItem from "./LeaderboardItem";
 import {Spinner} from "@blueprintjs/core";
+import {connect} from "react-redux";
 
 const VIEW_MODE = {
     ALL: 10000,
@@ -14,85 +13,25 @@ const VIEW_MODE = {
 /**
  * @author Chathura Widanage
  */
-export default class LeaderboardComponent extends React.Component {
+class LeaderboardComponent extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            carDistances: [],
-            carsList: {},
-            ranks: [],
             viewMode: VIEW_MODE.ALL
         };
-        this.socket = new SocketService();
     }
-
-    componentWillUnmount() {
-        this.socket.unsubscribe("ranks", this.onRankUpdate)
-    }
-
-
-    onRankUpdate = (rankUpdate) => {
-        this.setState({
-            ranks: rankUpdate
-        });
-    };
-
-    componentDidMount() {
-        CarInformationService.addEventListener(CAR_INFO_LISTENER, (info) => {
-            let carsList = this.state.carsList;
-            if (!carsList[info.carNumber]) {
-                carsList[info.carNumber] = info;
-                this.setState({
-                    carsList
-                });
-            }
-        });
-
-        let carsList = CarInformationService.getCarList();
-        this.setState({
-            carsList
-        });
-
-        this.socket.subscribe("ranks", this.onRankUpdate);
-    }
-
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
-        let oldRanks = this.state.ranks;
-        let newRanks = nextState.ranks;
-
-        if (oldRanks.length !== newRanks.length || this.state.viewMode !== nextState.viewMode) {
-            return true;
-        } else {
-            for (let i = 0; i < oldRanks.length; i++) {
-                if (oldRanks[i].carNumber !== newRanks[i].carNumber) {
-                    return true;
-                }
-            }
-        }
-        return false;
-    }
-
-    changeViewMode = (viewMode) => {
-        console.log("Changing view mode", viewMode);
-        this.setState({
-            viewMode: viewMode
-        })
-    };
 
     render() {
-
-
-        let leaderBoardItems = this.state.ranks
+        let leaderBoardItems = this.props.ranks
             .slice(0, this.state.viewMode)
-            .map((rankObj, index) => {
-                return <LeaderboardItem carNumber={rankObj.carNumber}
-                                        carData={rankObj}
-                                        key={rankObj.carNumber}
+            .map((carNumber, index) => {
+                return <LeaderboardItem carNumber={carNumber}
+                                        key={carNumber}
                                         rank={index + 1}/>
             });
 
-        let stillLoading = leaderBoardItems.length === 0;
+        let stillLoading = this.props.ranks.length === 0;
 
         return (
             <div className="leader-board-wrapper">
@@ -131,3 +70,15 @@ export default class LeaderboardComponent extends React.Component {
         );
     }
 }
+
+const LeaderBoard = connect(state => {
+    let ranks = [];
+    if (state.PlayerInfo && state.PlayerInfo.ranks) {
+        ranks = Object.values(state.PlayerInfo.ranks.rankToCar);
+    }
+    return {
+        ranks: ranks
+    }
+})(LeaderboardComponent);
+
+export default LeaderBoard;

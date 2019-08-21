@@ -1,6 +1,11 @@
 .player-selection-wrapper {
   height: 100px;
 
+  .pt-navbar {
+    background-color: black;
+    color: white;
+  }
+
   .player-selection-car-label {
     font-family: Roboto, sans-serif;
     font-size: 18px;

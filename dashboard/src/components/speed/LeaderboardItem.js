@@ -1,126 +1,50 @@
 import React from "react";
 import "./SpeedDataComponent.css";
-import CarInformationService, {CAR_LAP_LISTENER} from "../../services/CarInformationService";
 import PropTypes from 'prop-types';
 import "./LeaderboardItem.css";
+import {connect} from "react-redux";
 
 /**
  * @author Chathura Widanage
  */
-export default class LeaderboardItem extends React.Component {
+class LeaderboardItem extends React.Component {
 
     constructor(props) {
         super(props);
         this.state = {
-            x: [],
-            carInfo: {},
-            lapRecords: {},
-            driverImage: `url(img/drivers/no.jpg)`
+            driverName: "",
+            lastLapTime: 0
         };
-
-        // for (let i = 0; i < 18; i++) {
-        //     this.state.x.push(Math.floor(Math.random() * 250))
-        // }
     }
 
-    updateCarInformation = (props = this.props) => {
-        //get car information
-        let carInfo = CarInformationService.getCarInformation(props.carNumber);
+    static getDerivedStateFromProps(nextProps, prevState) {
+        let driverName = prevState.driverName;
+        let lastLapTime = prevState.lastLapTime;
 
-        let rawImgUrl = `img/drivers/${carInfo.carNumber}.jpg`;
-        let imageUrl = `url(img/drivers/no.jpg)`;
-
-        this.imageExists(rawImgUrl, (exists) => {
-            if (exists) {
-                imageUrl = `url(img/drivers/${carInfo.carNumber}.jpg)`;
-            }
-            this.setState({
-                carInfo,
-                driverImage: imageUrl
-            });
-        });
-    };
-
-    onLapRecordReceived = (lapRecord) => {
-        if (lapRecord.carNumber === this.props.carNumber) {
-            let lapRecords = this.state.lapRecords;
-            if (!lapRecords[lapRecord.completedLaps]) {
-                lapRecords[lapRecord.completedLaps] = lapRecord.time;
-                this.setState({
-                    lapRecords
-                });
-            }
+        if (nextProps.players[nextProps.carNumber]) {
+            driverName = nextProps.players[nextProps.carNumber].driverName;
+            console.log("DN", driverName);
         }
-    };
 
-    componentDidMount() {
-        this.updateCarInformation();
-
-
-        let lapTimes = CarInformationService.getLapTimes();
-        Object.values(lapTimes).forEach(records => {
-            records.forEach(this.onLapRecordReceived);
-        });
-
-
-        CarInformationService.addEventListener(CAR_LAP_LISTENER, this.onLapRecordReceived);
-    }
-
-    componentWillUnmount() {
-        CarInformationService.removeEventListener(CAR_LAP_LISTENER, this.onLapRecordReceived);
-    }
-
-
-    componentWillReceiveProps(nextProps) {
-        if (nextProps.carNumber !== this.props.carNumber) {
-            this.updateCarInformation(nextProps);
+        if (nextProps.lastLaps[nextProps.carNumber]) {
+            lastLapTime = nextProps.lastLaps[nextProps.carNumber].time;
         }
+
+        return {
+            driverName, lastLapTime
+        };
     }
-
-    imageExists = (image_url, cb) => {
-        let xhr = new XMLHttpRequest();
-
-        xhr.open('HEAD', image_url, true);
-        xhr.onload = function (e) {
-            cb(xhr.status !== 404)
-        };
-        xhr.onerror = function (e) {
-            cb(false)
-        };
-
-        xhr.send();
-    };
 
     render() {
 
-        let lapRecs = Object.keys(this.state.lapRecords).map(key => {
-            return {lap: key, time: this.state.lapRecords[key]}
-        });
-
-        let sortedLapNumbers = [];
-        let sortedLaps = lapRecs.sort((a, b) => {
-            let lapA = parseInt(a.lap, 10);
-            let lapB = parseInt(b.lap, 10);
-            if (lapA < lapB) {
-                return -1;
-            } else if (lapA > lapB) {
-                return 1;
-            }
-            return 0;
-        }).map(lapR => {
-            sortedLapNumbers.push(lapR.lap);
-            return lapR.time;
-        });
-
-        let lastLapTime = sortedLaps.length > 0 ? sortedLaps[sortedLaps.length - 1] : "N/A";
 
         return (
             <tr>
                 <td>
-                    [{this.state.carInfo.carNumber}]
+                    [{this.props.carNumber}]
                 </td>
                 <td>
-                    {this.state.carInfo.driverName}
+                    {this.state.driverName}
                 </td>
                 <td>
                     {this.props.rank}
@@ -132,7 +56,7 @@ export default class LeaderboardItem extends React.Component {
                     -
                 </td>
                 <td>
-                    {lastLapTime}
+                    {this.state.lastLapTime}
                 </td>
             </tr>
         );
@@ -142,3 +66,12 @@ export default class LeaderboardItem extends React.Component {
 LeaderboardItem.propTypes = {
     carNumber: PropTypes.oneOfType([PropTypes.string, PropTypes.number])
 };
+
+const LBItem = connect(state => {
+    return {
+        players: state.PlayerInfo.players || {},
+        lastLaps: state.PlayerInfo.lastLaps
+    }
+})(LeaderboardItem);
+
+export default LBItem;
