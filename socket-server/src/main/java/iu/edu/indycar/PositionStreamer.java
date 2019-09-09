@@ -3,6 +3,7 @@ package iu.edu.indycar;
 import iu.edu.indycar.models.AnomalyLabel;
 import iu.edu.indycar.models.CarPositionRecord;
 import iu.edu.indycar.mqtt.MQTTClient;
+import iu.edu.indycar.prediction.RankPrediction;
 import iu.edu.indycar.streamer.RecordStreamer;
 import iu.edu.indycar.streamer.StreamEndListener;
 import iu.edu.indycar.streamer.TimeUtils;
@@ -35,6 +36,7 @@ public class PositionStreamer {
 
     private final MQTTClient mqttClient;
     private final StreamEndListener streamEndlistener;
+    private RankPrediction rankPrediction;
 
     private RecordWriter recordWriter;
 
@@ -48,7 +50,8 @@ public class PositionStreamer {
 
     public PositionStreamer(ServerBoot serverBoot,
                             MQTTClient mqttClient,
-                            StreamEndListener streamEndListener) {
+                            StreamEndListener streamEndListener,
+                            RankPrediction rankPrediction) {
         this.serverBoot = serverBoot;
         this.mqttClient = mqttClient;
 
@@ -56,6 +59,7 @@ public class PositionStreamer {
             this.stop();
             streamEndListener.onStreamEnd();
         };
+        this.rankPrediction = rankPrediction;
 
         try {
             this.recordWriter = new RecordWriter("/tmp/records_in_" + resets++);
@@ -194,6 +198,7 @@ public class PositionStreamer {
 
         recordStreamer.setCompleteLapRecordRecordListener(completeLapRecord -> {
             try {
+                this.rankPrediction.predictRank(completeLapRecord);
                 this.serverBoot.publishCompletedLapRecord(completeLapRecord);
             } catch (InterruptedException e) {
                 LOG.warn("Error in submitting lap record", e);

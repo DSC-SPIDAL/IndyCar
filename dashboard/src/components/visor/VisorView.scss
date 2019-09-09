@@ -1,0 +1,77 @@
+.visor-view-wrapper {
+  padding: 15px;
+  position: relative;
+
+  .best-time-widget {
+    position: absolute;
+    right: 15px;
+    top: 40px;
+    width: 300px;
+    background-color: white;
+    border: solid 1px #d8d8d8;
+  }
+
+  .lap-history-widget {
+    position: absolute;
+    right: 15px;
+    width: 300px;
+    background-color: white;
+    border: solid 1px #d8d8d8;
+    bottom: 40px;
+    height: calc(100% - 200px);
+  }
+
+  .visor-view-row {
+    padding: 15px;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    line-height: 24px;
+
+    div {
+      &:nth-child(2) {
+        text-align: right;
+        font-family: "Teko", sans-serif;
+        font-size: 24px;
+      }
+    }
+
+    &:not(:last-of-type) {
+      border-bottom: solid 1px #d8d8d8;
+    }
+  }
+
+
+  .car-image {
+    position: relative;
+    width: calc(100% - 250px);
+
+    .positions-wrapper {
+      position: absolute;
+      height: 40px;
+      bottom: 0;
+      font-family: "Teko", sans-serif;
+      font-size: 24px;
+      display: grid;
+      width: 100%;
+      grid-template-columns: 1fr 1fr;
+      line-height: 40px;
+
+      span {
+        padding-left: 20px;
+        color: white;
+      }
+
+      .current-position {
+        background: black;
+        padding-left: 10px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+
+      .predicted-position {
+        background: #d81f29;
+        padding-left: 10px;
+        color: rgba(255, 255, 255, 0.6);
+      }
+    }
+  }
+}

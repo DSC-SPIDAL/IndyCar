@@ -1,12 +1,12 @@
 import React from "react";
-import AnomalySubscriber from "../../subscribers/AnomalySubscriber";
 import {Bar} from "react-chartjs-2";
 import "chartjs-plugin-datalabels"
-import {SocketService} from "../../services/SocketService";
-import TimeListenerService from "../../services/TimeListenerService";
 import SPEED_ICO from "./img/speedIcon.svg";
 import RPM_ICO from "./img/RPMIcon.svg";
 import GEAR_ICO from "./img/gearIcon.svg";
+import Gauage from "../../util/gauage/Gauage";
+import "./SpeedAnomalyComponent.css";
+import {connect} from "react-redux";
 
 const METRIC_UPPER_BOUNDS = {
     SPEED: 240,
@@ -14,166 +14,64 @@ const METRIC_UPPER_BOUNDS = {
     THROTTLE: 115
 };
 
-export default class SpeedAnomalyComponent extends React.Component {
+class SpeedAnomalyComponent extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            chartData: {
-                speedData: [],
-                anomalyData: [],
-                anomalyDataRaw: [],
-                anomalyColor: [],
-                labels: [],
-                anomalyLabels: [],
-            },
-            windowSize: Math.min(50, 50 * window.innerWidth / 1200),
-            currentAnomalyLabel: {
-                id: undefined,
-                count: 0
-            }
-        };
-
-        this.anamolySubscriber = new AnomalySubscriber();
-
-        this.chart = undefined;
-
-        this.chartLastUpdated = -1;
-
-        this.socket = new SocketService();
-
-        this.timeService = TimeListenerService;
     }
 
-    onReceiveChartData = (data) => {
-        let anomalyObject = data.anomalies[this.props.metric];
-        let chartData = this.state.chartData;
-
-        let speedData = chartData.speedData;
-        speedData.push(anomalyObject.rawData);
-        // speedData.length > this.state.windowSize && speedData.splice(0, speedData.length - this.state.windowSize);
-
-        let anomalyData = chartData.anomalyData;
-        let anomalyDataRaw = chartData.anomalyDataRaw;
-        anomalyDataRaw.push(anomalyObject.anomaly);
-
-        //colors
-        let anomalyColor = chartData.anomalyColor;
-        if (anomalyObject.anomaly > 0.5) {
-            anomalyColor.push("#d81f29");
-            anomalyData.push(0.2);
-        } else if (anomalyObject.anomaly > 0.3) {
-            anomalyColor.push("#f3b153");
-            anomalyData.push(0.1);
-        } else {
-            anomalyColor.push("#8fe588");
-            anomalyData.push(0.05);
-        }
-        //anomalyData.length > this.state.windowSize && anomalyData.splice(0, anomalyData.length - this.state.windowSize);
-        //anomalyColor.length > this.state.windowSize && anomalyColor.splice(0, anomalyColor.length - this.state.windowSize);
-
-
-        /*let anomalyLabels = chartData.anomalyLabels;
-
-        if (data.anomalyLabel && this.state.currentAnomalyLabel.id !== data.anomalyLabel.uuid) {
-            this.state.currentAnomalyLabel.id = data.anomalyLabel.uuid;
-            this.state.currentAnomalyLabel.count = 0;
-        }
-
-        if (data.anomalyLabel) {
-            this.state.currentAnomalyLabel.count++;
-        } else {
-            this.state.currentAnomalyLabel.id = undefined;
-            this.state.currentAnomalyLabel.count = -1;
-        }
-
-        if (this.state.currentAnomalyLabel.count % 5 === 0) {
-            anomalyLabels.push(data.anomalyLabel);
-        } else {
-            anomalyLabels.push(undefined);
-        }
-        anomalyLabels.length > this.state.windowSize && anomalyLabels.splice(0, anomalyLabels.length - this.state.windowSize);*/
-
-        let labels = chartData.labels;
-        labels.push(data.timeOfDayString);
-        this.timeService.notifyListeners(data.timeOfDayString);
-        //labels.length > this.state.windowSize && labels.splice(0, labels.length - this.state.windowSize);
-
-        if (this.chart && this.chart.chartInstance && (Date.now() - this.chartLastUpdated) > 100) {
-            //resize to window
-            speedData.length > this.state.windowSize && speedData.splice(0, speedData.length - this.state.windowSize);
-            anomalyData.length > this.state.windowSize && anomalyData.splice(0, anomalyData.length - this.state.windowSize);
-            anomalyDataRaw.length > this.state.windowSize && anomalyDataRaw.splice(0, anomalyDataRaw.length - this.state.windowSize);
-            anomalyColor.length > this.state.windowSize && anomalyColor.splice(0, anomalyColor.length - this.state.windowSize);
-            labels.length > this.state.windowSize && labels.splice(0, labels.length - this.state.windowSize);
-
-            this.chart.chartInstance.update();
-            this.chartLastUpdated = Date.now();
+    getIcon = () => {
+        switch (this.props.metric) {
+            case "SPEED":
+                return SPEED_ICO;
+            case "RPM":
+                return RPM_ICO;
+            case "THROTTLE":
+                return GEAR_ICO;
         }
     };
 
-    componentDidMount() {
-        console.log("Sending Join room Request");
-        this.socket.subscribe("anomaly_" + this.props.carNumber, this.onReceiveChartData);
-    }
-
-    componentWillUnmount() {
-        this.socket.unsubscribe("anomaly_" + this.props.carNumber, this.onReceiveChartData);
-    }
-
-    shouldComponentUpdate(nextProps, nextState, nextContext) {
-        return false;
-    }
-
     render() {
-
         return (
-            <div>
+            <div className="anomaly-widgets-wrapper">
+                <div className="raw-gauge-wrapper">
+                    <div className="raw-gauge-header">
+                        <div>
+                            <img src={this.getIcon()}/>
+                        </div>
+                        <div>
+                            <div className="raw-gauge-header-value">
+                                {this.props.anomalyData[this.props.metric].last}
+                            </div>
+                            <div className="raw-gauge-header-name">
+                                {this.props.metric}
+                            </div>
+                        </div>
+                    </div>
+                    <div className="raw-gauge-body">
+                        <Gauage maxValue={METRIC_UPPER_BOUNDS[this.props.metric]}
+                                value={this.props.anomalyData[this.props.metric].last}/>
+                    </div>
+                </div>
                 <div style={{position: 'relative', height: !(this.props.hideX) ? 265 : 150}}>
-                    {/*<div style={{*/}
-                    {/*    position: "absolute", textAlign: "center", top: "50%",*/}
-                    {/*    transform: "translateY(-50%)"*/}
-                    {/*}}>*/}
-                    {/*    <div style={{marginBottom: 10}}>*/}
-                    {/*        <img src={GEAR_ICO} width={16}/>*/}
-                    {/*    </div>*/}
-                    {/*    <div style={{transform: "rotate(-90deg)"}}>*/}
-                    {/*        {this.props.metric}*/}
-                    {/*    </div>*/}
-                    {/*</div>*/}
                     <Bar data={{
-                        labels: this.state.chartData.labels,
+                        labels: this.props.anomalyData.TIME,
                         datasets: [{
-                            label: this.props.metric,
-                            yAxisID: "Metric",
-                            data: this.state.chartData.speedData,
-                            fill: false,
-                            borderColor: this.props.rawDataColor,
-                            backgroundColor: this.props.rawDataColor,
-                            borderWidth: 1,
-                            pointRadius: 0,
-                            type: 'line',
-                            datalabels: {
-                                display: false
-                            }
-                        }, {
                             label: "Anomaly Score",
                             yAxisID: "Anomaly",
-                            data: this.state.chartData.anomalyData,
+                            data: this.props.anomalyData[this.props.metric].score,
                             fill: true,
-                            backgroundColor: this.state.chartData.anomalyColor,
-                            // datalabels: {
-                            //     display: false
-                            // }
+                            backgroundColor: this.props.anomalyData[this.props.metric].color,
                             datalabels: {
-                                display: (context) => {
-                                    return this.state.chartData.anomalyData[context.dataIndex] >= 0.1
-                                },
+                                display: false,
+                                // display: false,(context) => {
+                                //     return this.state.chartData.anomalyData[context.dataIndex] >= 0.1
+                                // },
                                 formatter: (value, context) => {
-                                    return this.state.chartData.anomalyDataRaw[context.dataIndex].toFixed(1);
+                                    return this.props.anomalyData[this.props.metric].raw[context.dataIndex].toFixed(1);
                                 },
                                 color: 'black',
-                                backgroundColor: 'white',
+                                backgroundColor: 'rgba(255,255,255,0.5)',
                                 borderColor: 'black',
                                 font: {
                                     size: 11,
@@ -183,6 +81,19 @@ export default class SpeedAnomalyComponent extends React.Component {
                                 align: 'end',
                                 offset: 2,
                                 anchor: 'end'
+                            }
+                        }, {
+                            label: this.props.metric,
+                            yAxisID: "Metric",
+                            data: this.props.anomalyData[this.props.metric].raw,
+                            fill: true,
+                            borderColor: "rgb(20,66,214)",
+                            backgroundColor: "rgba(53, 75, 178, 0.56)",
+                            borderWidth: 1,
+                            pointRadius: 0,
+                            type: 'line',
+                            datalabels: {
+                                display: false
                             }
                         }],
                     }} options={{
@@ -205,16 +116,16 @@ export default class SpeedAnomalyComponent extends React.Component {
                         },
                         scales: {
                             xAxes: [{
-                                display: !(this.props.hideX),
+                                display: true,//!(this.props.hideX),
                                 ticks: {
-                                    display: true,
-                                    autoSkip: false,
-                                    maxRotation: 90,
-                                    minRotation: 90,
+                                    display: false,
+                                    //autoSkip: false,
+                                    //maxRotation: 90,
+                                    //minRotation: 90,
                                     fontColor: "black"
                                 },
                                 scaleLabel: {
-                                    display: true,
+                                    display: false,
                                     labelString: "Time of Day",
                                     fontColor: 'black'
                                 },
@@ -232,7 +143,7 @@ export default class SpeedAnomalyComponent extends React.Component {
                                     max: METRIC_UPPER_BOUNDS[this.props.metric]
                                 },
                                 scaleLabel: {
-                                    display: true,
+                                    display: false,
                                     labelString: this.props.metric,
                                     fontColor: 'black'
                                 },
@@ -267,3 +178,12 @@ export default class SpeedAnomalyComponent extends React.Component {
         )
     }
 }
+
+const speedAnomalyCom = connect(state => {
+    return {
+        ...state.AnomalyInfo,
+        index: state.AnomalyInfo.anomalyData.index
+    };
+})(SpeedAnomalyComponent);
+
+export default speedAnomalyCom;

@@ -1,0 +1,41 @@
+.anomaly-widgets-wrapper {
+  display: grid;
+  grid-template-columns: 200px auto;
+  margin-top: 10px;
+
+  .gauge-canvas {
+    width: 150px;
+    height: 75px;
+  }
+
+  .raw-gauge-wrapper {
+    border: 1px solid black;
+    border-radius: 5px;
+
+    .raw-gauge-body {
+      text-align: center;
+    }
+
+    .raw-gauge-header {
+      background: black;
+      color: white;
+      display: grid;
+      grid-template-columns: 40px auto;
+      padding: 5px;
+      border-top-left-radius: 5px;
+      border-top-right-radius: 5px;
+      text-align: center;
+
+      img {
+        padding-top: 13px;
+        height: 40px;
+      }
+
+      .raw-gauge-header-value {
+        font-family: "Teko", sans-serif;
+        font-size: 36px;
+        height: 36px;
+      }
+    }
+  }
+}

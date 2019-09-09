@@ -97,7 +97,6 @@ export default class HeaderComponent extends React.Component {
     }
 
     render() {
-        console.log(this.props);
         return (
             <div>
                 <Navbar style={{height: '100px', paddingRight: 0}}>
@@ -219,7 +218,7 @@ export default class HeaderComponent extends React.Component {
                 <div className="sub-menu">
                     <ButtonGroup minimal={true} className="sub-menu-buttons">
                         <Router>
-                            <Link to="/start" className="pt-button">Starting Grid</Link>
+                            {/*<Link to="/start" className="pt-button">Starting Grid</Link>*/}
                             <Link to="/overview" className="pt-button">Overview</Link>
                             <Link to="/focus" className="pt-button">Focus View</Link>
                         </Router>

@@ -8,6 +8,115 @@ public class CompleteLapRecord implements IndycarRecord {
     private long time;
     private long elapsedTime;
 
+    private long fastestLapTime;
+    private int fastestLap;
+    private long timeBehindLeader;
+    private int lapsBehindLeader;
+    private long timeBehindPrec;
+    private int lapsBehindPrec;
+    private long overallBestLapTime;
+    private int pitStopsCount;
+    private int lastPittedLap;
+    private int startPosition;
+    private int lapsLed;
+    private int overallRank;
+
+    public int getOverallRank() {
+        return overallRank;
+    }
+
+    public void setOverallRank(int overallRank) {
+        this.overallRank = overallRank;
+    }
+
+    public long getOverallBestLapTime() {
+        return overallBestLapTime;
+    }
+
+    public void setOverallBestLapTime(long overallBestLapTime) {
+        this.overallBestLapTime = overallBestLapTime;
+    }
+
+    public int getFastestLap() {
+        return fastestLap;
+    }
+
+    public void setFastestLap(int fastestLap) {
+        this.fastestLap = fastestLap;
+    }
+
+    public long getFastestLapTime() {
+        return fastestLapTime;
+    }
+
+    public void setFastestLapTime(long fastestLapTime) {
+        this.fastestLapTime = fastestLapTime;
+    }
+
+    public long getTimeBehindLeader() {
+        return timeBehindLeader;
+    }
+
+    public void setTimeBehindLeader(long timeBehindLeader) {
+        this.timeBehindLeader = timeBehindLeader;
+    }
+
+    public int getLapsBehindLeader() {
+        return lapsBehindLeader;
+    }
+
+    public void setLapsBehindLeader(int lapsBehindLeader) {
+        this.lapsBehindLeader = lapsBehindLeader;
+    }
+
+    public long getTimeBehindPrec() {
+        return timeBehindPrec;
+    }
+
+    public void setTimeBehindPrec(long timeBehindPrec) {
+        this.timeBehindPrec = timeBehindPrec;
+    }
+
+    public int getLapsBehindPrec() {
+        return lapsBehindPrec;
+    }
+
+    public void setLapsBehindPrec(int lapsBehindPrec) {
+        this.lapsBehindPrec = lapsBehindPrec;
+    }
+
+    public int getPitStopsCount() {
+        return pitStopsCount;
+    }
+
+    public void setPitStopsCount(int pitStopsCount) {
+        this.pitStopsCount = pitStopsCount;
+    }
+
+    public int getLastPittedLap() {
+        return lastPittedLap;
+    }
+
+    public void setLastPittedLap(int lastPittedLap) {
+        this.lastPittedLap = lastPittedLap;
+    }
+
+    public int getStartPosition() {
+        return startPosition;
+    }
+
+    public void setStartPosition(int startPosition) {
+        this.startPosition = startPosition;
+    }
+
+    public int getLapsLed() {
+        return lapsLed;
+    }
+
+    public void setLapsLed(int lapsLed) {
+        this.lapsLed = lapsLed;
+    }
+
     public int getRank() {
         return rank;
     }

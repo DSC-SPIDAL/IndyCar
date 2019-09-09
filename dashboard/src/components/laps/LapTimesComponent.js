@@ -4,6 +4,7 @@ import {Button, Card, Colors} from "@blueprintjs/core";
 import CarInformationService, {CAR_LAP_LISTENER, CAR_RANK_LISTENER} from "../../services/CarInformationService";
 import "./LapTimesComponent.css";
 import {ButtonGroup} from "@blueprintjs/core/lib/cjs";
+import {connect} from "react-redux";
 
 const goodColors = ["#ef5350", "#EC407A", "#AB47BC",
     "#42A5F5", "#26A69A", "#66BB6A",
@@ -36,8 +37,7 @@ function getCarColor(car) {
     return colorCache[car];
 }
 
-
-export default class LapTimesComponent extends React.Component {
+class LapTimesComponent extends React.Component {
 
     constructor(props) {
         super(props);
@@ -239,3 +239,11 @@ export default class LapTimesComponent extends React.Component {
         );
     }
 }
+
+const lapTimesComp = connect(state => {
+    return {
+        selectedCarNumber: state.AnomalyInfo.focusedPlayer
+    }
+})(LapTimesComponent);
+
+export default lapTimesComp;

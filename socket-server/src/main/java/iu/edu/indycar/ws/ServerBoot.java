@@ -171,6 +171,10 @@ public class ServerBoot {
         ).enqueue(completeLapRecord);
     }
 
+    public void publishRankPredictions(HashMap<String,Integer> predictions){
+        server.getBroadcastOperations().sendEvent("rank-prediction",predictions);
+    }
+
     public void sendReloadEvent() {
         this.server.getBroadcastOperations().sendEvent("reload");
     }

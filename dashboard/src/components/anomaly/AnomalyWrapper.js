@@ -3,92 +3,86 @@ import SpeedAnomalyComponent from "./SpeedAnomalyComponent";
 import {Card} from "@blueprintjs/core";
 import "./AnomalyWrapper.css";
 import {SocketService} from "../../services/SocketService";
+import {connect} from "react-redux";
+import {ACTION_ANOMALY_DATA_RECEIVED, ACTION_CLEAR_ANOMALY_DATA} from "../../reducers/AnomalyReducer";
 
-export default class AnomalyWrapper extends React.Component {
+class AnomalyWrapper extends React.Component {
 
     constructor(props) {
         super(props);
-        this.state = {
-            carNumbers: [
-                20, 21, 13, 98, 19, 6, 33, 24, 26, 7, 60, 27, 17, 15, 10,
-                64, 25, 59, 32, 28, 4, 3, 18, 22, 12, 1, 9, 14, 23, 30, 29, 88, 66
-            ].sort(function (a, b) {
-                return a - b
-            }),
-            selectedCarNumber: 21,
-            anomalyLabel: undefined
-        };
         this.socket = new SocketService();
     }
 
-    onReceiveChartData = (data) => {
-        if (data.anomalyLabel &&
-            (!this.state.anomalyLabel || this.state.anomalyLabel.uuid !== data.anomalyLabel.uuid)) {
-            this.setState({
-                anomalyLabel: data.anomalyLabel
+    subscribeToPlayer = (newPlayer, oldPlayer) => {
+        if (oldPlayer) {
+            this.socket.send("EVENT_UNSUB", {
+                roomName: "anomaly_" + oldPlayer
             });
+            this.socket.unsubscribe("anomaly_" + oldPlayer, this.onReceiveAnomalyData);
         }
 
-        if (!data.anomalyLabel && this.state.anomalyLabel) {
-            this.setState({
-                anomalyLabel: undefined
-            });
-        }
+        this.socket.send("EVENT_SUB", {
+            roomName: "anomaly_" + newPlayer
+        });
+        this.socket.subscribe("anomaly_" + newPlayer, this.onReceiveAnomalyData);
     };
 
-    subscribe = () => {
-        this.socket.send("EVENT_SUB", {
-            roomName: "anomaly_" + this.state.selectedCarNumber
-        });
-        this.socket.subscribe("anomaly_" + this.state.selectedCarNumber, this.onReceiveChartData);
+    onReceiveAnomalyData = (anomalyData) => {
+        this.props.dispatch({
+            type: ACTION_ANOMALY_DATA_RECEIVED,
+            data: anomalyData
+        })
     };
 
     componentDidMount() {
-        this.subscribe();
+        this.subscribeToPlayer(this.props.focusedPlayer);
+        this.socket.subscribe("anomaly_" + this.props.focusedPlayer, this.onReceiveAnomalyData);
     }
 
     componentWillReceiveProps(nextProps, nextContext) {
-        if (nextProps.selectedCarNumber !== this.state.selectedCarNumber) {
-            this.onCarChange(nextProps.selectedCarNumber);
+        console.log(this.props, nextProps);
+        if (nextProps.focusedPlayer !== this.props.focusedPlayer) {
+            console.log("Changing subscription");
+            this.subscribeToPlayer(nextProps.focusedPlayer, this.props.focusedPlayer);
         }
     }
 
-    onCarChange = (newSelection) => {
-        this.socket.send("EVENT_UNSUB", {
-            roomName: "anomaly_" + this.state.selectedCarNumber
+    componentWillUnmount() {
+        this.props.dispatch({
+            type: ACTION_CLEAR_ANOMALY_DATA
         });
-        this.socket.unsubscribe("anomaly_" + this.state.selectedCarNumber, this.onReceiveChartData);
-        this.setState({
-            selectedCarNumber: newSelection
-        }, this.subscribe);
-    };
+        this.socket.unsubscribe("anomaly_" + this.props.focusedPlayer, this.onReceiveAnomalyData);
+    }
 
     render() {
         return (
             <div className="ic-section ic-anomaly-wrapper">
-                <Card>
-                    <h5 className="ic-section-title">Anomaly Scores</h5>
-                    <div className="ic-anomaly-header">
-                    </div>
-                    <SpeedAnomalyComponent carNumber={this.state.selectedCarNumber}
-                                           metric={"SPEED"}
-                                           rawDataColor="black"
-                        // rawDataColor="#1565C0"
-                                           hideX={true}
-                                           key={this.state.selectedCarNumber + "SPEED"}/>
-                    <SpeedAnomalyComponent carNumber={this.state.selectedCarNumber}
-                                           metric={"RPM"}
-                                           hideX={true}
-                                           rawDataColor="black"
-                        // rawDataColor="#2E7D32"
-                                           key={this.state.selectedCarNumber + "RPM"}/>
-                    <SpeedAnomalyComponent carNumber={this.state.selectedCarNumber}
-                                           metric={"THROTTLE"}
-                                           rawDataColor="black"
-                        // rawDataColor="#673AB7"
-                                           key={this.state.selectedCarNumber + "THROTTLE"}/>
-                </Card>
+                <SpeedAnomalyComponent carNumber={this.props.focusedPlayer}
+                                       metric={"SPEED"}
+                                       rawDataColor="black"
+                    // rawDataColor="#1565C0"
+                                       hideX={true}
+                                       key={this.props.focusedPlayer + "SPEED"}/>
+                <SpeedAnomalyComponent carNumber={this.props.focusedPlayer}
+                                       metric={"RPM"}
+                                       hideX={true}
+                                       rawDataColor="black"
+                    // rawDataColor="#2E7D32"
+                                       key={this.props.focusedPlayer + "RPM"}/>
+                <SpeedAnomalyComponent carNumber={this.props.focusedPlayer}
+                                       metric={"THROTTLE"}
+                                       rawDataColor="black"
+                    // rawDataColor="#673AB7"
+                                       key={this.props.focusedPlayer + "THROTTLE"}/>
             </div>
         );
     }
 }
+
+const anomalyWrapper = connect(state => {
+    return {
+        focusedPlayer: state.AnomalyInfo.focusedPlayer
+    }
+})(AnomalyWrapper);
+
+export default anomalyWrapper;

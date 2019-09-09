@@ -1,6 +1,7 @@
 package iu.edu.indycar;
 
 import iu.edu.indycar.mqtt.MQTTClient;
+import iu.edu.indycar.prediction.RankPrediction;
 import iu.edu.indycar.streamer.StreamEndListener;
 import iu.edu.indycar.tmp.*;
 import iu.edu.indycar.ws.ServerBoot;
@@ -22,6 +23,7 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
     private MQTTClient mqttClient;
     private TelemetryListener telemetryListener;
     private PositionStreamer positionStreamer;
+    private RankPrediction rankPrediction;
 
     private Timer timer = new Timer();
 
@@ -31,6 +33,7 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
         this.logFilePath = logFilePath;
         this.serverBoot = new ServerBoot("0.0.0.0", ServerConstants.WS_PORT);
         this.mqttClient = new MQTTClient(this);
+        this.rankPrediction = new RankPrediction(this.serverBoot);
     }
 
     private void startNewStreamingSession() {
@@ -42,7 +45,8 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
         this.positionStreamer = new PositionStreamer(
                 serverBoot,
                 mqttClient,
-                this
+                this,
+                this.rankPrediction
         );
 
         this.positionStreamer.start(this.logFilePath);
@@ -127,6 +131,7 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
 
         this.positionStreamer.stop();
         this.telemetryListener.close();
+        this.rankPrediction.clear();
 
         AnomalyLabelsBank.reset();
 

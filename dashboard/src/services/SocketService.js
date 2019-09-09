@@ -24,7 +24,10 @@ export class SocketService {
             reconnectionDelay: 1000,
             reconnectionDelayMax: 5000,
             reconnectionAttempts: 99999,
-            transports: ['websocket']
+            transports: ['websocket', 'flashsocket'
+                , 'htmlfile'
+                , 'xhr-polling'
+                , 'jsonp-polling']
         });
 
         this.socket.on('connect', () => {

@@ -54,7 +54,7 @@ public class StreamerTest {
 
 
         recordStreamer.setCompleteLapRecordRecordListener(cr -> {
-
+            System.out.println(cr.getCarNumber()+","+cr.getCompletedLaps());
         });
 
         recordStreamer.addRecordAcceptPolicy(CompleteLapRecord.class, new AbstractRecordAcceptPolicy<CompleteLapRecord>() {

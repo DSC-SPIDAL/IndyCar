@@ -68,4 +68,7 @@ public class ServerConstants {
     public static final String DEBUG_TOPIC = "debug_topic_2";
 
     public static final int WS_PORT = DEBUG_MODE ? 61521 : 5000;
+
+    public static final String RANK_PRED_REST = "http://r-001:8501/v1/models/rank:predict";
+    public static final int RANK_PRED_RECORDS_PER_REQ = 5;
 }

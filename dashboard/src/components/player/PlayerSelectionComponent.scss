@@ -1,85 +1,93 @@
 .player-selection-wrapper {
-  height: 100px;
+  background-color: black;
+  color: white;
+  padding: 15px;
 
-  .pt-navbar {
-    background-color: black;
-    color: white;
-  }
+  display: grid;
+  grid-template-rows: 40px auto;
+  grid-row-gap: 10px;
 
-  .player-selection-car-label {
-    font-family: Roboto, sans-serif;
-    font-size: 18px;
-    margin-right: 10px;
+  .player-selection {
+    display: grid;
+    grid-template-columns: 120px auto;
+
+    .player-selection-car-label {
+      font-family: Roboto, sans-serif;
+      font-size: 18px;
+      margin-right: 10px;
+    }
   }
 
   .player-information {
-    .player-image {
-      height: 80px;
-      width: 80px;
-      border: 1px solid red;
-      border-radius: 10px;
-      background-size: cover;
-      background-position: center;
-      background-repeat: no-repeat;
+    display: grid;
+    grid-template-columns: auto auto;
+
+    h4 {
+      color: white;
+      font-family: "Teko", sans-serif;
+      font-size: 24px;
+      font-weight: 300;
+
+      &::after {
+        border-bottom: 2px solid red;
+        bottom: 0;
+        content: '';
+        display: block;
+        height: 1px;
+        width: 50px;
+      }
     }
 
-    .player-name-and-engine {
-      margin-left: 20px;
+    .driver-info {
+      .driver-info-content {
+        display: grid;
+        grid-template-columns: 160px auto;
+        grid-column-gap: 20px;
+      }
+
+      .player-image {
+        height: 160px;
+        width: 160px;
+        border: 1px solid red;
+        border-radius: 10px;
+        background-size: cover;
+        background-position: center;
+        background-repeat: no-repeat;
+      }
 
       .player-name {
         font-family: Teko, sans-serif;
         font-size: 36px;
+        margin-bottom: 10px;
       }
 
-      .player-engine {
-        font-family: Roboto, sans-serif;
-        font-size: 18px;
-      }
-    }
+      .player-team {
+        display: grid;
+        grid-template-columns: 45px auto;
+        grid-column-gap: 10px;
+        margin-bottom: 10px;
 
-    .player-team {
-      margin-left: 40px;
-      display: grid;
-      grid-template-columns: auto auto;
-      grid-column-gap: 10px;
-
-      .player-team-name {
-        font-family: Roboto, sans-serif;
-        font-size: 18px;
-      }
-    }
-
-    .player-car {
-      margin-left: 40px;
-      display: grid;
-      grid-template-columns: auto auto;
-      grid-column-gap: 10px;
-
-      img {
-        margin-top: 4px;
+        .player-team-name {
+          font-family: Roboto, sans-serif;
+          font-size: 18px;
+        }
       }
 
-      .player-car-name {
-        font-family: Roboto, sans-serif;
-        font-size: 18px;
-      }
-    }
+      .player-car {
+        display: grid;
+        grid-template-columns: 45px auto;
+        grid-column-gap: 10px;
 
-    .player-rank {
-      margin-left: 40px;
-      display: grid;
-      grid-template-columns: auto auto;
-      grid-column-gap: 10px;
+        img {
+          margin-top: 4px;
+        }
 
-      img {
-        margin-top: 4px;
-      }
-
-      .player-rank-name {
-        font-family: Roboto, sans-serif;
-        font-size: 18px;
-        padding-top: 5px;
+        .player-car-name {
+          font-family: Roboto, sans-serif;
+          font-size: 18px;
+        }
       }
     }
   }
+
 }
