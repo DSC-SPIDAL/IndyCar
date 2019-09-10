@@ -1,29 +1,18 @@
 import React from "react";
 import "./HeaderComponent.css";
-import {
-    Alignment,
-    Button,
-    Card,
-    Navbar,
-    Elevation,
-    NavbarDivider,
-    NavbarGroup,
-    Popover,
-    Position,
-    Tooltip, ButtonGroup
-} from "@blueprintjs/core";
+import {Alignment, ButtonGroup, Navbar, NavbarGroup} from "@blueprintjs/core";
 import THERMO_IMG from "./img/temp.svg";
 import BARO_IMG from "./img/baro.svg";
 import HUMIDITY_IMG from "./img/humidity.svg";
 import WEATHER_IMG from "./img/weather-icon.svg";
 import {SocketService} from "../../services/SocketService";
-import TimeListenerService from "../../services/TimeListenerService";
-import {Link, HashRouter as Router} from "react-router-dom";
+import {HashRouter as Router, Link} from "react-router-dom";
+import {connect} from "react-redux";
 
 /**
  * @author Chathura Widanage
  */
-export default class HeaderComponent extends React.Component {
+class HeaderComponent extends React.Component {
 
     constructor(props) {
         super(props);
@@ -72,25 +61,7 @@ export default class HeaderComponent extends React.Component {
         // });
 
         this.socketService.subscribe("weather", this.onWeatherRecord);
-        this.timeService = TimeListenerService;
-        this.timeService.addListener((time) => {
-            this.updateTime(time);
-        });
     }
-
-    updateTime = (time) => {
-        if (Date.now() - this.lastUpdatedTime > 60000) {
-            try {
-                let t = time.split(".")[0];
-                this.setState({
-                    timeOfDay: t
-                });
-                this.lastUpdatedTime = Date.now();
-            } catch (e) {
-                console.error("Error in updating time");
-            }
-        }
-    };
 
     componentWillUnmount() {
         this.socketService.unsubscribe("weather", this.onWeatherRecord);
@@ -116,48 +87,9 @@ export default class HeaderComponent extends React.Component {
                         <div className="weather-information-rect-small weather-information-rect-small-2">
                         </div>
                         <div className="weather-information-rect">
-                            {/*<Popover content={*/}
-                            {/*    <Card interactive={true} elevation={Elevation.TWO}>*/}
-                            {/*        <div className="weather-information-rect-content">*/}
-                            {/*            <div className="weather-indicator">*/}
-                            {/*                <img src={THERMO_IMG} alt="thermometer"/>*/}
-                            {/*                <div className="weather-indicator-value">*/}
-                            {/*                    <p>{this.state.weather.temperature} &deg; F</p>*/}
-                            {/*                    <p className="weather-indicator-value-hint">Temperature</p>*/}
-                            {/*                </div>*/}
-                            {/*            </div>*/}
-                            {/*            <div className="weather-indicator">*/}
-                            {/*                <img src={BARO_IMG} alt="barometer"/>*/}
-                            {/*                <div className="weather-indicator-value">*/}
-                            {/*                    <p>{this.state.weather.pressure}</p>*/}
-                            {/*                    <p className="weather-indicator-value-hint">Pressure</p>*/}
-                            {/*                </div>*/}
-                            {/*            </div>*/}
-                            {/*            <div className="weather-indicator">*/}
-                            {/*                <img src={HUMIDITY_IMG} alt="humidity"/>*/}
-                            {/*                <div className="weather-indicator-value">*/}
-                            {/*                    <p> {this.state.weather.relativeHumidity}%</p>*/}
-                            {/*                    <p className="weather-indicator-value-hint">Humidity</p>*/}
-                            {/*                </div>*/}
-                            {/*            </div>*/}
-                            {/*        </div>*/}
-                            {/*    </Card>*/}
-                            {/*} position={Position.BOTTOM_RIGHT}>*/}
-                            {/*    <p style={{letterSpacing: 5}}>*/}
-                            {/*        T+ {this.state.timeOfDay}*/}
-                            {/*        <img*/}
-                            {/*            src={WEATHER_IMG}*/}
-                            {/*            height={30}*/}
-                            {/*            style={{paddingLeft: 20}}/>*/}
-                            {/*    </p>*/}
-                            {/*</Popover>*/}
                             <div className="weather-information-time">
                                 <p style={{letterSpacing: 5}}>
-                                    T+ {this.state.timeOfDay}
-                                    <img
-                                        src={WEATHER_IMG}
-                                        height={30}
-                                        style={{paddingLeft: 20}}/>
+                                    T+ <span>{this.props.time}</span>
                                 </p>
                             </div>
 
@@ -219,7 +151,7 @@ export default class HeaderComponent extends React.Component {
                     <ButtonGroup minimal={true} className="sub-menu-buttons">
                         <Router>
                             {/*<Link to="/start" className="pt-button">Starting Grid</Link>*/}
-                            <Link to="/overview" className="pt-button">Overview</Link>
+                            <Link to="/" className="pt-button">Overview</Link>
                             <Link to="/focus" className="pt-button">Focus View</Link>
                         </Router>
                     </ButtonGroup>
@@ -228,3 +160,9 @@ export default class HeaderComponent extends React.Component {
         );
     }
 }
+
+export default connect(state => {
+    return {
+        time: state.RaceInfo.time
+    }
+})(HeaderComponent)

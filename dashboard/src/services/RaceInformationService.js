@@ -1,15 +1,16 @@
-import RestService from "./RestService";
-import axios from "axios";
-
 /**
  * @author Chathura Widanage
  */
-class RaceInformationService {
+import {TIME_ACTION} from "../reducers/RaceReducer";
 
-    getRaceInformation() {
-        return axios.get(RestService.getUrl("raceinfo"));
+export default class RaceInformationService {
+
+    static init(socket, store) {
+        socket.subscribe("time", time => {
+            store.dispatch({
+                type: TIME_ACTION,
+                time
+            })
+        });
     }
 }
-
-const raceInfoService = new RaceInformationService();
-export default raceInfoService;

@@ -22,7 +22,7 @@ public class PredictionOfCar implements Comparable<PredictionOfCar> {
     if (compareLaps != 0) {
       return compareLaps * -1;
     } else {
-      return Float.compare(this.predictedTime, o.predictedTime) * -1;
+      return Float.compare(this.predictedTime, o.predictedTime);
     }
   }
 }

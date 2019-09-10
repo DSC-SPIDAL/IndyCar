@@ -1,5 +1,6 @@
 export const ACTION_PLAYER_INFO_RECEIVED = "ACTION_PLAYER_INFO_RECEIVED";
 export const ACTION_PLAYER_RANK_RECEIVED = "ACTION_PLAYER_RANK_RECEIVED";
+export const ACTION_PLAYER_RANK_PREDICTIONS_RECEIVED = "ACTION_PLAYER_RANK_PREDICTIONS_RECEIVED";
 export const ACTION_PLAYER_LAP_RECORD_RECEIVED = "ACTION_PLAYER_LAP_RECORD_RECEIVED";
 
 
@@ -10,6 +11,9 @@ export const PlayerInfo = (state = [], action) => {
             break;
         case ACTION_PLAYER_RANK_RECEIVED:
             state.ranks = action.ranks;
+            break;
+        case ACTION_PLAYER_RANK_PREDICTIONS_RECEIVED:
+            state.rankPredictions = action.rankPredictions;
             break;
         case ACTION_PLAYER_LAP_RECORD_RECEIVED:
             if (!state.laps) {
@@ -37,6 +41,7 @@ export const PlayerInfo = (state = [], action) => {
             if (lastLap.lap < action.lapRecord.completedLaps) {
                 lastLap.lap = action.lapRecord.completedLaps;
                 lastLap.time = action.lapRecord.time;
+                lastLap.fastestLapTime = Math.floor(action.lapRecord.fastestLapTime / 1000);
             }
             break;
     }

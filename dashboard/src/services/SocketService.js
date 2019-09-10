@@ -1,5 +1,6 @@
 import openSocket from "socket.io-client";
 import CarInformationService from "./CarInformationService";
+import RaceInformationService from "./RaceInformationService"
 
 export class SocketService {
 
@@ -44,6 +45,7 @@ export class SocketService {
                 this.send('pongi');
             });
             CarInformationService.init(this, this.store);
+            RaceInformationService.init(this, this.store);
             cb();
         });
     };

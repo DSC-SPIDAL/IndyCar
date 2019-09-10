@@ -198,8 +198,11 @@ public class PositionStreamer {
 
         recordStreamer.setCompleteLapRecordRecordListener(completeLapRecord -> {
             try {
-                this.rankPrediction.predictRank(completeLapRecord);
-                this.serverBoot.publishCompletedLapRecord(completeLapRecord);
+                boolean accepted = this.rankPrediction.predictRank(completeLapRecord);
+                //if this is a repeated log, ignore
+                if(accepted) {
+                    this.serverBoot.publishCompletedLapRecord(completeLapRecord);
+                }
             } catch (InterruptedException e) {
                 LOG.warn("Error in submitting lap record", e);
             }

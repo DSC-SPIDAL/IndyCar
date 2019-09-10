@@ -53,7 +53,7 @@ class SpeedAnomalyComponent extends React.Component {
                                 value={this.props.anomalyData[this.props.metric].last}/>
                     </div>
                 </div>
-                <div style={{position: 'relative', height: !(this.props.hideX) ? 265 : 150}}>
+                <div style={{position: 'relative', height: 150}}>
                     <Bar data={{
                         labels: this.props.anomalyData.TIME,
                         datasets: [{

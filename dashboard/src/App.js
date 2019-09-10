@@ -22,7 +22,7 @@ class App extends Component {
                 {/*<LapTimesComponent/>*/}
                 <Router>
                     <Route path="/focus" component={FocusViewComponent}/>
-                    <Route path="/overview" component={OverviewComponent}/>
+                    <Route exact path="/" component={OverviewComponent}/>
                     <Route path="/start" component={StartComponent}/>
                 </Router>
                 <Footer/>

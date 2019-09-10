@@ -6,6 +6,7 @@ import iu.edu.indycar.streamer.records.CompleteLapRecord;
 import iu.edu.indycar.ws.ServerBoot;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.glassfish.jersey.jackson.JacksonFeature;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
@@ -20,18 +21,23 @@ public class RankPrediction {
 
   private final HashMap<String, LinkedList<CompleteLapRecord>> records = new HashMap<>();
   private final HashMap<String, Integer> lastLap = new HashMap<>();
+
+  private final RankResult rankResult = new RankResult();
+
   private Client client = ClientBuilder.newClient();
   private ServerBoot serverBoot;
 
   public RankPrediction(ServerBoot serverBoot) {
     this.serverBoot = serverBoot;
+    this.client.register(JacksonFeature.class);
   }
 
-  public synchronized void predictRank(CompleteLapRecord completeLapRecord) {
+  public synchronized boolean predictRank(CompleteLapRecord completeLapRecord) {
     // process only if this is not a duplicate record
-    if (lastLap.getOrDefault(completeLapRecord.getCarNumber(), -1)
-            >= completeLapRecord.getCompletedLaps()) {
-      return;
+    if (completeLapRecord.getCarNumber().equals("") ||
+            lastLap.getOrDefault(completeLapRecord.getCarNumber(), -1)
+                    > completeLapRecord.getCompletedLaps()) {
+      return false;
     }
 
     LinkedList<CompleteLapRecord> completeLapRecords = records.computeIfAbsent(
@@ -43,8 +49,8 @@ public class RankPrediction {
       completeLapRecords.pop();
     }
 
-    List<LinkedList<CompleteLapRecord>> carsWithFivePlus = new ArrayList<>();
-    List<String> carsWithFivePlusRef = new ArrayList<>();
+    final List<LinkedList<CompleteLapRecord>> carsWithFivePlus = new ArrayList<>();
+    final List<String> carsWithFivePlusRef = new ArrayList<>();
 
     records.forEach((k, v) -> {
       if (v.size() == ServerConstants.RANK_PRED_RECORDS_PER_REQ) {
@@ -62,7 +68,7 @@ public class RankPrediction {
                         new RankPredictionRequest(carsWithFivePlus), MediaType.APPLICATION_JSON_TYPE),
                         RankPredictionResponse.class);
 
-        List<PredictionOfCar> toSort = new ArrayList<>();
+        final List<PredictionOfCar> toSort = new ArrayList<>();
         for (int i = 0; i < carsWithFivePlusRef.size(); i++) {
           String carNumber = carsWithFivePlusRef.get(i);
           float predictedTime = post.getPredictions().get(i);
@@ -70,25 +76,27 @@ public class RankPrediction {
           toSort.add(new PredictionOfCar(carNumber, completedLaps, predictedTime));
         }
         Collections.sort(toSort);
-        HashMap<String, Integer> predictedPositions = new HashMap<>();
         int rank = 1;
         for (PredictionOfCar predictionOfCar : toSort) {
-          predictedPositions.put(predictionOfCar.getCarNumber(), rank++);
-        }
-        if (this.serverBoot != null) {
-          this.serverBoot.publishRankPredictions(predictedPositions);
+          this.rankResult.publishPrediction(predictionOfCar.getCarNumber(), rank++);
         }
       }
     } catch (Exception ex) {
       LOG.error("Error in rank prediction", ex);
     }
 
-    lastLap.put(completeLapRecord.getCarNumber(), completeLapRecord.getCompletedLaps());
+    this.rankResult.publishRank(completeLapRecord.getCarNumber(), completeLapRecord.getOverallRank());
+    this.lastLap.put(completeLapRecord.getCarNumber(), completeLapRecord.getCompletedLaps());
+    if (this.rankResult.isHasChanges()) {
+      this.serverBoot.publishRankData(this.rankResult);
+    }
+    return true;
   }
 
   public void clear() {
     this.records.clear();
     this.lastLap.clear();
+    this.rankResult.clear();
   }
 
   public static void main(String[] args) {

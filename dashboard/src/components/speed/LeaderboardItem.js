@@ -13,31 +13,38 @@ class LeaderboardItem extends React.Component {
         super(props);
         this.state = {
             driverName: "",
-            lastLapTime: 0
+            lastLapTime: 0,
+            fastestLapTime: 0,
+            predictedRank: ""
         };
     }
 
     static getDerivedStateFromProps(nextProps, prevState) {
         let driverName = prevState.driverName;
         let lastLapTime = prevState.lastLapTime;
+        let fastestLapTime = prevState.fastestLapTime;
+        let predictedRank = "";
 
         if (nextProps.players[nextProps.carNumber]) {
             driverName = nextProps.players[nextProps.carNumber].driverName;
-            console.log("DN", driverName);
         }
 
         if (nextProps.lastLaps[nextProps.carNumber]) {
             lastLapTime = nextProps.lastLaps[nextProps.carNumber].time;
+            fastestLapTime = nextProps.lastLaps[nextProps.carNumber].fastestLapTime;
+        }
+
+        if (nextProps.ranks.predictions
+            && nextProps.ranks.predictions[nextProps.carNumber]) {
+            predictedRank = nextProps.ranks.predictions[nextProps.carNumber];
         }
 
         return {
-            driverName, lastLapTime
+            driverName, lastLapTime, fastestLapTime, predictedRank
         };
     }
 
     render() {
-
-
         return (
             <tr>
                 <td>
@@ -50,10 +57,10 @@ class LeaderboardItem extends React.Component {
                     {this.props.rank}
                 </td>
                 <td>
-                    -
+                    {this.state.predictedRank}
                 </td>
                 <td>
-                    -
+                    {this.state.fastestLapTime}
                 </td>
                 <td>
                     {this.state.lastLapTime}
@@ -70,7 +77,8 @@ LeaderboardItem.propTypes = {
 const LBItem = connect(state => {
     return {
         players: state.PlayerInfo.players || {},
-        lastLaps: state.PlayerInfo.lastLaps
+        lastLaps: state.PlayerInfo.lastLaps,
+        ranks: state.PlayerInfo.ranks || {}
     }
 })(LeaderboardItem);
 

@@ -74,7 +74,7 @@ class LeaderboardComponent extends React.Component {
 const LeaderBoard = connect(state => {
     let ranks = [];
     if (state.PlayerInfo && state.PlayerInfo.ranks) {
-        ranks = Object.values(state.PlayerInfo.ranks.rankToCar);
+        ranks = Object.keys(state.PlayerInfo.ranks.carToRank);
     }
     return {
         ranks: ranks
