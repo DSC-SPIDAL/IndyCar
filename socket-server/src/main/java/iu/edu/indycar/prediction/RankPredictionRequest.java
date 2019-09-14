@@ -21,16 +21,16 @@ public class RankPredictionRequest {
 
         list.add(completeLapRecord.getRank());
         list.add(completeLapRecord.getCompletedLaps());
-        list.add(completeLapRecord.getElapsedTime());
-        list.add(completeLapRecord.getTime());
-        list.add(completeLapRecord.getFastestLapTime());
+        list.add((float) completeLapRecord.getElapsedTime() / 60000.0f);
+        list.add((float) completeLapRecord.getTime() / 60000.0f);
+        list.add((float) completeLapRecord.getFastestLapTime() / 60000.0f);
         list.add(completeLapRecord.getFastestLap());
-        list.add(completeLapRecord.getTimeBehindLeader());
+        list.add((float) completeLapRecord.getTimeBehindLeader() / 60000.0f);
         list.add(completeLapRecord.getLapsBehindLeader());
-        list.add(completeLapRecord.getTimeBehindPrec());
+        list.add((float) completeLapRecord.getTimeBehindPrec() / 60000.0f);
         list.add(completeLapRecord.getLapsBehindPrec());
         list.add(completeLapRecord.getOverallRank());
-        list.add(completeLapRecord.getOverallBestLapTime());
+        list.add((float) completeLapRecord.getOverallBestLapTime() / 60000.0f);
         list.add(completeLapRecord.getPitStopsCount());
         list.add(completeLapRecord.getLastPittedLap());
         list.add(completeLapRecord.getStartPosition());

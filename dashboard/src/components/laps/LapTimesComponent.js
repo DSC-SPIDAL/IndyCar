@@ -240,10 +240,8 @@ class LapTimesComponent extends React.Component {
     }
 }
 
-const lapTimesComp = connect(state => {
+export default connect(state => {
     return {
         selectedCarNumber: state.AnomalyInfo.focusedPlayer
     }
 })(LapTimesComponent);
-
-export default lapTimesComp;

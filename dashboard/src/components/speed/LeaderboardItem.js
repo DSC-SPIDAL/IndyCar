@@ -23,7 +23,7 @@ class LeaderboardItem extends React.Component {
         let driverName = prevState.driverName;
         let lastLapTime = prevState.lastLapTime;
         let fastestLapTime = prevState.fastestLapTime;
-        let predictedRank = "";
+        let predictedRank = "-";
 
         if (nextProps.players[nextProps.carNumber]) {
             driverName = nextProps.players[nextProps.carNumber].driverName;
@@ -56,7 +56,7 @@ class LeaderboardItem extends React.Component {
                 <td>
                     {this.props.rank}
                 </td>
-                <td>
+                <td style={{color: 'red'}}>
                     {this.state.predictedRank}
                 </td>
                 <td>
@@ -77,7 +77,7 @@ LeaderboardItem.propTypes = {
 const LBItem = connect(state => {
     return {
         players: state.PlayerInfo.players || {},
-        lastLaps: state.PlayerInfo.lastLaps,
+        lastLaps: state.PlayerInfo.lastLaps || {},
         ranks: state.PlayerInfo.ranks || {}
     }
 })(LeaderboardItem);

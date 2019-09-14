@@ -1,7 +1,6 @@
 import React from "react";
-import {connect} from "react-redux";
 
-class StartComponent extends React.Component {
+export default class StartComponent extends React.Component {
     render() {
         return (
             <div>
@@ -10,7 +9,3 @@ class StartComponent extends React.Component {
         )
     }
 }
-
-const start = connect(state => state)(StartComponent);
-
-export default start;

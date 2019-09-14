@@ -179,11 +179,9 @@ class SpeedAnomalyComponent extends React.Component {
     }
 }
 
-const speedAnomalyCom = connect(state => {
+export default connect(state => {
     return {
         ...state.AnomalyInfo,
         index: state.AnomalyInfo.anomalyData.index
     };
 })(SpeedAnomalyComponent);
-
-export default speedAnomalyCom;

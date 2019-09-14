@@ -1,60 +1,89 @@
 import React from "react";
 import IMG from "./maxresdefault-2.jpg";
 import "./VisorView.css";
+import {connect} from "react-redux";
+import {Spinner} from "@blueprintjs/core";
 
-export default class VisorView extends React.Component {
+class VisorView extends React.Component {
     render() {
+
+        let pastLaps = Object.values(this.props.pastLaps).reverse().map((lap) => {
+            return (
+                <div className="visor-view-row">
+                    <div className="visor-view-col">
+                        LAP {lap.completedLaps + 1}
+                    </div>
+                    <div className="visor-view-col">
+                        {lap.time}
+                    </div>
+                </div>
+            );
+        });
+
         return (
             <div className="visor-view-wrapper">
                 <div className="car-image">
                     <img src={IMG} width="100%" alt="car image"/>
                     <div className="positions-wrapper">
                         <div className="current-position">
-                            Current Position <span>6th</span>
+                            Current Position <span>{this.props.currentRank}</span>
                         </div>
                         <div className="predicted-position">
-                            Predicted Position <span>7th</span>
+                            Predicted Position <span>{this.props.predictedRank}</span>
                         </div>
                     </div>
                 </div>
                 <div className="best-time-widget">
                     <div className="visor-view-row">
-                        <div>
+                        <div className="visor-view-col">
                             BEST TIME (s)
                         </div>
-                        <div>
-                            112.82
+                        <div className="visor-view-col">
+                            {this.props.lastLap.fastestLapTime || <Spinner small={true}/>}
                         </div>
                     </div>
                     <div className="visor-view-row">
-                        <div>
+                        <div className="visor-view-col">
                             CURRENT (s)
                         </div>
-                        <div>
-                            80.83
+                        <div className="visor-view-col">
+                            {this.props.lastLap.time || <Spinner small={true}/>}
                         </div>
                     </div>
                 </div>
 
                 <div className="lap-history-widget">
-                    <div className="visor-view-row">
-                        <div>
-                            BEST TIME (s)
-                        </div>
-                        <div>
-                            112.82
-                        </div>
-                    </div>
-                    <div className="visor-view-row">
-                        <div>
-                            CURRENT (s)
-                        </div>
-                        <div>
-                            80.83
-                        </div>
-                    </div>
+                    {pastLaps}
                 </div>
             </div>
         )
     }
 }
+
+export default connect(state => {
+    let currentRank = "-";
+    let predictedRank = "-";
+    let pastLaps = {};
+    let lastLap = {};
+
+    if (state.PlayerInfo.ranks && state.PlayerInfo.ranks.carToRank && state.AnomalyInfo.focusedPlayer) {
+        currentRank = state.PlayerInfo.ranks.carToRank[state.AnomalyInfo.focusedPlayer];
+
+        if (state.PlayerInfo.ranks.predictions) {
+            predictedRank = state.PlayerInfo.ranks.predictions[state.AnomalyInfo.focusedPlayer];
+        }
+
+        if (state.PlayerInfo.lastLaps) {
+            lastLap = state.PlayerInfo.lastLaps[state.AnomalyInfo.focusedPlayer] || {}
+        }
+
+        if (state.PlayerInfo.laps) {
+            pastLaps = state.PlayerInfo.laps[state.AnomalyInfo.focusedPlayer] || {}
+        }
+    }
+
+
+    return {
+        currentRank, predictedRank, lastLap, pastLaps
+    };
+})(VisorView);

@@ -1,6 +1,5 @@
 import React from "react";
 import SpeedAnomalyComponent from "./SpeedAnomalyComponent";
-import {Card} from "@blueprintjs/core";
 import "./AnomalyWrapper.css";
 import {SocketService} from "../../services/SocketService";
 import {connect} from "react-redux";
@@ -79,10 +78,8 @@ class AnomalyWrapper extends React.Component {
     }
 }
 
-const anomalyWrapper = connect(state => {
+export default connect(state => {
     return {
         focusedPlayer: state.AnomalyInfo.focusedPlayer
     }
 })(AnomalyWrapper);
-
-export default anomalyWrapper;

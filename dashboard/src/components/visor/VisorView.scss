@@ -19,6 +19,7 @@
     border: solid 1px #d8d8d8;
     bottom: 40px;
     height: calc(100% - 200px);
+    overflow-y: scroll;
   }
 
   .visor-view-row {
@@ -27,7 +28,7 @@
     grid-template-columns: 1fr 1fr;
     line-height: 24px;
 
-    div {
+    .visor-view-col {
       &:nth-child(2) {
         text-align: right;
         font-family: "Teko", sans-serif;

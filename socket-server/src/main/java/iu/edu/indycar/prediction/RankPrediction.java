@@ -1,5 +1,6 @@
 package iu.edu.indycar.prediction;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import iu.edu.indycar.ServerConstants;
 import iu.edu.indycar.streamer.RecordStreamer;
 import iu.edu.indycar.streamer.records.CompleteLapRecord;
@@ -62,24 +63,31 @@ public class RankPrediction {
 
     try {
       if (!carsWithFivePlus.isEmpty()) {
+        RankPredictionRequest rankPredictionRequest = new RankPredictionRequest(carsWithFivePlus);
         RankPredictionResponse post = this.client.target(ServerConstants.RANK_PRED_REST)
                 .request(MediaType.APPLICATION_JSON_TYPE)
                 .post(Entity.entity(
-                        new RankPredictionRequest(carsWithFivePlus), MediaType.APPLICATION_JSON_TYPE),
+                        rankPredictionRequest, MediaType.APPLICATION_JSON_TYPE),
                         RankPredictionResponse.class);
 
-        final List<PredictionOfCar> toSort = new ArrayList<>();
         for (int i = 0; i < carsWithFivePlusRef.size(); i++) {
           String carNumber = carsWithFivePlusRef.get(i);
-          float predictedTime = post.getPredictions().get(i);
-          int completedLaps = this.lastLap.get(carNumber);
-          toSort.add(new PredictionOfCar(carNumber, completedLaps, predictedTime));
+          float predictedRank = post.getPredictions().get(i);
+          this.rankResult.publishPrediction(carNumber, Math.round(predictedRank));
         }
-        Collections.sort(toSort);
-        int rank = 1;
-        for (PredictionOfCar predictionOfCar : toSort) {
-          this.rankResult.publishPrediction(predictionOfCar.getCarNumber(), rank++);
-        }
+
+//        final List<PredictionOfCar> toSort = new ArrayList<>();
+//        for (int i = 0; i < carsWithFivePlusRef.size(); i++) {
+//          String carNumber = carsWithFivePlusRef.get(i);
+//          float predictedTime = post.getPredictions().get(i);
+//          int completedLaps = this.lastLap.get(carNumber);
+//          toSort.add(new PredictionOfCar(carNumber, completedLaps, predictedTime));
+//        }
+//        Collections.sort(toSort);
+//        int rank = 1;
+//        for (PredictionOfCar predictionOfCar : toSort) {
+//          this.rankResult.publishPrediction(predictionOfCar.getCarNumber(), rank++);
+//        }
       }
     } catch (Exception ex) {
       LOG.error("Error in rank prediction", ex);
