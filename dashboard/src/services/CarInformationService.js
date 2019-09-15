@@ -1,6 +1,6 @@
 import {
     ACTION_PLAYER_INFO_RECEIVED,
-    ACTION_PLAYER_LAP_RECORD_RECEIVED, ACTION_PLAYER_RANK_PREDICTIONS_RECEIVED,
+    ACTION_PLAYER_LAP_RECORD_RECEIVED,
     ACTION_PLAYER_RANK_RECEIVED
 } from "../reducers/PlayerInfoReducer";
 
@@ -79,36 +79,7 @@ export default class CarInformationService {
             addLapRecord(lapRecord);
         });
 
-        // socket.subscribe("ranks", (ranks) => {
-        //     let rankMap = {
-        //         rankToCar: {},
-        //         carToRank: {},
-        //     };
-        //     ranks && ranks.forEach((car, i) => {
-        //         if (car && car.carNumber && carInformation[car.carNumber]) {
-        //             carInformation[car.carNumber].rank = i + 1;
-        //         }
-        //         rankMap.rankToCar[i + 1] = car.carNumber;
-        //         rankMap.carToRank[car.carNumber] = i + 1;
-        //     });
-        //     this.notifyListeners(CAR_RANK_LISTENER, rankMap);
-        //     cache[CAR_RANK_LISTENER] = rankMap;
-        //
-        //     store.dispatch({
-        //         type: ACTION_PLAYER_RANK_RECEIVED,
-        //         ranks: rankMap
-        //     });
-        // });
-
-        // socket.subscribe("rank-prediction", rankPredictions => {
-        //     store.dispatch({
-        //         type: ACTION_PLAYER_RANK_PREDICTIONS_RECEIVED,
-        //         rankPredictions
-        //     });
-        // });
-
         socket.subscribe("ranking-data", rankingData => {
-            console.log("RD", rankingData);
             store.dispatch({
                 type: ACTION_PLAYER_RANK_RECEIVED,
                 ranks: rankingData
