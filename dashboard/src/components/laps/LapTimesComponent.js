@@ -1,7 +1,6 @@
 import React from "react";
 import {Line} from "react-chartjs-2";
 import {Button, Card, Colors} from "@blueprintjs/core";
-import CarInformationService, {CAR_LAP_LISTENER, CAR_RANK_LISTENER} from "../../services/CarInformationService";
 import "./LapTimesComponent.css";
 import {ButtonGroup} from "@blueprintjs/core/lib/cjs";
 import {connect} from "react-redux";
@@ -42,58 +41,8 @@ class LapTimesComponent extends React.Component {
     constructor(props) {
         super(props);
         this.state = {
-            labels: [],
-            datasets: [],
-            carsList: [],
-            carData: {},
-            maxLap: 0,
             displayOption: DISPLAY_OPTIONS.NEIGHBOURS,
-            rankMap: {
-                carToRank: {},
-                rankToCar: {}
-            }
         };
-
-        this.setStateTimeout = -1;
-    }
-
-    onLapRecordReceived = (record) => {
-        if (record.carNumber !== "") {
-            clearTimeout(this.setStateTimeout);
-            let carData = this.state.carData;
-            if (!carData[record.carNumber]) {
-                carData[record.carNumber] = [];
-            }
-            let maxLap = this.state.maxLap;
-            carData[record.carNumber][record.completedLaps] = record.time;
-            if (record.completedLaps > maxLap) {
-                maxLap = record.completedLaps;
-            }
-            this.setStateTimeout = setTimeout(() => {
-                this.setState({carData, maxLap});
-            }, 1000);
-        }
-    };
-
-    onRankMapReceived = (rankMap) => {
-        this.setState({
-            rankMap: rankMap
-        });
-    };
-
-    componentDidMount() {
-        let lapTimes = CarInformationService.getLapTimes();
-        Object.values(lapTimes).forEach(records => {
-            records.forEach(this.onLapRecordReceived);
-        });
-
-        CarInformationService.addEventListener(CAR_LAP_LISTENER, this.onLapRecordReceived);
-        CarInformationService.addEventListener(CAR_RANK_LISTENER, this.onRankMapReceived);
-    }
-
-    componentWillUnmount() {
-        CarInformationService.removeEventListener(CAR_LAP_LISTENER, this.onLapRecordReceived);
-        CarInformationService.removeEventListener(CAR_RANK_LISTENER, this.onRankMapReceived);
     }
 
     changeDisplayOption = (displayOption) => {
@@ -110,7 +59,7 @@ class LapTimesComponent extends React.Component {
 
         if (this.state.displayOption === DISPLAY_OPTIONS.NEIGHBOURS) {
             //find and add neighbours
-            let subjectRank = this.state.rankMap.carToRank[this.props.selectedCarNumber];
+            let subjectRank = this.props.rankMap.carToRank[this.props.selectedCarNumber];
 
             if (!isNaN(subjectRank)) {
                 let lowerRank = Math.max(1, subjectRank - 2);
@@ -127,20 +76,21 @@ class LapTimesComponent extends React.Component {
                 }
 
                 for (let i = lowerRank; i <= higherRank; i++) {
-                    neighbours[parseInt(this.state.rankMap.rankToCar[i])] = true;
+                    neighbours[parseInt(this.props.rankMap.rankToCar[i])] = true;
                 }
             }
         }
 
         //update the chart
         let dataSet = [];
-        Object.keys(this.state.carData).filter(carNumber => {
+        let maxLap = 200;
+        Object.keys(this.props.laps).filter(carNumber => {
             return this.state.displayOption === DISPLAY_OPTIONS.ALL || neighbours[carNumber];
         }).forEach(carNumber => {
-            let lapTimes = this.state.carData[carNumber];
+            let lapTimes = Object.values(this.props.laps[carNumber]).map(lap => lap.time);
             let color = getCarColor(carNumber);
             dataSet.push({
-                label: `[${carNumber}] ${CarInformationService.getCarInformation(carNumber).driverName}`,
+                label: `[${carNumber}] ${this.props.players[carNumber].driverName}`,
                 data: lapTimes,
                 fill: false,
                 borderColor: color,
@@ -156,7 +106,7 @@ class LapTimesComponent extends React.Component {
         });
         //x axis
         let labels = [];
-        for (let i = 1; i <= this.state.maxLap; i++) {
+        for (let i = 1; i <= maxLap; i++) {
             labels.push(i);
         }
 
@@ -242,6 +192,12 @@ class LapTimesComponent extends React.Component {
 
 export default connect(state => {
     return {
-        selectedCarNumber: state.AnomalyInfo.focusedPlayer
+        selectedCarNumber: state.AnomalyInfo.focusedPlayer,
+        rankMap: state.PlayerInfo.ranks || {
+            carToRank: {},
+            rankToCar: {}
+        },
+        laps: state.PlayerInfo.laps || {},
+        players: state.PlayerInfo.players
     }
 })(LapTimesComponent);

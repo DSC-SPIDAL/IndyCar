@@ -13,8 +13,8 @@ export default class Footer extends React.Component {
         }
     }
 
-    onTeamClick = () => {
-        console.log("OPEN");
+    onTeamClick = (evt) => {
+        evt.preventDefault();
         this.setState({
             openTeam: !this.state.openTeam
         });
@@ -30,7 +30,7 @@ export default class Footer extends React.Component {
                     </p>
                 </div>
                 <div className="footer-buttons">
-                    <a href="javascript:;" onClick={this.onTeamClick}>THE TEAM</a>
+                    <a onClick={this.onTeamClick}>THE TEAM</a>
                     <a href="javascript:;">CONTACT US</a>
                 </div>
                 <TeamPage open={this.state.openTeam} onClose={this.onTeamClick}/>

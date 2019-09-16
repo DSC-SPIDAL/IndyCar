@@ -7,9 +7,9 @@ import {Spinner} from "@blueprintjs/core";
 class VisorView extends React.Component {
     render() {
 
-        let pastLaps = Object.values(this.props.pastLaps).reverse().map((lap) => {
+        let pastLaps = Object.values(this.props.pastLaps).reverse().map((lap, index) => {
             return (
-                <div className="visor-view-row">
+                <div className="visor-view-row" key={index}>
                     <div className="visor-view-col">
                         LAP {lap.completedLaps + 1}
                     </div>
