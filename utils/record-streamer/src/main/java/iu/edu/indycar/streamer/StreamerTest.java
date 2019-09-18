@@ -6,7 +6,9 @@ import iu.edu.indycar.streamer.records.policy.AbstractRecordAcceptPolicy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
+import java.io.BufferedWriter;
 import java.io.File;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
@@ -30,15 +32,14 @@ public class StreamerTest {
 
         AtomicInteger recordNumber = new AtomicInteger();
 
+        BufferedWriter bw = new BufferedWriter(new FileWriter("selo.csv"));
+
         recordStreamer.setTelemetryRecordListener(record -> {
-            if (record.getCarNumber().equals("22")) {
-                recordNumber.incrementAndGet();
-                if (recordNumber.get() > 27000 && recordNumber.get() < 29000) {
-                    System.out.println(recordNumber.get() + " : "
-                            + record.getTimeOfDay() + "|" + record.getVehicleSpeed()
-                            + "|" + record.getThrottle()
-                            + "|" + record.getEngineSpeed());
-                }
+            try {
+                bw.write(record.getCarNumber()+","+record.getTimeOfDayLong()+","+ record.getLapDistance());
+                bw.newLine();
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         });
 
@@ -66,6 +67,12 @@ public class StreamerTest {
 
         recordStreamer.setStreamEndListener(tag -> {
             LOG.info("End of stream");
+
+            try {
+                bw.close();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
 
             recordsCount.forEach((k, v) -> {
                 long timePassed = Math.max(1, lastRecordTime.get(k) - firstRecordTime.get(k));

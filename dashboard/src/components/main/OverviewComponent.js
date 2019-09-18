@@ -4,8 +4,9 @@ import {Card, Tab, Tabs} from "@blueprintjs/core";
 import VideosWrapper from "../videos/VideosWrapper";
 import "./OverviewComponent.css";
 import LeaderboardComponent from "../speed/LeaderboardComponent";
+import {connect} from "react-redux";
 
-export default class OverviewComponent extends React.Component {
+class OverviewComponent extends React.Component {
     constructor(props) {
         super(props);
     }
@@ -31,7 +32,7 @@ export default class OverviewComponent extends React.Component {
                                         LAPS COMPLETED
                                     </td>
                                     <td>
-                                        49/200
+                                        {this.props.currentLap}/200
                                     </td>
                                 </tr>
                                 <tr>
@@ -39,23 +40,23 @@ export default class OverviewComponent extends React.Component {
                                         CURRENT LEADER
                                     </td>
                                     <td>
-                                        Rossi[7]
+                                        {this.props.leader}
                                     </td>
                                 </tr>
-                                <tr>
-                                    <td>
-                                        LEADER CHANGES
-                                    </td>
-                                    <td>
-                                        7
-                                    </td>
-                                </tr>
+                                {/*<tr>*/}
+                                {/*    <td>*/}
+                                {/*        LEADER CHANGES*/}
+                                {/*    </td>*/}
+                                {/*    <td>*/}
+                                {/*        7*/}
+                                {/*    </td>*/}
+                                {/*</tr>*/}
                                 <tr>
                                     <td>
                                         Fastest Lap Time
                                     </td>
                                     <td>
-                                        72.12
+                                        {this.props.fastestLapTime}
                                     </td>
                                 </tr>
                                 </tbody>
@@ -77,3 +78,24 @@ export default class OverviewComponent extends React.Component {
     }
 
 }
+
+export default connect(state => {
+    let fastestLapTime = state.PlayerInfo.fastestLapTime || "-";
+    let currentLap = state.PlayerInfo.currentLap || "-";
+    let leader = "-";
+
+    if (state.PlayerInfo.ranks && state.PlayerInfo.ranks.rankToCar) {
+        let firstCarNumber = state.PlayerInfo.ranks.rankToCar[1];
+        let player = state.PlayerInfo.players[firstCarNumber];
+        if (player) {
+            let playerName = player.driverName;
+            if (playerName) {
+                leader = playerName.split(" ")[0] + "[" + firstCarNumber + "]";
+            }
+        }
+    }
+
+    return {
+        fastestLapTime, currentLap, leader
+    }
+})(OverviewComponent);

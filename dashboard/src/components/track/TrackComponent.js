@@ -4,9 +4,6 @@ import SVG from "svg.js";
 import CBuffer from "CBuffer";
 import {SocketService} from "../../services/SocketService";
 import LOADER from "./img/buffering.gif";
-import CarSVGs from "./img/CarSVGs";
-import PlayerSelectionComponent from "../player/PlayerSelectionComponent";
-import {PlayerRawDataComponent} from "../player/PlayerRawDataComponent";
 
 
 //GLOBAL CALCULATIONS//
@@ -116,7 +113,10 @@ export default class TrackComponent extends React.Component {
             intermediateBuffering: false
         };
         this.socketService = new SocketService();
+        this.reset();
+    }
 
+    reset = () => {
         this.cars = {};
 
         this.pastRecords = {};
@@ -128,7 +128,7 @@ export default class TrackComponent extends React.Component {
         this.diffs = {};
 
         this.bufferingCars = 0;
-    }
+    };
 
     componentDidMount() {
         console.log("Track component mounting...");
@@ -143,9 +143,7 @@ export default class TrackComponent extends React.Component {
             frameBuffer.carContainer.stop();
         });
         this.draw.clear();
-        this.cars = {};
-        this.pastRecords = {};
-        this.diffs = {};
+        this.reset();
     }
 
     positionEventReceiver = (e) => {
@@ -159,10 +157,10 @@ export default class TrackComponent extends React.Component {
     };
 
     positionCars = (carPosition) => {
-        let trackOffsets = [-1.5, 1.5, 5];
         let key = carPosition.carNumber;
-        let carImages = ["R", "G", "B", "Y"];
         if (!this.cars[key]) {
+            let trackOffsets = [-1.5, 1.5, 5];
+            let carImages = ["R", "G", "B", "Y"];
             this.cars[key] = this.addCar(`img/cars/car_${('' + key).padStart(2, '0')}.png`, trackOffsets[key % 3], key);
             //this.cars[key] = this.addCar(`img/cars_new/Car${carImages[key % carImages.length]}.png`, trackOffsets[key % 3], key);
         }

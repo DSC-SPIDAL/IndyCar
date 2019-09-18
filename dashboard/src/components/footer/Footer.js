@@ -2,6 +2,7 @@ import React from "react";
 import "./Footer.css";
 import {Button, Popover} from "@blueprintjs/core";
 import TeamPage from "./TeamPage";
+import {Link, HashRouter as Router} from "react-router-dom";
 
 export default class Footer extends React.Component {
 
@@ -30,10 +31,11 @@ export default class Footer extends React.Component {
                     </p>
                 </div>
                 <div className="footer-buttons">
-                    <a onClick={this.onTeamClick}>THE TEAM</a>
-                    <a href="javascript:;">CONTACT US</a>
+                    <Router>
+                        <Link to="/team">THE TEAM</Link>
+                        <Link to="/contact">CONTACT US</Link>
+                    </Router>
                 </div>
-                <TeamPage open={this.state.openTeam} onClose={this.onTeamClick}/>
             </div>
         )
     }

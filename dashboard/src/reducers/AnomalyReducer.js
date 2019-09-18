@@ -73,6 +73,7 @@ export const AnomalyInfo = (state = [], action) => {
     switch (action.type) {
         case ACTION_PLAYER_CHANGED:
             state.focusedPlayer = action.player;
+            resetAnomalyData(state);
             break;
         case ACTION_ANOMALY_DATA_RECEIVED:
             handleAnomalyData(state, action.data);

@@ -22,7 +22,7 @@ public class RankPredictionRequest {
         list.add(completeLapRecord.getRank());
         list.add(completeLapRecord.getCompletedLaps());
         list.add((float) completeLapRecord.getElapsedTime() / 60000.0f);
-        list.add((float) completeLapRecord.getTime() / 60000.0f);
+        list.add((float) completeLapRecord.getTime() / 60.0f);
         list.add((float) completeLapRecord.getFastestLapTime() / 60000.0f);
         list.add(completeLapRecord.getFastestLap());
         list.add((float) completeLapRecord.getTimeBehindLeader() / 60000.0f);

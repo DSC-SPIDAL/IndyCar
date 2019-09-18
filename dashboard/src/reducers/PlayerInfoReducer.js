@@ -38,10 +38,24 @@ export const PlayerInfo = (state = [], action) => {
 
             let lastLap = state.lastLaps[action.carNumber];
 
+            if (!state.currentLap) {
+                state.currentLap = 1;
+                state.fastestLapTime = 9999;
+            }
+
             if (lastLap.lap < action.lapRecord.completedLaps) {
                 lastLap.lap = action.lapRecord.completedLaps;
                 lastLap.time = action.lapRecord.time;
                 lastLap.fastestLapTime = Math.floor(action.lapRecord.fastestLapTime / 1000);
+
+                if (state.currentLap < lastLap.lap) {
+                    state.currentLap = lastLap.lap;
+                }
+
+                if (state.fastestLapTime > lastLap.time) {
+                    state.fastestLapTime = lastLap.time;
+                }
+
             }
             break;
     }

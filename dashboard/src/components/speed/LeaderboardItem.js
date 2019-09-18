@@ -54,7 +54,7 @@ class LeaderboardItem extends React.Component {
                     {this.state.driverName}
                 </td>
                 <td>
-                    {this.props.rank}
+                    {this.props.ranks.carToRank[this.props.carNumber]}
                 </td>
                 <td style={{color: 'red'}}>
                     {this.state.predictedRank}

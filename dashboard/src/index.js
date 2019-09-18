@@ -31,4 +31,13 @@ window.onblur = () => {
     window.localStorage.setItem("scroll", window.scrollY);
 };
 
+let refreshTimer = -1;
+
+window.onscroll = () => {
+    clearInterval(refreshTimer);
+    refreshTimer = setInterval(() => {
+        window.location.reload(true);
+    }, 1000 * 60 * 10);
+};
+
 registerServiceWorker();

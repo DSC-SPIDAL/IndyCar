@@ -15,6 +15,7 @@ import javax.ws.rs.client.Entity;
 import javax.ws.rs.core.MediaType;
 import java.io.File;
 import java.util.*;
+import java.util.concurrent.atomic.AtomicLong;
 
 public class RankPrediction {
 
@@ -28,6 +29,10 @@ public class RankPrediction {
   private Client client = ClientBuilder.newClient();
   private ServerBoot serverBoot;
 
+  private ObjectMapper mapper = new ObjectMapper();
+
+  private AtomicLong atomicLong = new AtomicLong();
+
   public RankPrediction(ServerBoot serverBoot) {
     this.serverBoot = serverBoot;
     this.client.register(JacksonFeature.class);
@@ -37,7 +42,7 @@ public class RankPrediction {
     // process only if this is not a duplicate record
     if (completeLapRecord.getCarNumber().equals("") ||
             lastLap.getOrDefault(completeLapRecord.getCarNumber(), -1)
-                    > completeLapRecord.getCompletedLaps()) {
+                    >= completeLapRecord.getCompletedLaps()) {
       return false;
     }
 
@@ -75,6 +80,13 @@ public class RankPrediction {
           float predictedRank = post.getPredictions().get(i);
           this.rankResult.publishPrediction(carNumber, Math.round(predictedRank));
         }
+
+        PredLog predLog = new PredLog();
+        predLog.req = rankPredictionRequest;
+        predLog.res = post;
+        predLog.orderOfCars = carsWithFivePlusRef;
+
+        mapper.writeValue(new File("/tmp/preds", atomicLong.incrementAndGet() + ".json"), predLog);
 
 //        final List<PredictionOfCar> toSort = new ArrayList<>();
 //        for (int i = 0; i < carsWithFivePlusRef.size(); i++) {

@@ -24,7 +24,6 @@ public class RankResult {
       if (previousPosition == null || !previousPosition.equals(position)) {
         this.hasChanges = true;
       }
-      this.rankToCar.put(position, carNumber);
     }
   }
 
@@ -56,7 +55,9 @@ public class RankResult {
   public RankResult copy() {
     RankResult copy = new RankResult();
     copy.predictions.putAll(this.predictions);
-    copy.rankToCar.putAll(this.rankToCar);
+    this.carToRank.forEach((car,rank)->{
+      copy.rankToCar.put(rank,car);
+    });
     copy.carToRank.putAll(this.carToRank);
     return copy;
   }

@@ -1,14 +1,18 @@
 import React from "react";
 import "./TeamPage.css";
-import {Dialog} from "@blueprintjs/core";
 import TEAM_IMG from "./img/Group_Luddy.jpg";
 
 export default class TeamPage extends React.Component {
     render() {
         return (
-            <Dialog isOpen={this.props.open} title="About the Team"
-                    onClose={this.props.onClose} style={{width: "75vw"}}>
-                <img src={TEAM_IMG} width="100%"/>
+            <div style={{width: "75vw", margin: "auto"}} className="team-page">
+                <div className="image-wrapper">
+                    <img src={TEAM_IMG} width="100%"/>
+                    <div className="title-wrapper">
+                        <h2>About the Team</h2>
+                        <hr className="red-line"/>
+                    </div>
+                </div>
                 <div className="team-content">
                     <p>
                         Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been
@@ -68,7 +72,7 @@ export default class TeamPage extends React.Component {
                                     designation="Undergraduate"/>
                     </div>
                 </div>
-            </Dialog>
+            </div>
         )
     }
 }
