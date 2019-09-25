@@ -20,6 +20,7 @@ public class CompletedLapRecordParser extends AbstractRecordParser<CompleteLapRe
             completeLapRecord.setCompletedLaps(Integer.valueOf(splits[7], 16));
             completeLapRecord.setElapsedTime(Long.valueOf(splits[8], 16) / 10);
             completeLapRecord.setTime(Long.valueOf(splits[9], 16) / 10000);//in seconds
+            completeLapRecord.setLapStatus(splits[10]);
             completeLapRecord.setFastestLapTime(Long.valueOf(splits[11], 16) / 10);
             completeLapRecord.setFastestLap(Integer.valueOf(splits[12],16));
             completeLapRecord.setTimeBehindLeader(Long.valueOf(splits[13], 16) / 10);
@@ -28,6 +29,7 @@ public class CompletedLapRecordParser extends AbstractRecordParser<CompleteLapRe
             completeLapRecord.setLapsBehindPrec(Integer.valueOf(splits[16], 16));
             completeLapRecord.setOverallRank(Integer.valueOf(splits[17], 16));
             completeLapRecord.setOverallBestLapTime(Long.valueOf(splits[18], 16) / 10);
+            completeLapRecord.setTrackStatus(splits[20]);
             completeLapRecord.setPitStopsCount(Integer.valueOf(splits[21], 16));
             completeLapRecord.setLastPittedLap(Integer.valueOf(splits[22], 16));
             completeLapRecord.setStartPosition(Integer.valueOf(splits[23], 16));

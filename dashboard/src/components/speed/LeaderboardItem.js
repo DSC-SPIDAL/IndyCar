@@ -35,8 +35,12 @@ class LeaderboardItem extends React.Component {
         }
 
         if (nextProps.ranks.predictions
-            && nextProps.ranks.predictions[nextProps.carNumber]) {
-            predictedRank = nextProps.ranks.predictions[nextProps.carNumber];
+            && typeof nextProps.ranks.predictions[nextProps.carNumber] !== 'undefined') {
+            if (nextProps.ranks.predictions[nextProps.carNumber] <= 0) {
+                predictedRank = 1;
+            } else {
+                predictedRank = nextProps.ranks.predictions[nextProps.carNumber];
+            }
         }
 
         return {

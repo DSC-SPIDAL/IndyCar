@@ -11,7 +11,7 @@ public class RankResult {
 
   private boolean hasChanges = false;
 
-  public void clear() {
+  public synchronized void clear() {
     this.hasChanges = false;
     this.carToRank.clear();
     this.rankToCar.clear();
@@ -21,6 +21,17 @@ public class RankResult {
   public synchronized void publishRank(String carNumber, Integer position) {
     if (position != null) {
       Integer previousPosition = this.carToRank.put(carNumber, position);
+
+      if (previousPosition != null) {
+        this.rankToCar.remove(previousPosition);
+      }
+
+      String previousCarAtThisPosition = this.rankToCar.get(position);
+      if (previousCarAtThisPosition != null) {
+        this.carToRank.remove(previousCarAtThisPosition);
+        //this.publishRank(previousCarAtThisPosition, position + 1);
+      }
+      this.rankToCar.put(position, carNumber);
       if (previousPosition == null || !previousPosition.equals(position)) {
         this.hasChanges = true;
       }
@@ -48,15 +59,15 @@ public class RankResult {
     return predictions;
   }
 
-  public boolean isHasChanges() {
+  public synchronized boolean isHasChanges() {
     return hasChanges;
   }
 
-  public RankResult copy() {
+  public synchronized RankResult copy() {
     RankResult copy = new RankResult();
     copy.predictions.putAll(this.predictions);
-    this.carToRank.forEach((car,rank)->{
-      copy.rankToCar.put(rank,car);
+    this.carToRank.forEach((car, rank) -> {
+      copy.rankToCar.put(rank, car);
     });
     copy.carToRank.putAll(this.carToRank);
     return copy;

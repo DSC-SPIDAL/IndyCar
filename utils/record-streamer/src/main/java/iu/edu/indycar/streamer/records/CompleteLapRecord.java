@@ -8,6 +8,7 @@ public class CompleteLapRecord implements IndycarRecord {
     private long time;
     private long elapsedTime;
 
+    private String lapStatus;
     private long fastestLapTime;
     private int fastestLap;
     private long timeBehindLeader;
@@ -20,6 +21,24 @@ public class CompleteLapRecord implements IndycarRecord {
     private int startPosition;
     private int lapsLed;
     private int overallRank;
+
+    private String trackStatus;
+
+    public String getTrackStatus() {
+        return trackStatus;
+    }
+
+    public void setTrackStatus(String trackStatus) {
+        this.trackStatus = trackStatus;
+    }
+
+    public String getLapStatus() {
+        return lapStatus;
+    }
+
+    public void setLapStatus(String lapStatus) {
+        this.lapStatus = lapStatus;
+    }
 
     public int getOverallRank() {
         return overallRank;

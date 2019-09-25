@@ -10,8 +10,8 @@ import RootReducer from "./reducers/RootReducer";
 
 let store = createStore(RootReducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 
-//let socketService = new SocketService("localhost", 8080, store);
-let socketService = new SocketService("j-093.juliet.futuresystems.org", 5000, store);
+let socketService = new SocketService("localhost", 8080, store);
+//let socketService = new SocketService("j-093.juliet.futuresystems.org", 5000, store);
 //let socketService = new SocketService("localhost", 5000);
 socketService.start(() => {
     console.log("Loading GUI...");
