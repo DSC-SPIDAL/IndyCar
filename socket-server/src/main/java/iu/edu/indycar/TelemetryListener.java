@@ -163,7 +163,7 @@ public class TelemetryListener implements Runnable {
             LOG.debug("Enqueuing message {} for broadcast...", uuid);
             this.enqueueForBroadcast(wsMessage);
 
-            if (anomalyLabel != null) {
+            if (anomalyLabel != null && ServerConstants.WRITE_DEBUG_LOGS) {
                 AnomalyLogger.AnomalyLabelDocument anomalyLabelDocument = AnomalyLogger.get(
                         carNumber,
                         anomalyLabel.getLabel(),
@@ -181,27 +181,29 @@ public class TelemetryListener implements Runnable {
                 );
             }
 
-            SpeedAnomalyWriter speedAnomalyWriter = speedAnWriter.computeIfAbsent(carNumber, s -> {
-                try {
-                    return new SpeedAnomalyWriter("all_logs/" + s + "/" + UUID.randomUUID().toString());
-                } catch (IOException e) {
-                    return null;
-                }
-            });
+            if (ServerConstants.WRITE_DEBUG_LOGS) {
+                SpeedAnomalyWriter speedAnomalyWriter = speedAnWriter.computeIfAbsent(carNumber, s -> {
+                    try {
+                        return new SpeedAnomalyWriter("all_logs/" + s + "/" + UUID.randomUUID().toString());
+                    } catch (IOException e) {
+                        return null;
+                    }
+                });
 
-            if (speedAnomalyWriter != null) {
-                speedAnomalyWriter.write(
-                        timeOfDay,
-                        timeOfDayLong,
-                        vehicleSpeed,
-                        speedAnomaly.getAnomaly(),
-                        rpm,
-                        rpmAnomaly.getAnomaly(),
-                        throttle,
-                        throttleAnomaly.getAnomaly(),
-                        lapDistance,
-                        anomalyLabel != null ? anomalyLabel.getLabel() : ""
-                );
+                if (speedAnomalyWriter != null) {
+                    speedAnomalyWriter.write(
+                            timeOfDay,
+                            timeOfDayLong,
+                            vehicleSpeed,
+                            speedAnomaly.getAnomaly(),
+                            rpm,
+                            rpmAnomaly.getAnomaly(),
+                            throttle,
+                            throttleAnomaly.getAnomaly(),
+                            lapDistance,
+                            anomalyLabel != null ? anomalyLabel.getLabel() : ""
+                    );
+                }
             }
 
 

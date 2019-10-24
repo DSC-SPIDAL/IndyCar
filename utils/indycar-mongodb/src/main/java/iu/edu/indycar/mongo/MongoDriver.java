@@ -9,6 +9,7 @@ import com.mongodb.client.model.IndexOptions;
 import com.mongodb.client.model.Indexes;
 import com.mongodb.client.result.DeleteResult;
 import iu.edu.indycar.streamer.RecordStreamer;
+import iu.edu.indycar.streamer.StreamEndListener;
 import iu.edu.indycar.streamer.TimeUtils;
 import iu.edu.indycar.streamer.records.TelemetryRecord;
 import iu.edu.indycar.streamer.records.policy.AbstractRecordAcceptPolicy;
@@ -21,11 +22,11 @@ import java.util.stream.Collectors;
 
 public class MongoDriver {
 
-  public static void main(String[] args) {
-    MongoClient mongoClient = MongoClients.create(new ConnectionString("mongodb://localhost"));
+  public static void main(String[] args) throws IOException {
+    MongoClient mongoClient = MongoClients.create(new ConnectionString("mongodb://localhost:8080"));
     MongoDatabase database = mongoClient.getDatabase("indycar");
 
-    getLogsList("/home/chathura/Downloads/indy_data/").forEach(file -> {
+    getLogsList("/home/chathura/Desktop/ipcc_images/").forEach(file -> {
       try {
         writeToDB(file, database);
       } catch (IOException e) {
@@ -43,14 +44,12 @@ public class MongoDriver {
     }
 
     return Arrays.stream(listOfFiles)
-            .filter(file -> file.getName().matches("IPBroadcaster_Input_\\d{4}-\\d{2}-\\d{2}_\\d+.log")).collect(Collectors.toList());
+            .filter(file -> file.getName().contains(".log")).collect(Collectors.toList());
   }
 
   public static void writeToDB(File file, MongoDatabase database) throws IOException {
     final String fileName = file.getName();
-    if (!"IPBroadcaster_Input_2018-05-27_0.log".equals(fileName)) {
-      return;
-    }
+
     final Document fileNameDoc = new Document("file", fileName);
 
     MongoCollection<Document> telemetry = database.getCollection("telemetry");
@@ -67,6 +66,8 @@ public class MongoDriver {
 
     RecordStreamer recordStreamer = new RecordStreamer(
             file, false, 10000000, s -> s.split("_")[2]);
+
+    final ArrayList<Document> completedLapsList = new ArrayList<>();
 
     // subscribing to records
     recordStreamer.setCompleteLapRecordRecordListener(completeLapRecord -> {
@@ -90,11 +91,19 @@ public class MongoDriver {
       document.append("pitstops_count", completeLapRecord.getPitStopsCount());
       document.append("start_position", completeLapRecord.getStartPosition());
       document.append("rank", completeLapRecord.getRank());
-      laps.insertOne(document);
+
+      completedLapsList.add(document);
+
+      if (completedLapsList.size() > 100) {
+        laps.insertMany(completedLapsList);
+        completedLapsList.clear();
+      }
     });
 
+    Set<String> addedUIDs = new HashSet<>();
+
     recordStreamer.setEntryRecordRecordListener(entryRecord -> {
-      if (cars.countDocuments(new Document("uid", entryRecord.getUid())) == 0) {
+      if (!addedUIDs.contains(entryRecord.getUid())) {
         Document document = new Document("file", fileName);
         document.append("car_number", entryRecord.getCarNumber());
         document.append("driver_name", entryRecord.getDriverName());
@@ -104,8 +113,11 @@ public class MongoDriver {
         document.append("team", entryRecord.getTeam());
         document.append("uid", entryRecord.getUid());
         cars.insertOne(document);
+        addedUIDs.add(entryRecord.getUid());
       }
     });
+
+    List<Document> telemetryRecordsList = new ArrayList<>();
 
     recordStreamer.setTelemetryRecordListener(telemetryRecord -> {
       Document document = new Document("file", fileName);
@@ -116,7 +128,22 @@ public class MongoDriver {
       document.append("lap_distance", telemetryRecord.getLapDistance());
       document.append("throttle", telemetryRecord.getThrottle());
       document.append("vehicle_speed", telemetryRecord.getVehicleSpeed());
-      telemetry.insertOne(document);
+
+      telemetryRecordsList.add(document);
+
+      if (telemetryRecordsList.size() > 1000) {
+        telemetry.insertMany(telemetryRecordsList);
+        telemetryRecordsList.clear();
+      }
+    });
+
+    recordStreamer.setStreamEndListener(s -> {
+      System.out.println("Ending Stream");
+      laps.insertMany(completedLapsList);
+      completedLapsList.clear();
+
+      telemetry.insertMany(telemetryRecordsList);
+      telemetryRecordsList.clear();
     });
 
     // end of subscribing

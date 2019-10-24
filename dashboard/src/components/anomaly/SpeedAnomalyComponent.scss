@@ -3,6 +3,20 @@
   grid-template-columns: 200px auto;
   margin-top: 10px;
 
+  @media only screen and (max-width: 600px) {
+    grid-template-columns: 1fr;
+    grid-template-rows: auto auto;
+  }
+
+  .anomaly-graph-wrapper {
+    position: relative;
+    height: 150px;
+
+    @media only screen and (max-width: 600px) {
+      margin-top: 20px;
+    }
+  }
+
   .gauge-canvas {
     width: 150px;
     height: 75px;

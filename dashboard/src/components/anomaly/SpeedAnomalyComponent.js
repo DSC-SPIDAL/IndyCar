@@ -53,7 +53,7 @@ class SpeedAnomalyComponent extends React.Component {
                                 value={this.props.anomalyData[this.props.metric].last}/>
                     </div>
                 </div>
-                <div style={{position: 'relative', height: 150}}>
+                <div className="anomaly-graph-wrapper">
                     <Bar data={{
                         labels: this.props.anomalyData.TIME,
                         datasets: [{
@@ -148,7 +148,7 @@ class SpeedAnomalyComponent extends React.Component {
                                     fontColor: 'black'
                                 },
                                 afterFit: function (scaleInstance) {
-                                    scaleInstance.width = 70; // sets the width to 100px
+                                    scaleInstance.width = /Mobi|Android/i.test(navigator.userAgent) ? 0 : 70; // sets the width to 100px
                                 }
                             }, {
                                 id: 'Anomaly',

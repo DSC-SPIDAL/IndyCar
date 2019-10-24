@@ -3,9 +3,7 @@ package iu.edu.indycar.ws;
 import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketConfig;
 import com.corundumstudio.socketio.SocketIOServer;
-import iu.edu.indycar.models.AnomalyMessage;
-import iu.edu.indycar.models.CarPositionRecord;
-import iu.edu.indycar.models.JoinRoomMessage;
+import iu.edu.indycar.models.*;
 import iu.edu.indycar.prediction.RankResult;
 import iu.edu.indycar.streamer.RecordTiming;
 import iu.edu.indycar.streamer.records.CompleteLapRecord;
@@ -122,6 +120,19 @@ public class ServerBoot {
     //LOG.info("Sending event to room {}", room);
     this.server.getRoomOperations(room).sendEvent(room, anomalyMessage);
 
+    //report high anomalies
+    OptionalDouble maxAnomaly = anomalyMessage.getAnomalies().values().stream().mapToDouble(
+            Anomaly::getAnomaly).max();
+    if (maxAnomaly.isPresent()) {
+      double anomaly = maxAnomaly.getAsDouble();
+      if (anomaly > 0.6) {
+        this.server.getBroadcastOperations().sendEvent("anomaly_class", new AnomalyClass(
+                anomalyMessage.getCarNumber(), AnomalyClass.ANOMALY_CLASS_SEVERE));
+      } else if (anomaly > 0.3) {
+        this.server.getBroadcastOperations().sendEvent("anomaly_class", new AnomalyClass(
+                anomalyMessage.getCarNumber(), AnomalyClass.ANOMALY_CLASS_WARN));
+      }
+    }
 
     //update server time
     synchronized (this) {

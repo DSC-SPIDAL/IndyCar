@@ -11,13 +11,14 @@ import com.xuggle.xuggler.video.IConverter;
 import java.awt.image.BufferedImage;
 import java.io.IOException;
 import java.io.InputStream;
+import java.nio.file.Path;
 import java.util.Properties;
 import java.util.concurrent.atomic.AtomicLong;
 
 public class RTMPStreamer {
 
-    private static String url = "rtmp://localhost/live/";
-    //    private static String url = "rtmp://j-093.juliet.futuresystems.org/live/";
+    //private static String url = "rtmp://localhost/live/";
+        private static String url = "rtmp://j-093.juliet.futuresystems.org/live/";
     private static String fileName = "indycar";
     private static int height = 720;
     private static int width = 1280;
@@ -80,21 +81,31 @@ public class RTMPStreamer {
                 picture.delete();
                 if (packet.isComplete()) {
                     container.writePacket(packet);
-                    System.out.println("[ENCODER] writing packet of size " + packet.getSize());
+                    if(i.get()%10==0){
+                        System.out.println("Frame rate : "+(i.get()*1000/(System.currentTimeMillis()-fisrtTimeStamp)));
+                    }
                 }
             }
         });
     }
 
     public static void loopVideoRead(final String sourceUrl, final MediaListenerAdapter mediaListenerAdapter) {
+
         new Thread(() -> {
             while (true) {
                 IMediaReader reader = ToolFactory.makeReader(sourceUrl);
                 reader.setBufferedImageTypeToGenerate(BufferedImage.TYPE_3BYTE_BGR);
                 reader.addListener(mediaListenerAdapter);
-                while (reader.readPacket() == null) {
+                while (true) {
+                    long t1 = System.currentTimeMillis();
+                    IError iError = reader.readPacket();
+                    long t2 = System.currentTimeMillis();
+                    if(iError!=null) {
+                        break;
+                    }
                     try {
-                        Thread.sleep(33);
+                        long sleepOffSet = Math.max(0, (1000/30) - (t2-t1));
+                        Thread.sleep(sleepOffSet/3);
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }

@@ -23,7 +23,7 @@ class VisorView extends React.Component {
         return (
             <div className="visor-view-wrapper">
                 <div className="car-image">
-                    <img src={IMG} width="100%" alt="car image"/>
+                    <img src={IMG} alt="car image"/>
                     <div className="positions-wrapper">
                         <div className="current-position">
                             Current Position <span>{this.props.currentRank}</span>

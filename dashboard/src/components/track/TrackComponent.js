@@ -117,6 +117,14 @@ export default class TrackComponent extends React.Component {
     }
 
     reset = () => {
+        if (this.cars) {
+            Object.values(this.cars).forEach(carObj => {
+                if (carObj.anime) {
+                    carObj.anime.stop();
+                }
+            });
+        }
+
         this.cars = {};
 
         this.pastRecords = {};
@@ -130,17 +138,29 @@ export default class TrackComponent extends React.Component {
         this.bufferingCars = 0;
     };
 
+    onAnomalyClass = (anoClass) => {
+        if (this.cars[anoClass.carNumber] && this.cars[anoClass.carNumber].started) {
+            if (anoClass.anomalyClass === 1) {
+                this.warningContainer(anoClass.carNumber);
+            } else {
+                this.criticalContainer(anoClass.carNumber);
+            }
+        }
+    };
+
     componentDidMount() {
         console.log("Track component mounting...");
         this.drawTrack(this.trackWrapper);
         this.socketService.subscribe("position", this.positionEventReceiver);
+        this.socketService.subscribe("anomaly_class", this.onAnomalyClass);
     }
 
     componentWillUnmount() {
         console.log("Track Component Un-mounting...");
         this.socketService.unsubscribe("position", this.positionEventReceiver);
+        this.socketService.unsubscribe("anomaly_class", this.onAnomalyClass);
         Object.values(this.cars).forEach(frameBuffer => {
-            frameBuffer.carContainer.stop();
+            frameBuffer.carContainer.stop(false, true);
         });
         this.draw.clear();
         this.reset();
@@ -230,7 +250,7 @@ export default class TrackComponent extends React.Component {
         car.rotate(angle);
     };
 
-    animateCar = (carNumber, carContainer, carNumberGroup, numberOffset, car, newRecord, cb) => {
+    animateCar = (carNumber, carContainer, carNumberGroup, numberOffset, car, newRecord, cb, trckoff) => {
         //skip the first record
         if (!this.pastRecords[carNumber]) {
             this.pastRecords[carNumber] = newRecord;
@@ -269,7 +289,7 @@ export default class TrackComponent extends React.Component {
             }
         }
 
-        carContainer
+        let anime = carContainer
             .animate(deltaTime)
             .during((pos, morph, eased) => {
                 let distance = distanceFromStart + (pos * deltaDistance);
@@ -278,9 +298,6 @@ export default class TrackComponent extends React.Component {
                     distance = distance - (this.path.length());
                 }
                 let p = this.path.pointAt(distance);
-                let xOffset = p.x;
-                let yOffset = p.y;
-                let halfOfBox = numberOffset;
                 let angle;
                 if (distance < twoToOne) {
                     angle = 180;
@@ -302,34 +319,37 @@ export default class TrackComponent extends React.Component {
                 } else if (distance < threeToTwo) {
                     angle = 270 + (distance - fourToThree) / scalledTurnArc * -90;
                 }
-                carContainer.center(p.x, p.y);
+                carContainer.center(p.x - trckoff * carScale / 2 + 0.5 * carScale,
+                    p.y - trckoff * carScale / 3 + 0.5 * carScale);
                 car.rotate(angle);
                 //carNumberGroup.center(xOffset, yOffset);
             }).after(() => {
 
-            this.pastRecords[carNumber] = newRecord;
-            if (carNumber === window.debugCar) {
-                console.log("Timing", this.diffs[carNumber] - Date.now() + newRecord.time, this.timeReducers[carNumber], rawDeltaTime);
-            }
-            if (diff < 0 && this.timeReducers[carNumber] > 0.1) {
-                this.timeReducers[carNumber] -= 0.01;
-            } else if (diff > 0 && this.timeReducers[carNumber] < 1.5) {
-                this.timeReducers[carNumber] += 0.01;
-            }
-
-            //override all if buffer is running out
-            if (this.cars[carNumber].length < 3) {
-                this.timeReducers[carNumber] = 1.1;
+                this.pastRecords[carNumber] = newRecord;
                 if (carNumber === window.debugCar) {
-                    console.log("time reducer overridden", this.cars[carNumber].length);
+                    console.log("Timing", this.diffs[carNumber] - Date.now() + newRecord.time, this.timeReducers[carNumber], rawDeltaTime);
                 }
-            }
+                if (diff < 0 && this.timeReducers[carNumber] > 0.1) {
+                    this.timeReducers[carNumber] -= 0.01;
+                } else if (diff > 0 && this.timeReducers[carNumber] < 1.5) {
+                    this.timeReducers[carNumber] += 0.01;
+                }
 
-            if (carNumber === window.debugCar) {
-                console.log("Completed animation", deltaTime, rawDeltaTime, this.diffs[carNumber], this.timeReducers[carNumber], "Speed adjusted", speedAdjusted);
-            }
-            cb();
-        });
+                //override all if buffer is running out
+                if (this.cars[carNumber].length < 3) {
+                    this.timeReducers[carNumber] = 1.1;
+                    if (carNumber === window.debugCar) {
+                        console.log("time reducer overridden", this.cars[carNumber].length);
+                    }
+                }
+
+                if (carNumber === window.debugCar) {
+                    console.log("Completed animation", deltaTime, rawDeltaTime, this.diffs[carNumber], this.timeReducers[carNumber], "Speed adjusted", speedAdjusted);
+                }
+                cb();
+            });
+
+        this.cars[carNumber].anime = anime;
 
     };
 
@@ -340,8 +360,10 @@ export default class TrackComponent extends React.Component {
         let boundingBoxMax = trackWidth * widthSCale;//Math.sqrt(Math.pow(4.8 * carScale, 2) * 2);
 
         let car = carContainer.image(image).size(4.8 * carScale, 1.8 * carScale);
-        carContainer.rect(boundingBoxMax, boundingBoxMax).fill('transparent');//.stroke("black");
-        car.move(boundingBoxMax / 2 - 4.8 * carScale / 2, boundingBoxMax / 2 - trackOffset * carScale / 2);
+        let rect = carContainer.rect(boundingBoxMax, boundingBoxMax);
+        rect.fill('transparent');
+        // car.move(boundingBoxMax / 2 - 4.8 * carScale / 2, boundingBoxMax / 2 - trackOffset * carScale / 2);
+        car.move(boundingBoxMax / 2 - 4.8 * carScale / 2, boundingBoxMax / 2 - carScale / 2);
         //car.center(carContainer.cx(), carContainer.cy());
         car.rotate(180);
         car.opacity(0);
@@ -370,6 +392,7 @@ export default class TrackComponent extends React.Component {
 
         let frameBuffer = new CBuffer(this.bufferSize);
         frameBuffer.carContainer = carContainer;
+        frameBuffer.rect = rect;
 
         let firstTime = true;
         let excessCount = 0;
@@ -380,7 +403,7 @@ export default class TrackComponent extends React.Component {
             }
             if (data) {
                 this.animateCar(carNumber, carContainer, null,
-                    numberOffset, car, data, animationCallback);
+                    numberOffset, car, data, animationCallback, trackOffset);
             } else {
                 //could be because it has run out of buffer
                 console.log("No records in buffer", carNumber);
@@ -415,6 +438,8 @@ export default class TrackComponent extends React.Component {
                 firstTime = false;
                 animationCallback(startingRecord);
                 setTimeout(() => {
+
+                    this.cars[carNumber].started = true;
                     car.opacity(1);
                     //carNumberGroup.opacity(1);
                 }, 1000);
@@ -430,6 +455,45 @@ export default class TrackComponent extends React.Component {
 
         return frameBuffer;
     };
+
+
+    /*COLORING THE CONTAINER*/
+
+    applyContainerColor(carNumber, fill, stroke, scheduleClearTimer = false) {
+        if (this.cars[carNumber]) {
+            this.cars[carNumber].rect.fill(fill).stroke(stroke);
+            clearTimeout(this.cars[carNumber].containerColorTimer);
+            if (scheduleClearTimer) {
+                this.cars[carNumber].containerColorTimer = setTimeout(() => {
+                    this.clearContainer(carNumber);
+                }, 5000);
+            }
+        }
+    }
+
+    clearContainer = (carNumber) => {
+        this.applyContainerColor(carNumber,
+            'transparent',
+            'transparent'
+        );
+    };
+
+    criticalContainer = (carNumber) => {
+        this.applyContainerColor(carNumber,
+            'rgba(255,0,0,0.4)',
+            'rgb(255,0,0)',
+            true
+        );
+    };
+
+    warningContainer = (carNumber) => {
+        this.applyContainerColor(carNumber,
+            'rgba(251,192,45 ,0.4)',
+            '#FBC02D',
+            true
+        );
+    };
+
 
     render() {
         return (
