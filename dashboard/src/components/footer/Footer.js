@@ -25,7 +25,7 @@ export default class Footer extends React.Component {
         return (
             <div className="footer">
                 <div>
-                    <p>
+                    <p className="footer-description">
                         A Project by the Department of Intelligent Systems Engineering at Indiana University,
                         Bloomington. In collaboration with NTE IndyCar, Intel and Amazon.
                     </p>

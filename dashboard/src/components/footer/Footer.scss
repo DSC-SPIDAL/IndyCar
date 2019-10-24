@@ -4,11 +4,15 @@
   background-color: black;
   color: white;
   line-height: 28px;
-  padding: 0 10px 0 10px;
+  padding: 10px;
   font-size: 11px;
 
-  p {
-    margin-bottom: 0;
+  .footer-description {
+
+    @media only screen and (max-width: 600px) {
+      line-height: 12px;
+    }
+    margin: 0 !important;
   }
 
   .footer-buttons {

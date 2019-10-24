@@ -11,6 +11,12 @@
     display: grid;
     grid-template-columns: 120px auto;
 
+    .player-selection-current-position {
+      @media only screen and (max-width: 600px) {
+        text-align: right;
+      }
+    }
+
     .player-selection-car-label {
       font-family: Roboto, sans-serif;
       font-size: 18px;

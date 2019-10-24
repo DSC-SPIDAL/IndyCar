@@ -110,6 +110,8 @@ class LapTimesComponent extends React.Component {
             labels.push(i);
         }
 
+        let mobile = /Mobi|Android/i.test(navigator.userAgent);
+
         return (
             <div className="ic-section ic-lap-time-wrapper">
                 <Card>
@@ -141,12 +143,12 @@ class LapTimesComponent extends React.Component {
                         labels: labels,
                         datasets: dataSet,
                     }}
-                          height={window.innerWidth > 800 ? 300 : 200}
+                          height={mobile ? 70 : 300}
                           options={{
                               responsive: true,
                               maintainAspectRatio: false,
                               legend: {
-                                  display: window.innerWidth > 800,
+                                  display: !mobile,
                                   position: 'bottom',
                                   labels: {
                                       fontColor: 'black'
@@ -157,20 +159,20 @@ class LapTimesComponent extends React.Component {
                                       scaleLabel: {
                                           display: true,
                                           labelString: 'Lap time (s)',
-                                          fontColor: 'white'
+                                          fontColor: 'black'
                                       },
                                       gridLines: {
                                           color: "#90A4AE"
                                       },
                                       ticks: {
                                           fontColor: "black",
-                                      },
+                                      }
                                   }],
                                   xAxes: [{
                                       scaleLabel: {
                                           display: true,
                                           labelString: 'Lap number',
-                                          fontColor: 'white'
+                                          fontColor: 'black'
                                       },
                                       gridLines: {
                                           color: "#90A4AE"

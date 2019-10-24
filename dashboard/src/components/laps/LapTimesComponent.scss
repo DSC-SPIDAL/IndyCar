@@ -5,9 +5,19 @@
     display: grid;
     grid-template-columns: 1fr 1fr;
 
+    @media only screen and (max-width: 600px) {
+      grid-template-rows: 1fr 1fr;
+      grid-template-columns: 1fr;
+    }
+
     .ic-lap-time-header-controls {
       text-align: right;
       padding-top: 15px;
+
+      @media only screen and (max-width: 600px) {
+        text-align: left;
+        padding-top: 0;
+      }
     }
   }
 }

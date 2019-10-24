@@ -45,7 +45,7 @@ class PlayerSelectionComponent extends React.Component {
                                 </select>
                             </div>
                         </div>
-                        <div>
+                        <div className="player-selection-current-position">
                             <span className="player-selection-car-label">Current Position : {rank ||
                             <Spinner small={true}/>}</span>
                         </div>
