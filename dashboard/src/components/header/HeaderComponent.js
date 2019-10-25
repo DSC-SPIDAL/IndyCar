@@ -4,7 +4,6 @@ import {Alignment, ButtonGroup, Navbar, NavbarGroup} from "@blueprintjs/core";
 import THERMO_IMG from "./img/temp.svg";
 import BARO_IMG from "./img/baro.svg";
 import HUMIDITY_IMG from "./img/humidity.svg";
-import WEATHER_IMG from "./img/weather-icon.svg";
 import {SocketService} from "../../services/SocketService";
 import {HashRouter as Router, Link} from "react-router-dom";
 import {connect} from "react-redux";
@@ -81,7 +80,8 @@ class HeaderComponent extends React.Component {
                             </h3>
                         </div>
                     </NavbarGroup>
-                    <NavbarGroup align={Alignment.RIGHT} style={{height: '100px', position: 'relative'}}>
+                    <NavbarGroup align={Alignment.RIGHT}
+                                 className="header-time-navbar-group">
                         <div className="weather-information-rect-small weather-information-rect-small-1">
                         </div>
                         <div className="weather-information-rect-small weather-information-rect-small-2">
@@ -96,52 +96,56 @@ class HeaderComponent extends React.Component {
                         </div>
                     </NavbarGroup>
                 </Navbar>
-                <Navbar style={{height: '100px', backgroundColor: "#181818"}}>
-                    <NavbarGroup className="header" style={{height: '100px'}}>
+                <Navbar className="weather-navbar">
+                    <NavbarGroup className="header weather-navbar-group">
                         <div className="weather-information-indicators">
                             <div className="weather-indicator-title">
                                 <p>Track Conditions</p>
                             </div>
-                            <div className="weather-indicator">
-                                <img src={THERMO_IMG} alt="thermometer"/>
-                                <div>
-                                    <p className="weather-indicator-value">{this.state.weather.temperature} &deg; F</p>
-                                    <p className="weather-indicator-name">Temperature</p>
+                            <div className="weather-indicators-wrapper">
+                                <div className="weather-indicator">
+                                    <img src={THERMO_IMG} alt="thermometer"/>
+                                    <div>
+                                        <p className="weather-indicator-value">{this.state.weather.temperature} &deg; F</p>
+                                        <p className="weather-indicator-name">Temperature</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="weather-indicator">
-                                <img src={BARO_IMG} alt="barometer"/>
-                                <div>
-                                    <p className="weather-indicator-value">{this.state.weather.pressure}</p>
-                                    <p className="weather-indicator-name">Surface</p>
+                                <div className="weather-indicator">
+                                    <img src={BARO_IMG} alt="barometer"/>
+                                    <div>
+                                        <p className="weather-indicator-value">{this.state.weather.pressure}</p>
+                                        <p className="weather-indicator-name">Surface</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>
                     </NavbarGroup>
-                    <NavbarGroup align={Alignment.RIGHT} style={{height: '100px'}}>
+                    <NavbarGroup align={Alignment.RIGHT} className="header weather-navbar-group">
                         <div className="weather-information-indicators">
                             <div className="weather-indicator-title">
                                 <p>Ambient Conditions</p>
                             </div>
-                            <div className="weather-indicator">
-                                <img src={THERMO_IMG} alt="thermometer"/>
-                                <div>
-                                    <p className="weather-indicator-value">{this.state.weather.temperature} &deg; F</p>
-                                    <p className="weather-indicator-name">Temperature</p>
+                            <div className="weather-indicators-wrapper">
+                                <div className="weather-indicator">
+                                    <img src={THERMO_IMG} alt="thermometer"/>
+                                    <div>
+                                        <p className="weather-indicator-value">{this.state.weather.temperature} &deg; F</p>
+                                        <p className="weather-indicator-name">Temperature</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="weather-indicator">
-                                <img src={BARO_IMG} alt="barometer"/>
-                                <div>
-                                    <p className="weather-indicator-value">{this.state.weather.pressure}</p>
-                                    <p className="weather-indicator-name">Pressure</p>
+                                <div className="weather-indicator">
+                                    <img src={BARO_IMG} alt="barometer"/>
+                                    <div>
+                                        <p className="weather-indicator-value">{this.state.weather.pressure}</p>
+                                        <p className="weather-indicator-name">Pressure</p>
+                                    </div>
                                 </div>
-                            </div>
-                            <div className="weather-indicator">
-                                <img src={HUMIDITY_IMG} alt="humidity"/>
-                                <div>
-                                    <p className="weather-indicator-value"> {this.state.weather.relativeHumidity}%</p>
-                                    <p className="weather-indicator-name">Humidity</p>
+                                <div className="weather-indicator">
+                                    <img src={HUMIDITY_IMG} alt="humidity"/>
+                                    <div>
+                                        <p className="weather-indicator-value"> {this.state.weather.relativeHumidity}%</p>
+                                        <p className="weather-indicator-name">Humidity</p>
+                                    </div>
                                 </div>
                             </div>
                         </div>

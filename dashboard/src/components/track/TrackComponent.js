@@ -139,7 +139,7 @@ export default class TrackComponent extends React.Component {
     };
 
     onAnomalyClass = (anoClass) => {
-        if (this.cars[anoClass.carNumber] && this.cars[anoClass.carNumber].started) {
+        if (this.cars[anoClass.carNumber]) {
             if (anoClass.anomalyClass === 1) {
                 this.warningContainer(anoClass.carNumber);
             } else {
@@ -438,8 +438,6 @@ export default class TrackComponent extends React.Component {
                 firstTime = false;
                 animationCallback(startingRecord);
                 setTimeout(() => {
-
-                    this.cars[carNumber].started = true;
                     car.opacity(1);
                     //carNumberGroup.opacity(1);
                 }, 1000);
