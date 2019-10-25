@@ -38,7 +38,7 @@ class LeaderboardComponent extends React.Component {
                 {stillLoading ?
                     <Spinner large={true} className="leader-board-loader"/>
                     :
-                    <table>
+                    <table className="leader-board-table">
                         <thead>
                         <tr>
                             <td>
@@ -53,10 +53,10 @@ class LeaderboardComponent extends React.Component {
                             <td>
                                 Predicted Pos.
                             </td>
-                            <td>
+                            <td className="hidden-on-mobile">
                                 Fastest Lap(s)
                             </td>
-                            <td>
+                            <td className="hidden-on-mobile">
                                 Last Lap(s)
                             </td>
                         </tr>

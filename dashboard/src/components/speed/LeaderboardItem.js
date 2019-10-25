@@ -63,10 +63,10 @@ class LeaderboardItem extends React.Component {
                 <td style={{color: 'red'}}>
                     {this.state.predictedRank}
                 </td>
-                <td>
+                <td className="hidden-on-mobile">
                     {this.state.fastestLapTime}
                 </td>
-                <td>
+                <td className="hidden-on-mobile">
                     {this.state.lastLapTime}
                 </td>
             </tr>

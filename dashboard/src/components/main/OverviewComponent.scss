@@ -3,10 +3,19 @@
 .overview-wrapper {
   padding: 10px;
 
+  @media only screen and (max-width: 600px) {
+    padding-top: 20px;
+  }
+
   .overview-top {
     display: grid;
     grid-template-columns: auto 300px;
     grid-column-gap: 20px;
+
+    @media only screen and (max-width: 600px) {
+      grid-template-columns: 1fr;
+      grid-template-rows: auto auto;
+    }
 
     .pt-tab-indicator {
       background-color: $border_red;
@@ -29,6 +38,10 @@
 
     .overview-info {
       padding-top: 55px;
+
+      @media only screen and (max-width: 600px) {
+        padding-top: 20px;
+      }
 
       .pt-card {
         &:not(:last-of-type) {

@@ -17,7 +17,9 @@ let turnRadius = turnArc * 4 / (2 * Math.PI);
 
 let widthOffset = 0;
 
-let widgetWidth = window.innerWidth - 360;
+let mobile = /Mobi|Android/i.test(navigator.userAgent);
+
+let widgetWidth = mobile ? window.innerWidth - 20 : window.innerWidth - 360;
 
 console.log(widgetWidth);
 

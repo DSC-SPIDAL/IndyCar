@@ -1,4 +1,10 @@
 .team-page {
+  width: 75vw;
+  margin: auto;
+
+  @media only screen and (max-width: 600px) {
+    width: 100vw;
+  }
 
   .red-line {
     border-bottom: 2px solid #d81f29;
@@ -32,6 +38,7 @@
       display: grid;
       grid-template-columns: repeat(auto-fill, 150px);
       grid-column-gap: 25px;
+      grid-row-gap: 25px;
 
       .team-member {
         width: 150px;

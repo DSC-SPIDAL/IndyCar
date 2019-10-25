@@ -5,7 +5,7 @@ import TEAM_IMG from "./img/Group_Luddy.jpg";
 export default class TeamPage extends React.Component {
     render() {
         return (
-            <div style={{width: "75vw", margin: "auto"}} className="team-page">
+            <div className="team-page">
                 <div className="image-wrapper">
                     <img src={TEAM_IMG} width="100%"/>
                     <div className="title-wrapper">

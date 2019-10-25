@@ -3,15 +3,19 @@
   min-height: 400px;
   //height: 600px;
   //
-  //@media only screen and (max-width: 600px) {
-  //  & {
-  //    height: 400px;
-  //  }
-  //}
+  @media only screen and (max-width: 600px) {
+    margin-top: 20px;
+  }
 
-  table {
+  .leader-board-table {
     width: 100%;
     background-color: white;
+
+    .hidden-on-mobile {
+      @media only screen and (max-width: 600px) {
+        display: none;
+      }
+    }
 
     tr {
       box-shadow: 0 2px 0px 0 rgba(0, 0, 0, 0.1);
