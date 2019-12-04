@@ -4,6 +4,7 @@ import SVG from "svg.js";
 import CBuffer from "CBuffer";
 import {SocketService} from "../../services/SocketService";
 import LOADER from "./img/buffering.gif";
+import TrackInfoComponent from "./TrackInfoComponent";
 
 
 //GLOBAL CALCULATIONS//
@@ -143,9 +144,9 @@ export default class TrackComponent extends React.Component {
     onAnomalyClass = (anoClass) => {
         if (this.cars[anoClass.carNumber]) {
             if (anoClass.anomalyClass === 1) {
-                this.warningContainer(anoClass.carNumber);
+                this.warningContainer(anoClass.carNumber, anoClass.anomalyTag);
             } else {
-                this.criticalContainer(anoClass.carNumber);
+                this.criticalContainer(anoClass.carNumber, anoClass.anomalyTag);
             }
         }
     };
@@ -364,6 +365,27 @@ export default class TrackComponent extends React.Component {
         let car = carContainer.image(image).size(4.8 * carScale, 1.8 * carScale);
         let rect = carContainer.rect(boundingBoxMax, boundingBoxMax);
         rect.fill('transparent');
+
+        let textWrapper = carContainer.rect(boundingBoxMax, boundingBoxMax / 3)
+            .attr({x: 0, y: boundingBoxMax / -3}).hide();
+
+        textWrapper.fill("transparent");
+
+        let fontSize = (boundingBoxMax / 3) * 0.8;
+
+        let text = this.draw.text("SPD").attr({
+            x: boundingBoxMax / 2,
+            y: (boundingBoxMax / -3) - (fontSize / 2)
+        }).font({
+            fill: 'white',
+            family: 'Helvetica',
+            size: fontSize,
+            weight: 800,
+            anchor: "middle"
+        }).hide();
+        carContainer.add(text);
+
+
         // car.move(boundingBoxMax / 2 - 4.8 * carScale / 2, boundingBoxMax / 2 - trackOffset * carScale / 2);
         car.move(boundingBoxMax / 2 - 4.8 * carScale / 2, boundingBoxMax / 2 - carScale / 2);
         //car.center(carContainer.cx(), carContainer.cy());
@@ -379,7 +401,7 @@ export default class TrackComponent extends React.Component {
         //     "stroke-width": 1
         // }).center(carContainer.cx(), carContainer.cy());
         //
-        // carNumberGroup.text(carNumber).font({size: 14 * carScale / 9.230726182704274})
+        // carNumberGroup.textWrapper(carNumber).font({size: 14 * carScale / 9.230726182704274})
         //     .center(carContainer.cx(), carContainer.cy());
         // carNumberGroup.opacity(0);
 
@@ -395,6 +417,33 @@ export default class TrackComponent extends React.Component {
         let frameBuffer = new CBuffer(this.bufferSize);
         frameBuffer.carContainer = carContainer;
         frameBuffer.rect = rect;
+        frameBuffer.hideAnomaly = () => {
+            text.hide();
+            textWrapper.fill("transparent");
+            textWrapper.stroke("transparent");
+            rect.hide();
+        };
+        frameBuffer.showAnomaly = (fill, border, txt) => {
+            rect.fill(fill);
+            rect.stroke(border);
+
+            textWrapper.fill(border);
+            textWrapper.stroke(border);
+
+            let formattedText = txt;
+
+            if (txt === "SPEED") {
+                formattedText = "SPD";
+            } else if (txt === "THROTTLE") {
+                formattedText = "TTL";
+            }
+
+            text.text(formattedText);
+
+            text.show();
+            textWrapper.show();
+            rect.show();
+        };
 
         let firstTime = true;
         let excessCount = 0;
@@ -459,35 +508,28 @@ export default class TrackComponent extends React.Component {
 
     /*COLORING THE CONTAINER*/
 
-    applyContainerColor(carNumber, fill, stroke, scheduleClearTimer = false) {
+    applyContainerColor(carNumber, tag, fill, stroke, scheduleClearTimer = false) {
         if (this.cars[carNumber]) {
-            this.cars[carNumber].rect.fill(fill).stroke(stroke);
+            this.cars[carNumber].showAnomaly(fill, stroke, tag);
             clearTimeout(this.cars[carNumber].containerColorTimer);
             if (scheduleClearTimer) {
                 this.cars[carNumber].containerColorTimer = setTimeout(() => {
-                    this.clearContainer(carNumber);
+                    this.cars[carNumber].hideAnomaly();
                 }, 5000);
             }
         }
     }
 
-    clearContainer = (carNumber) => {
-        this.applyContainerColor(carNumber,
-            'transparent',
-            'transparent'
-        );
-    };
-
-    criticalContainer = (carNumber) => {
-        this.applyContainerColor(carNumber,
+    criticalContainer = (carNumber, tag) => {
+        this.applyContainerColor(carNumber, tag,
             'rgba(255,0,0,0.4)',
             'rgb(255,0,0)',
             true
         );
     };
 
-    warningContainer = (carNumber) => {
-        this.applyContainerColor(carNumber,
+    warningContainer = (carNumber, tag) => {
+        this.applyContainerColor(carNumber, tag,
             'rgba(251,192,45 ,0.4)',
             '#FBC02D',
             true
@@ -511,6 +553,7 @@ export default class TrackComponent extends React.Component {
                         <p>Buffering.....</p>
                     </div>
                 </div>
+                <TrackInfoComponent style={{visibility: !this.state.buffering ? 'visible' : 'hidden'}}/>
             </div>
         )
     }

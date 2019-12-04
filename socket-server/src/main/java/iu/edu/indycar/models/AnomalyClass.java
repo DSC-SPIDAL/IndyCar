@@ -9,9 +9,20 @@ public class AnomalyClass {
   private int carNumber;
   private int anomalyClass;
 
-  public AnomalyClass(int carNumber, int anomalyClass) {
+  private String anomalyTag;
+
+  public AnomalyClass(int carNumber, int anomalyClass, String anomalyTag) {
     this.carNumber = carNumber;
     this.anomalyClass = anomalyClass;
+    this.anomalyTag = anomalyTag;
+  }
+
+  public String getAnomalyTag() {
+    return anomalyTag;
+  }
+
+  public void setAnomalyTag(String anomalyTag) {
+    this.anomalyTag = anomalyTag;
   }
 
   public int getCarNumber() {

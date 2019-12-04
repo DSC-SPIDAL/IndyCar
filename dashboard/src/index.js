@@ -24,7 +24,7 @@ socketService.start(() => {
 });
 
 window.onfocus = () => {
-    //window.location.reload(true);
+    //window.location.reload();
 };
 
 window.onblur = () => {

@@ -12,6 +12,49 @@
   position: relative;
 }
 
+.ic-track-info {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  display: grid;
+  width: 60%;
+  grid-template-columns: 1fr 1fr;
+
+  .ic-track-info-cat-wrapper {
+    .title {
+      padding: 5px;
+      color: white;
+
+      font-family: Teko, sans-serif;;
+      font-size: 16px;
+
+      &.danger {
+        background-color: red;
+      }
+
+      &.warn {
+        background-color: #FBC02D;
+      }
+    }
+
+    .content {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      padding: 5px;
+      min-height: 100px;
+
+      &.danger {
+        background-color: rgba(255, 0, 0, 0.2);
+      }
+
+      &.warn {
+        background-color: rgba(251, 192, 45, 0.2);
+      }
+    }
+  }
+}
+
 .ic-track-buffering {
   position: absolute;
   top: 50%;

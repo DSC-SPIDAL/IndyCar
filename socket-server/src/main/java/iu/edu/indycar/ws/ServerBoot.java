@@ -121,16 +121,23 @@ public class ServerBoot {
     this.server.getRoomOperations(room).sendEvent(room, anomalyMessage);
 
     //report high anomalies
-    OptionalDouble maxAnomaly = anomalyMessage.getAnomalies().values().stream().mapToDouble(
-            Anomaly::getAnomaly).max();
-    if (maxAnomaly.isPresent()) {
-      double anomaly = maxAnomaly.getAsDouble();
-      if (anomaly > 0.6) {
+    double max  = Double.MIN_VALUE;
+    Anomaly maxAnomaly = null;
+    for (Anomaly value : anomalyMessage.getAnomalies().values()) {
+      if(max<value.getAnomaly()){
+        max = value.getAnomaly();
+        maxAnomaly = value;
+      }
+    }
+    if (maxAnomaly!=null) {
+      if (max > 0.6) {
         this.server.getBroadcastOperations().sendEvent("anomaly_class", new AnomalyClass(
-                anomalyMessage.getCarNumber(), AnomalyClass.ANOMALY_CLASS_SEVERE));
-      } else if (anomaly > 0.3) {
+                anomalyMessage.getCarNumber(), AnomalyClass.ANOMALY_CLASS_SEVERE,
+                maxAnomaly.getAnomalyType()));
+      } else if (max > 0.3) {
         this.server.getBroadcastOperations().sendEvent("anomaly_class", new AnomalyClass(
-                anomalyMessage.getCarNumber(), AnomalyClass.ANOMALY_CLASS_WARN));
+                anomalyMessage.getCarNumber(), AnomalyClass.ANOMALY_CLASS_WARN,
+                maxAnomaly.getAnomalyType()));
       }
     }
 
