@@ -1,6 +1,7 @@
 package iu.edu.indycar;
 
 import iu.edu.indycar.mqtt.MQTTClient;
+import iu.edu.indycar.prediction.NewPredictor;
 import iu.edu.indycar.prediction.RankPrediction;
 import iu.edu.indycar.streamer.StreamEndListener;
 import iu.edu.indycar.tmp.*;

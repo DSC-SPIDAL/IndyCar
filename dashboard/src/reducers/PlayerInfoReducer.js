@@ -13,7 +13,10 @@ export const PlayerInfo = (state = [], action) => {
             state.ranks = action.ranks;
             break;
         case ACTION_PLAYER_RANK_PREDICTIONS_RECEIVED:
-            state.rankPredictions = action.rankPredictions;
+            if (!state.rankPredictions) {
+                state.rankPredictions = {};
+            }
+            state.rankPredictions[action.carNumber] = action.prediction;
             break;
         case ACTION_PLAYER_LAP_RECORD_RECEIVED:
             if (!state.laps) {

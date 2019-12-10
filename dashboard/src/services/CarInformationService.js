@@ -1,6 +1,6 @@
 import {
     ACTION_PLAYER_INFO_RECEIVED,
-    ACTION_PLAYER_LAP_RECORD_RECEIVED,
+    ACTION_PLAYER_LAP_RECORD_RECEIVED, ACTION_PLAYER_RANK_PREDICTIONS_RECEIVED,
     ACTION_PLAYER_RANK_RECEIVED
 } from "../reducers/PlayerInfoReducer";
 
@@ -85,6 +85,20 @@ export default class CarInformationService {
                 ranks: rankingData
             });
         });
+
+        // Rank prediction
+        socket.subscribe("new-rank-prediction-init", predictionData => {
+            if (predictionData) {
+                Object.keys(predictionData).forEach(carNumber => {
+                    store.dispatch({
+                        ...predictionData[carNumber],
+                        type: ACTION_PLAYER_RANK_PREDICTIONS_RECEIVED,
+                    });
+                });
+            }
+        });
+
+        socket.subscribe("")
     }
 
     static notifyListeners = (listeners, data) => {

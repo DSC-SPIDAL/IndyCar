@@ -4,6 +4,8 @@ import com.corundumstudio.socketio.Configuration;
 import com.corundumstudio.socketio.SocketConfig;
 import com.corundumstudio.socketio.SocketIOServer;
 import iu.edu.indycar.models.*;
+import iu.edu.indycar.prediction.NewPredictionResult;
+import iu.edu.indycar.prediction.NewPredictor;
 import iu.edu.indycar.prediction.RankResult;
 import iu.edu.indycar.streamer.RecordTiming;
 import iu.edu.indycar.streamer.records.CompleteLapRecord;
@@ -47,6 +49,7 @@ public class ServerBoot {
   private HashMap<SocketAddress, PingLatency> latency = new HashMap<>();
 
   private RankResult rankResults = new RankResult();
+  private HashMap<String, NewPredictionResult> newRankPredictionResults = new HashMap<>();
   private ConcurrentHashMap<String, CarRank> ranks = new ConcurrentHashMap<>();
   private HashMap<String, Integer> rankPredictions = new HashMap<>();
 
@@ -55,6 +58,8 @@ public class ServerBoot {
   private final List<ArrayList<CarPositionRecord>> pastRecords = new ArrayList<>();
 
   private String timeOfServerString = "";
+
+  private NewPredictor newPredictor = new NewPredictor();
 
   public ServerBoot(String host, int port) {
 
@@ -196,6 +201,16 @@ public class ServerBoot {
                                         clr.getCarNumber(),
                                         (records) -> new ArrayList<>()
                                 ).add(clr);
+                                try{
+                                    if(clr.getLapStatus().equals("P")){
+                                      int prediction = this.newPredictor.predict(clr.getCarNumber());
+                                      NewPredictionResult newPredictionResult = new NewPredictionResult(clr.getCarNumber(), prediction);
+                                      newRankPredictionResults.put(clr.getCarNumber(),newPredictionResult);
+                                      server.getBroadcastOperations().sendEvent("new-rank-prediction",newPredictionResult);
+                                    }
+                                }catch (Exception ex){
+                                    LOG.error("Error in rank prediction",ex);
+                                }
                                 server.getBroadcastOperations().sendEvent("lap-record", clr);
                               },
                               1,
@@ -227,6 +242,7 @@ public class ServerBoot {
     this.lapRecords = new HashMap<>();
     this.rankPredictions = new HashMap<>();
     this.ranks.clear();
+    this.newRankPredictionResults.clear();
     this.carPositionRecords.clear();
     this.pastRecords.clear();
 
@@ -236,6 +252,9 @@ public class ServerBoot {
     this.recordTimingStarted.set(false);
 
     this.timeOfServerString = "";
+
+    //clear predicor
+    this.newPredictor.clear();
   }
 
   public void start() {
@@ -260,6 +279,8 @@ public class ServerBoot {
       if (this.rankResults != null) {
         socketIOClient.sendEvent("ranking-data", this.rankResults);
       }
+
+      socketIOClient.sendEvent("new-rank-prediction-init",this.newRankPredictionResults);
 
       latency.put(
               socketIOClient.getRemoteAddress(),

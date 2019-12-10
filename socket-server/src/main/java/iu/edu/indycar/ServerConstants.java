@@ -71,5 +71,9 @@ public class ServerConstants {
   public static final boolean WRITE_DEBUG_LOGS = false;
 
   public static final String RANK_PRED_REST = "http://r-001:8501/v1/models/rank:predict";
+  public static final String NEW_RANK_PRED_REST = "http://localhost:5001/predict";
+
+  public static final boolean USE_OLD_PREDICTION = false;
+
   public static final int RANK_PRED_RECORDS_PER_REQ = 5;
 }

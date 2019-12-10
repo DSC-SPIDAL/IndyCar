@@ -6,14 +6,9 @@ import iu.edu.indycar.streamer.records.policy.AbstractRecordAcceptPolicy;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
-import java.io.BufferedWriter;
 import java.io.File;
-import java.io.FileWriter;
 import java.io.IOException;
 import java.util.HashMap;
-import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
-import java.util.concurrent.atomic.AtomicInteger;
 
 public class StreamerTest {
 
@@ -25,37 +20,11 @@ public class StreamerTest {
         RecordStreamer recordStreamer = new RecordStreamer(
                 file, true, 10000000, s -> s.split("_")[2]);
 
-        ConcurrentHashMap<String, AtomicInteger> recordsCount = new ConcurrentHashMap<>();
-
-        Map<String, Long> firstRecordTime = new ConcurrentHashMap<>();
-        Map<String, Long> lastRecordTime = new ConcurrentHashMap<>();
-
-        AtomicInteger recordNumber = new AtomicInteger();
-
-        BufferedWriter bw = new BufferedWriter(new FileWriter("selo.csv"));
-
-        recordStreamer.setTelemetryRecordListener(record -> {
-            try {
-                bw.write(record.getCarNumber()+","+record.getTimeOfDayLong()+","+ record.getLapDistance());
-                bw.newLine();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        });
-
-        recordStreamer.setWeatherRecordListener(wr -> {
-            //System.out.println(wr.getTimeOfDay());
-            //System.out.println(wr.getPressure());
-            //System.out.println(wr.getTemperature());
-        });
-
-        recordStreamer.setEntryRecordRecordListener(er -> {
-            //System.out.println(er.getCarNumber());
-        });
-
 
         recordStreamer.setCompleteLapRecordRecordListener(cr -> {
-            System.out.println(cr.getCarNumber()+","+cr.getCompletedLaps());
+            if (cr.getLapStatus().equals("P")) {
+                System.out.println(cr.getCarNumber() + ":" + cr.getCompletedLaps());
+            }
         });
 
         recordStreamer.addRecordAcceptPolicy(CompleteLapRecord.class, new AbstractRecordAcceptPolicy<CompleteLapRecord>() {
@@ -67,18 +36,6 @@ public class StreamerTest {
 
         recordStreamer.setStreamEndListener(tag -> {
             LOG.info("End of stream");
-
-            try {
-                bw.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-
-            recordsCount.forEach((k, v) -> {
-                long timePassed = Math.max(1, lastRecordTime.get(k) - firstRecordTime.get(k));
-                System.out.println(k + "," + v + ","
-                        + (v.get() * 1000 / ((timePassed))));
-            });
 
 
 //            tt.cancel();

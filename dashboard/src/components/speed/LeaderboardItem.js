@@ -34,12 +34,21 @@ class LeaderboardItem extends React.Component {
             fastestLapTime = nextProps.lastLaps[nextProps.carNumber].fastestLapTime;
         }
 
-        if (nextProps.ranks.predictions
-            && typeof nextProps.ranks.predictions[nextProps.carNumber] !== 'undefined') {
-            if (nextProps.ranks.predictions[nextProps.carNumber] <= 0) {
-                predictedRank = 1;
+        // if (nextProps.ranks.predictions
+        //     && typeof nextProps.ranks.predictions[nextProps.carNumber] !== 'undefined') {
+        //     if (nextProps.ranks.predictions[nextProps.carNumber] <= 0) {
+        //         predictedRank = 1;
+        //     } else {
+        //         predictedRank = nextProps.ranks.predictions[nextProps.carNumber];
+        //     }
+        // }
+
+        if (nextProps.predictions
+            && typeof nextProps.predictions[nextProps.carNumber] !== 'undefined') {
+            if (isNaN(nextProps.predictions[nextProps.carNumber])) {
+                predictedRank = 0;
             } else {
-                predictedRank = nextProps.ranks.predictions[nextProps.carNumber];
+                predictedRank = parseInt(nextProps.predictions[nextProps.carNumber]);
             }
         }
 
@@ -49,6 +58,14 @@ class LeaderboardItem extends React.Component {
     }
 
     render() {
+
+        let predColor = "black";
+        if (this.state.predictedRank && this.state.predictedRank < 0) {
+            predColor = "red";
+        } else if (this.state.predictedRank && this.state.predictedRank > 0) {
+            predColor = "green";
+        }
+
         return (
             <tr>
                 <td>
@@ -60,8 +77,8 @@ class LeaderboardItem extends React.Component {
                 <td>
                     {this.props.ranks.carToRank[this.props.carNumber]}
                 </td>
-                <td style={{color: 'red'}}>
-                    {this.state.predictedRank}
+                <td style={{color: predColor}}>
+                    {this.props.ranks.carToRank[this.props.carNumber] + this.state.predictedRank}
                 </td>
                 <td className="hidden-on-mobile">
                     {this.state.fastestLapTime}
@@ -82,7 +99,8 @@ const LBItem = connect(state => {
     return {
         players: state.PlayerInfo.players || {},
         lastLaps: state.PlayerInfo.lastLaps || {},
-        ranks: state.PlayerInfo.ranks || {}
+        ranks: state.PlayerInfo.ranks || {},
+        predictions: state.PlayerInfo.rankPredictions || {}
     }
 })(LeaderboardItem);
 

@@ -46,47 +46,50 @@ public class RankPrediction {
       return false;
     }
 
-    LinkedList<CompleteLapRecord> completeLapRecords = records.computeIfAbsent(
-            completeLapRecord.getCarNumber(),
-            carNumber -> new LinkedList<>());
+    if(ServerConstants.USE_OLD_PREDICTION) {
 
-    completeLapRecords.add(completeLapRecord);
-    while (completeLapRecords.size() > ServerConstants.RANK_PRED_RECORDS_PER_REQ) {
-      completeLapRecords.pop();
-    }
 
-    final List<LinkedList<CompleteLapRecord>> carsWithFivePlus = new ArrayList<>();
-    final List<String> carsWithFivePlusRef = new ArrayList<>();
+      LinkedList<CompleteLapRecord> completeLapRecords = records.computeIfAbsent(
+              completeLapRecord.getCarNumber(),
+              carNumber -> new LinkedList<>());
 
-    records.forEach((k, v) -> {
-      if (v.size() == ServerConstants.RANK_PRED_RECORDS_PER_REQ) {
-        carsWithFivePlusRef.add(k);
-        carsWithFivePlus.add(v);
+      completeLapRecords.add(completeLapRecord);
+      while (completeLapRecords.size() > ServerConstants.RANK_PRED_RECORDS_PER_REQ) {
+        completeLapRecords.pop();
       }
-    });
 
+      final List<LinkedList<CompleteLapRecord>> carsWithFivePlus = new ArrayList<>();
+      final List<String> carsWithFivePlusRef = new ArrayList<>();
 
-    try {
-      if (!carsWithFivePlus.isEmpty()) {
-        RankPredictionRequest rankPredictionRequest = new RankPredictionRequest(carsWithFivePlus);
-        RankPredictionResponse post = this.client.target(ServerConstants.RANK_PRED_REST)
-                .request(MediaType.APPLICATION_JSON_TYPE)
-                .post(Entity.entity(
-                        rankPredictionRequest, MediaType.APPLICATION_JSON_TYPE),
-                        RankPredictionResponse.class);
-
-        for (int i = 0; i < carsWithFivePlusRef.size(); i++) {
-          String carNumber = carsWithFivePlusRef.get(i);
-          float predictedRank = post.getPredictions().get(i);
-          this.rankResult.publishPrediction(carNumber, Math.round(predictedRank));
+      records.forEach((k, v) -> {
+        if (v.size() == ServerConstants.RANK_PRED_RECORDS_PER_REQ) {
+          carsWithFivePlusRef.add(k);
+          carsWithFivePlus.add(v);
         }
+      });
 
-        PredLog predLog = new PredLog();
-        predLog.req = rankPredictionRequest;
-        predLog.res = post;
-        predLog.orderOfCars = carsWithFivePlusRef;
 
-        mapper.writeValue(new File("/tmp/preds", atomicLong.incrementAndGet() + ".json"), predLog);
+      try {
+        if (!carsWithFivePlus.isEmpty()) {
+          RankPredictionRequest rankPredictionRequest = new RankPredictionRequest(carsWithFivePlus);
+          RankPredictionResponse post = this.client.target(ServerConstants.RANK_PRED_REST)
+                  .request(MediaType.APPLICATION_JSON_TYPE)
+                  .post(Entity.entity(
+                          rankPredictionRequest, MediaType.APPLICATION_JSON_TYPE),
+                          RankPredictionResponse.class);
+
+          for (int i = 0; i < carsWithFivePlusRef.size(); i++) {
+            String carNumber = carsWithFivePlusRef.get(i);
+            float predictedRank = post.getPredictions().get(i);
+            this.rankResult.publishPrediction(carNumber, Math.round(predictedRank));
+          }
+
+          PredLog predLog = new PredLog();
+          predLog.req = rankPredictionRequest;
+          predLog.res = post;
+          predLog.orderOfCars = carsWithFivePlusRef;
+
+          // mapper.writeValue(new File("/tmp/preds", atomicLong.incrementAndGet() + ".json"), predLog);
 
 //        final List<PredictionOfCar> toSort = new ArrayList<>();
 //        for (int i = 0; i < carsWithFivePlusRef.size(); i++) {
@@ -100,9 +103,10 @@ public class RankPrediction {
 //        for (PredictionOfCar predictionOfCar : toSort) {
 //          this.rankResult.publishPrediction(predictionOfCar.getCarNumber(), rank++);
 //        }
+        }
+      } catch (Exception ex) {
+        LOG.error("Error in rank prediction", ex);
       }
-    } catch (Exception ex) {
-      LOG.error("Error in rank prediction", ex);
     }
 
     this.rankResult.publishRank(completeLapRecord.getCarNumber(), completeLapRecord.getOverallRank());
