@@ -3,6 +3,7 @@ import "./SpeedDataComponent.css";
 import PropTypes from 'prop-types';
 import "./LeaderboardItem.css";
 import {connect} from "react-redux";
+import {Spinner} from "@blueprintjs/core";
 
 /**
  * @author Chathura Widanage
@@ -78,7 +79,7 @@ class LeaderboardItem extends React.Component {
                     {this.props.ranks.carToRank[this.props.carNumber]}
                 </td>
                 <td style={{color: predColor}}>
-                    {this.props.ranks.carToRank[this.props.carNumber] + this.state.predictedRank}
+                    {isNaN(this.state.predictedRank) ? "-" : this.props.ranks.carToRank[this.props.carNumber] + this.state.predictedRank}
                 </td>
                 <td className="hidden-on-mobile">
                     {this.state.fastestLapTime}
