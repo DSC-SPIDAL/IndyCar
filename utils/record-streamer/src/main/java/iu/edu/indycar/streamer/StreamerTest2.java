@@ -21,7 +21,7 @@ public class StreamerTest2 {
         File file = new File("/home/chathura/Downloads/indy_data/IPBroadcaster_Input_2018-05-27_0.log");
 
         RecordStreamer recordStreamer = new RecordStreamer(
-                file, false, 10000000, s -> s.split("_")[2]);
+                file, false, 1, s -> s.split("_")[2]);
 
         recordStreamer.setTelemetryRecordListener(record -> {
             System.out.println(record.getCarNumber() + "," + record.getTimeOfDayLong()
