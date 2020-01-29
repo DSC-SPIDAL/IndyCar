@@ -1,6 +1,7 @@
 export const ACTION_PLAYER_INFO_RECEIVED = "ACTION_PLAYER_INFO_RECEIVED";
 export const ACTION_PLAYER_RANK_RECEIVED = "ACTION_PLAYER_RANK_RECEIVED";
 export const ACTION_PLAYER_RANK_PREDICTIONS_RECEIVED = "ACTION_PLAYER_RANK_PREDICTIONS_RECEIVED";
+export const ACTION_PLAYER_RANK_PREDICTIONS_INIT_RECEIVED = "ACTION_PLAYER_RANK_PREDICTIONS_INIT_RECEIVED";
 export const ACTION_PLAYER_LAP_RECORD_RECEIVED = "ACTION_PLAYER_LAP_RECORD_RECEIVED";
 
 
@@ -11,6 +12,9 @@ export const PlayerInfo = (state = [], action) => {
             break;
         case ACTION_PLAYER_RANK_RECEIVED:
             state.ranks = action.ranks;
+            break;
+        case ACTION_PLAYER_RANK_PREDICTIONS_INIT_RECEIVED:
+            state.rankPredictions = action.predictions;
             break;
         case ACTION_PLAYER_RANK_PREDICTIONS_RECEIVED:
             if (!state.rankPredictions) {

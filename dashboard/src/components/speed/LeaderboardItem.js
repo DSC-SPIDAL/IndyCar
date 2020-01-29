@@ -61,9 +61,10 @@ class LeaderboardItem extends React.Component {
     render() {
 
         let predColor = "black";
-        if (this.state.predictedRank && this.state.predictedRank < 0) {
+
+        if (this.state.predictedRank && this.state.predictedRank > 0) {
             predColor = "red";
-        } else if (this.state.predictedRank && this.state.predictedRank > 0) {
+        } else if (this.state.predictedRank && this.state.predictedRank < 0) {
             predColor = "green";
         }
 

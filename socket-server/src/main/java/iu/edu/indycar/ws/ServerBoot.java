@@ -20,6 +20,7 @@ import java.net.SocketAddress;
 import java.util.*;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.stream.Collectors;
 
 public class ServerBoot {
 
@@ -126,23 +127,23 @@ public class ServerBoot {
     this.server.getRoomOperations(room).sendEvent(room, anomalyMessage);
 
     //report high anomalies
-    double max  = Double.MIN_VALUE;
+    double max = Double.MIN_VALUE;
     Anomaly maxAnomaly = null;
     for (Anomaly value : anomalyMessage.getAnomalies().values()) {
-      if(max<value.getAnomaly()){
+      if (max < value.getAnomaly()) {
         max = value.getAnomaly();
         maxAnomaly = value;
       }
     }
-    if (maxAnomaly!=null) {
+    if (maxAnomaly != null) {
       if (max > 0.6) {
         this.server.getBroadcastOperations().sendEvent("anomaly_class", new AnomalyClass(
-                anomalyMessage.getCarNumber(), AnomalyClass.ANOMALY_CLASS_SEVERE,
-                maxAnomaly.getAnomalyType()));
+            anomalyMessage.getCarNumber(), AnomalyClass.ANOMALY_CLASS_SEVERE,
+            maxAnomaly.getAnomalyType()));
       } else if (max > 0.3) {
         this.server.getBroadcastOperations().sendEvent("anomaly_class", new AnomalyClass(
-                anomalyMessage.getCarNumber(), AnomalyClass.ANOMALY_CLASS_WARN,
-                maxAnomaly.getAnomalyType()));
+            anomalyMessage.getCarNumber(), AnomalyClass.ANOMALY_CLASS_WARN,
+            maxAnomaly.getAnomalyType()));
       }
     }
 
@@ -156,7 +157,7 @@ public class ServerBoot {
 
   public void publishPositionEvent(CarPositionRecord carPositionRecord, long counter) {
     LOG.debug("Publishing position event {}. Record timing started : {}",
-            counter, recordTimingStarted.get());
+        counter, recordTimingStarted.get());
     carPositionRecord.setSentTime(System.currentTimeMillis());
     synchronized (this.carPositionRecords) {
       this.carPositionRecords.put(carPositionRecord.getCarNumber(), carPositionRecord);
@@ -190,38 +191,38 @@ public class ServerBoot {
   public void publishCompletedLapRecord(CompleteLapRecord completeLapRecord) throws InterruptedException {
     String tag = "LAP-" + completeLapRecord.getCarNumber();
     this.recordsTiming.computeIfAbsent(
-            tag,
-            s -> {
-              RecordTiming recordTiming =
-                      new RecordTiming(
-                              tag,
-                              r -> {
-                                CompleteLapRecord clr = (CompleteLapRecord) (r);
-                                lapRecords.computeIfAbsent(
-                                        clr.getCarNumber(),
-                                        (records) -> new ArrayList<>()
-                                ).add(clr);
-                                try{
-                                    if(clr.getLapStatus().equals("P")){
-                                      int prediction = this.newPredictor.predict(clr.getCarNumber());
-                                      NewPredictionResult newPredictionResult = new NewPredictionResult(clr.getCarNumber(), prediction);
-                                      newRankPredictionResults.put(clr.getCarNumber(),newPredictionResult);
-                                      server.getBroadcastOperations().sendEvent("new-rank-prediction",newPredictionResult);
-                                    }
-                                }catch (Exception ex){
-                                    LOG.error("Error in rank prediction",ex);
-                                }
-                                server.getBroadcastOperations().sendEvent("lap-record", clr);
-                              },
-                              1,
-                              e -> {
-                                //do nothing
-                              },
-                              recordTimingStarted.get()
-                      );
-              recordTiming.setPollTimeout(5);
-              return recordTiming;
-            }
+        tag,
+        s -> {
+          RecordTiming recordTiming =
+              new RecordTiming(
+                  tag,
+                  r -> {
+                    CompleteLapRecord clr = (CompleteLapRecord) (r);
+                    lapRecords.computeIfAbsent(
+                        clr.getCarNumber(),
+                        (records) -> new ArrayList<>()
+                    ).add(clr);
+                    try {
+                      if (clr.getLapStatus().equals("P")) {
+                        int prediction = this.newPredictor.predict(clr.getCarNumber());
+                        NewPredictionResult newPredictionResult = new NewPredictionResult(clr.getCarNumber(), prediction);
+                        newRankPredictionResults.put(clr.getCarNumber(), newPredictionResult);
+                        server.getBroadcastOperations().sendEvent("new-rank-prediction", newPredictionResult);
+                      }
+                    } catch (Exception ex) {
+                      LOG.error("Error in rank prediction", ex);
+                    }
+                    server.getBroadcastOperations().sendEvent("lap-record", clr);
+                  },
+                  1,
+                  e -> {
+                    //do nothing
+                  },
+                  recordTimingStarted.get()
+              );
+          recordTiming.setPollTimeout(5);
+          return recordTiming;
+        }
     ).enqueue(completeLapRecord);
   }
 
@@ -280,11 +281,14 @@ public class ServerBoot {
         socketIOClient.sendEvent("ranking-data", this.rankResults);
       }
 
-      socketIOClient.sendEvent("new-rank-prediction-init",this.newRankPredictionResults);
+      // sending new rank predictions
+      Map<String, Integer> newRankPredictionsMap = this.newRankPredictionResults.values().stream().collect(Collectors.toMap(NewPredictionResult::getCarNumber,
+          NewPredictionResult::getPrediction));
+      socketIOClient.sendEvent("new-rank-prediction-init", newRankPredictionsMap);
 
       latency.put(
-              socketIOClient.getRemoteAddress(),
-              new PingLatency(socketIOClient.getRemoteAddress().toString())
+          socketIOClient.getRemoteAddress(),
+          new PingLatency(socketIOClient.getRemoteAddress().toString())
       );
 
       //broadcast past records
@@ -303,23 +307,23 @@ public class ServerBoot {
     });
 
     server.addEventListener(
-            EVENT_SUB, JoinRoomMessage.class,
-            (socketIOClient, joinRoomMessage, ackRequest) -> {
-              LOG.debug("Join room[{}] request received from {}",
-                      joinRoomMessage.getRoomName(), socketIOClient.getRemoteAddress());
-              socketIOClient.joinRoom(joinRoomMessage.getRoomName());
-              ackRequest.sendAckData();
-            }
+        EVENT_SUB, JoinRoomMessage.class,
+        (socketIOClient, joinRoomMessage, ackRequest) -> {
+          LOG.debug("Join room[{}] request received from {}",
+              joinRoomMessage.getRoomName(), socketIOClient.getRemoteAddress());
+          socketIOClient.joinRoom(joinRoomMessage.getRoomName());
+          ackRequest.sendAckData();
+        }
     );
 
     server.addEventListener(
-            EVENT_UNSUB, JoinRoomMessage.class,
-            (socketIOClient, joinRoomMessage, ackRequest) -> {
-              LOG.debug("Leave room[{}] request received from {}",
-                      joinRoomMessage.getRoomName(), socketIOClient.getRemoteAddress());
-              socketIOClient.leaveRoom(joinRoomMessage.getRoomName());
-              ackRequest.sendAckData();
-            }
+        EVENT_UNSUB, JoinRoomMessage.class,
+        (socketIOClient, joinRoomMessage, ackRequest) -> {
+          LOG.debug("Leave room[{}] request received from {}",
+              joinRoomMessage.getRoomName(), socketIOClient.getRemoteAddress());
+          socketIOClient.leaveRoom(joinRoomMessage.getRoomName());
+          ackRequest.sendAckData();
+        }
     );
 
 

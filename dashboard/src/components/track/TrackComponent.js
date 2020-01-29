@@ -125,6 +125,7 @@ export default class TrackComponent extends React.Component {
                 if (carObj.anime) {
                     carObj.anime.stop();
                 }
+                clearTimeout(carObj.containerColorTimer);
             });
         }
 

@@ -118,4 +118,21 @@ public class TelemetryRecord implements IndycarRecord {
     public boolean isTimeSensitive() {
         return true;
     }
+
+    @Override
+    public String toString() {
+        return "TelemetryRecord{" +
+                "carNumber='" + carNumber + '\'' +
+                ", timeOfDay='" + timeOfDay + '\'' +
+                ", lapDistance=" + lapDistance +
+                ", vehicleSpeed=" + vehicleSpeed +
+                ", engineSpeed=" + engineSpeed +
+                ", throttle=" + throttle +
+                ", date='" + date + '\'' +
+                ", speedAnomaly=" + speedAnomaly +
+                ", throttleAnomaly=" + throttleAnomaly +
+                ", engineSpeedAnomaly=" + engineSpeedAnomaly +
+                ", timeOfDayLong=" + timeOfDayLong +
+                '}';
+    }
 }

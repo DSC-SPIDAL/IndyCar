@@ -11,7 +11,9 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicLong;
+import java.util.function.Function;
 
 public class StreamerTest2 {
 
@@ -24,18 +26,22 @@ public class StreamerTest2 {
                 file, false, 1, s -> s.split("_")[2]);
 
         recordStreamer.setTelemetryRecordListener(record -> {
-            System.out.println(record.getCarNumber() + "," + record.getTimeOfDayLong()
-                    + "," + record.getVehicleSpeed() + ",Add anything");
+
         });
 
 
+        final Map<String,String> ranks = new HashMap<>();
+
         recordStreamer.setCompleteLapRecordRecordListener(lapRecord -> {
-            //use if you need this
+            if(lapRecord.getLapStatus().equals("P")){
+                ranks.computeIfAbsent(lapRecord.getCarNumber(), s -> lapRecord.getCompletedLaps()+"");
+            }
         });
 
 
         recordStreamer.setStreamEndListener(tag -> {
             LOG.info("End of stream");
+            System.out.println(ranks);
         });
 
         final long startTime = TimeUtils.convertTimestampToLong("16:23:00.000");

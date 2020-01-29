@@ -1,6 +1,8 @@
 import {
     ACTION_PLAYER_INFO_RECEIVED,
-    ACTION_PLAYER_LAP_RECORD_RECEIVED, ACTION_PLAYER_RANK_PREDICTIONS_RECEIVED,
+    ACTION_PLAYER_LAP_RECORD_RECEIVED,
+    ACTION_PLAYER_RANK_PREDICTIONS_INIT_RECEIVED,
+    ACTION_PLAYER_RANK_PREDICTIONS_RECEIVED,
     ACTION_PLAYER_RANK_RECEIVED
 } from "../reducers/PlayerInfoReducer";
 
@@ -70,6 +72,7 @@ export default class CarInformationService {
             });
         };
         socket.subscribe("lap-records", (lapRecords) => {
+            console.log("Lap records", lapRecords);
             Object.keys(lapRecords).forEach(carNum => {
                 lapRecords[carNum].forEach(addLapRecord)
             });
@@ -89,11 +92,9 @@ export default class CarInformationService {
         // Rank prediction
         socket.subscribe("new-rank-prediction-init", predictionData => {
             if (predictionData) {
-                Object.keys(predictionData).forEach(carNumber => {
-                    store.dispatch({
-                        ...predictionData[carNumber],
-                        type: ACTION_PLAYER_RANK_PREDICTIONS_RECEIVED,
-                    });
+                store.dispatch({
+                    predictions: predictionData,
+                    type: ACTION_PLAYER_RANK_PREDICTIONS_INIT_RECEIVED,
                 });
             }
         });
