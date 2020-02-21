@@ -11,12 +11,9 @@ import org.apache.storm.streams.operations.Consumer;
 import org.apache.storm.streams.operations.PairFunction;
 import org.apache.storm.streams.operations.Predicate;
 import org.apache.storm.streams.operations.ValueJoiner;
-import org.apache.storm.streams.windowing.BaseWindow;
-import org.apache.storm.streams.windowing.SlidingWindows;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
 import org.apache.storm.topology.base.BaseRichSpout;
-import org.apache.storm.topology.base.BaseWindowedBolt;
 import org.apache.storm.tuple.Fields;
 import org.apache.storm.tuple.Tuple;
 
