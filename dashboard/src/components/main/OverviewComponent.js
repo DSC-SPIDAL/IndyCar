@@ -86,7 +86,7 @@ export default connect(state => {
 
     if (state.PlayerInfo.ranks && state.PlayerInfo.ranks.rankToCar) {
         let firstCarNumber = state.PlayerInfo.ranks.rankToCar[1];
-        let player = state.PlayerInfo.players[firstCarNumber];
+        let player = state.PlayerInfo.players && state.PlayerInfo.players[firstCarNumber];
         if (player) {
             let playerName = player.driverName;
             if (playerName) {

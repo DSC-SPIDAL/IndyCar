@@ -212,7 +212,7 @@ export default class TrackComponent extends React.Component {
         L${x3} ${y3}
         Q ${xc2} ${yc2} ${x2} ${y2}`)
             .attr({stroke: "#3E3E3E", fill: 'transparent', 'stroke-width': longStraightWay.width})
-            .center(widgetWidth / 2, (shortStraightWay.length + (2 * scaledRadius) + trackWidth * widthSCale * 2) / 2);
+            .center(widgetWidth / 2, 15 + (shortStraightWay.length + (2 * scaledRadius) + trackWidth * widthSCale * 2) / 2);
 
 //start pattern
         let pattern = this.draw.pattern(20, 20, function (add) {
@@ -222,7 +222,7 @@ export default class TrackComponent extends React.Component {
         });
 
 //start line
-        this.draw.rect(20 * scale, longStraightWay.width).fill(pattern).move(this.path.pointAt(0).x - 20 * scale/*x2 + 20 * scale*/, longStraightWay.width / 2/*y1 - (longStraightWay.width / 2) */);
+        this.draw.rect(20 * scale, longStraightWay.width).fill(pattern).move(this.path.pointAt(0).x - 20 * scale/*x2 + 20 * scale*/, 15+longStraightWay.width / 2/*y1 - (longStraightWay.width / 2) */);
 
         window.path = this.path;
     };

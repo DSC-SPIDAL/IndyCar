@@ -52,7 +52,10 @@
     grid-template-rows: 1fr 1fr;
 
     .weather-information-time {
-      margin-top: 10px;
+      margin-top: 25px;
+      min-width: 200px;
+      font-family: 'Share Tech Mono', monospace;
+      font-size: 28px;
 
       p {
         margin: 0;

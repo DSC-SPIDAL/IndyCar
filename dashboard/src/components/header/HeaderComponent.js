@@ -88,7 +88,7 @@ class HeaderComponent extends React.Component {
                         </div>
                         <div className="weather-information-rect">
                             <div className="weather-information-time">
-                                <p style={{letterSpacing: 5}}>
+                                <p>
                                     T+ <span>{this.props.time}</span>
                                 </p>
                             </div>
@@ -110,13 +110,13 @@ class HeaderComponent extends React.Component {
                                         <p className="weather-indicator-name">Temperature</p>
                                     </div>
                                 </div>
-                                <div className="weather-indicator">
-                                    <img src={BARO_IMG} alt="barometer"/>
-                                    <div>
-                                        <p className="weather-indicator-value">{this.state.weather.pressure}</p>
-                                        <p className="weather-indicator-name">Surface</p>
-                                    </div>
-                                </div>
+                                {/*<div className="weather-indicator">*/}
+                                {/*    <img src={BARO_IMG} alt="barometer"/>*/}
+                                {/*    <div>*/}
+                                {/*        <p className="weather-indicator-value">{this.state.weather.pressure}</p>*/}
+                                {/*        <p className="weather-indicator-name">Surface</p>*/}
+                                {/*    </div>*/}
+                                {/*</div>*/}
                             </div>
                         </div>
                     </NavbarGroup>

@@ -33,8 +33,9 @@ public class StreamerTest2 {
         final Map<String,String> ranks = new HashMap<>();
 
         recordStreamer.setCompleteLapRecordRecordListener(lapRecord -> {
-            if(lapRecord.getLapStatus().equals("P")){
-                ranks.computeIfAbsent(lapRecord.getCarNumber(), s -> lapRecord.getCompletedLaps()+"");
+            if(lapRecord.getLapStatus().equals("P") && lapRecord.getCarNumber().equals("9")){
+                System.out.println(lapRecord.getCompletedLaps());
+                //ranks.computeIfAbsent(lapRecord.getCarNumber(), s -> lapRecord.getCompletedLaps()+"");
             }
         });
 
