@@ -1,7 +1,13 @@
 package edu.iu.dsc.indycar.beam;
 
 import org.apache.beam.sdk.Pipeline;
+import org.apache.beam.sdk.coders.VarIntCoder;
 import org.apache.beam.sdk.io.TextIO;
+import org.apache.beam.sdk.options.PipelineOptionsFactory;
+import org.apache.beam.sdk.state.StateSpec;
+import org.apache.beam.sdk.state.StateSpecs;
+import org.apache.beam.sdk.state.ValueState;
+import org.apache.beam.sdk.transforms.Combine;
 import org.apache.beam.sdk.transforms.DoFn;
 import org.apache.beam.sdk.transforms.Flatten;
 import org.apache.beam.sdk.transforms.ParDo;
@@ -12,7 +18,7 @@ import java.util.*;
 public class BeamGraph {
 
   public static void main(String[] args) {
-    Pipeline pipeline = Pipeline.create();
+    Pipeline pipeline = Pipeline.create(PipelineOptionsFactory.fromArgs(args).create());
 
     final Map<String, TupleTag<List<Float>>> tags = new HashMap<>();
     List<TupleTag<?>> tupleTags = new ArrayList<>();
@@ -56,6 +62,7 @@ public class BeamGraph {
       }
       PCollectionTuple metricsCollection = mixedCollection.get(tags.get(carNumber)).apply("car-" + i,
           ParDo.of(new DoFn<List<Float>, Float>() {
+
             @ProcessElement
             public void splitMatrices(ProcessContext c) {
               List<Float> metrics = c.element();
@@ -90,6 +97,7 @@ public class BeamGraph {
 
       PCollection<List<Float>> finalResults = PCollectionList.of(anomalyScoresList)
           .apply(Flatten.pCollections());
+
       finalResults.apply("publish-results", ParDo.of(new DoFn<Object, Object>() {
 
         private Map<Float, Queue<List<Float>>> metricQ = new HashMap<>();
@@ -126,7 +134,9 @@ public class BeamGraph {
           System.out.println(c.element());
           List<Float> element = (List<Float>) c.element();
           metricQ.get(element.get(0)).add(element);
-          System.out.println(this.hashCode() + " Merging : " + carNumber + " : " + c.element());
+          if (carNumber.equals("1")) {
+            System.out.println(this.hashCode() + " Merging : " + carNumber + " : " + c.element());
+          }
           List<Float> check = check();
           if (check != null) {
             System.out.println("publishing : " + carNumber + " : " + check);

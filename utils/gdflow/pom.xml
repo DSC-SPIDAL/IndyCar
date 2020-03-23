@@ -81,7 +81,25 @@
             <version>2.19.0</version>
             <scope>runtime</scope>
         </dependency>
+        <!--        <dependency>-->
+        <!--            <groupId>com.google.cloud</groupId>-->
+        <!--            <artifactId>google-cloud-storage</artifactId>-->
+        <!--            <version>1.100.0</version>-->
 
+        <!--        </dependency>-->
+        <!-- https://mvnrepository.com/artifact/com.google.cloud/google-cloud-pubsub -->
+        <!-- https://mvnrepository.com/artifact/io.opencensus/opencensus-api -->
+        <dependency>
+            <groupId>io.opencensus</groupId>
+            <artifactId>opencensus-api</artifactId>
+            <version>0.25.0</version>
+        </dependency>
+
+        <dependency>
+            <groupId>com.google.cloud</groupId>
+            <artifactId>google-cloud-pubsub</artifactId>
+            <version>1.103.1</version>
+        </dependency>
     </dependencies>
 
 </project>
