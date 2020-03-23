@@ -26,25 +26,25 @@
             "image": "mattf/storm-worker",
             "ports": [
               {
-                "name": "6700",
+                "name": "p6700",
                 "containerPort": 6700
               },
               {
-                "name": "6701",
+                "name": "p6701",
                 "containerPort": 6701
               },
               {
-                "name": "6702",
+                "name": "p6702",
                 "containerPort": 6702
               },
               {
-                "name": "6703",
+                "name": "p6703",
                 "containerPort": 6703
               }
             ],
             "resources": {
               "limits": {
-                "cpu": "8000m"
+                "cpu": "200m"
               }
             }
           }
