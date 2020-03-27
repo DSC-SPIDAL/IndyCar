@@ -22,7 +22,6 @@
         "image": "storm",
         "args": [
           "storm",
-          "storm",
           "nimbus",
           "-c",
           "storm.zookeeper.servers='[\"zookeeper\"]'"

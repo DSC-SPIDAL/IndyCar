@@ -11,7 +11,15 @@
     "containers": [
       {
         "name": "storm-ui",
-        "image": "mattf/storm-ui",
+        "image": "storm",
+        "args": [
+          "storm",
+          "ui",
+          "-c",
+          "storm.zookeeper.servers='[\"zookeeper\"]'",
+          "-c",
+          "nimbus.host=nimbus"
+        ],
         "ports": [
           {
             "name": "storm-ui-http",
