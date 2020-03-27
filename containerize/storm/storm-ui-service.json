@@ -8,7 +8,6 @@
     }
   },
   "spec": {
-    "createExternalLoadBalancer": true,
     "ports": [
       {
         "port": 8080,
