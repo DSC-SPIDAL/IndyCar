@@ -10,21 +10,28 @@
   "spec": {
     "volumes": [
       {
-        "name": "topologies", 
+        "name": "topologies",
         "hostPath": {
           "path": "/home/chathura/data"
         }
       }
     ],
-    "containers": [ 
+    "containers": [
       {
-        "name": "nimbus", 
+        "name": "nimbus",
         "image": "storm",
+        "args": [
+          "storm",
+          "storm",
+          "nimbus",
+          "-c",
+          "storm.zookeeper.servers='[\"zookeeper\"]'"
+        ],
         "ports": [
           {
-            "containerPort": 6627 
+            "containerPort": 6627
           }
-        ], 
+        ],
         "resources": {
           "limits": {
             "cpu": "100m"
