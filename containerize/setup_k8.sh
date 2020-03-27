@@ -12,13 +12,3 @@ kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboar
 
 # start dashboard
 kubectl proxy
-
-# acccess dashboard
-http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/
-
-
-# create zookeeper pod
-kubectl create -f zookeeper.json
-
-# create zookeeper service
-kubectl create -f zookeer_service.json

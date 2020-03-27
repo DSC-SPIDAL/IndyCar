@@ -12,14 +12,14 @@
       {
         "name": "topologies", 
         "hostPath": {
-          "path": "/home/spinnakr/data"
+          "path": "/home/chathura/data"
         }
       }
     ],
     "containers": [ 
       {
         "name": "nimbus", 
-        "image": "mattf/storm-nimbus", 
+        "image": "storm",
         "ports": [
           {
             "containerPort": 6627 
