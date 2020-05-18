@@ -1,0 +1,33 @@
+{
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "activemq-apollo",
+    "labels": {
+      "name": "activemq-apollo"
+    }
+  },
+  "spec": {
+    "containers": [
+      {
+        "name": "activemq-artemis",
+        "image": "crowbary/apache-apollo",
+        "ports": [
+          {
+            "name": "apollo-ui-http",
+            "containerPort": 61680
+          },
+          {
+            "name": "apollo-mqtt",
+            "containerPort": 61613
+          }
+        ],
+        "resources": {
+          "limits": {
+            "cpu": "100m"
+          }
+        }
+      }
+    ]
+  }
+}

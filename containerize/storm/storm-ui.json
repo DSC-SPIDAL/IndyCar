@@ -8,17 +8,21 @@
     }
   },
   "spec": {
+    "volumes": [
+      {
+        "name": "config",
+        "hostPath": {
+          "path": "/home/chathura/config"
+        }
+      }
+    ],
     "containers": [
       {
         "name": "storm-ui",
         "image": "storm",
         "args": [
           "storm",
-          "ui",
-          "-c",
-          "storm.zookeeper.servers='[\"zookeeper\"]'",
-          "-c",
-          "nimbus.host=nimbus"
+          "ui"
         ],
         "ports": [
           {
@@ -30,7 +34,13 @@
           "limits": {
             "cpu": "100m"
           }
-        }
+        },
+        "volumeMounts": [
+          {
+            "name": "config",
+            "mountPath": "/config"
+          }
+        ]
       }
     ]
   }

@@ -6,10 +6,12 @@ import java.util.Set;
 
 //todo move to a config file
 public class ServerConstants {
-
-  public static final String CONNECTION_URL = "tcp://j-093.juliet.futuresystems.org:61613";
+//  public static final String CONNECTION_URL = "tcp://j-093.juliet.futuresystems.org:61613";
+  public static final String CONNECTION_URL = "tcp://192.168.99.107:31758";
   public static final String USERNAME = "admin";
-  public static final String PASSWORD = "qq6bTB3cZ9Fb8bgR";
+  public static final String PASSWORD = "password";
+//  public static final String USERNAME = "admin";
+//  public static final String PASSWORD = "qq6bTB3cZ9Fb8bgR";
 
   //public static final String ANOMALY_TOPIC = "streaming_output";
   public static final String ANOMALY_TOPIC = "compact_topology_out";
@@ -56,7 +58,7 @@ public class ServerConstants {
   };
 
 
-  public static int NO_OF_STREAMING_CARS = 33;
+  public static int NO_OF_STREAMING_CARS = 3;
 
   public static final boolean DIRECT_STREAM_DISTANCE = false;
   public static final boolean DIRECT_STREAM_CAR_FILTER = true;

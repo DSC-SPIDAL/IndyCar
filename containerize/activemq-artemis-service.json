@@ -1,0 +1,30 @@
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "activemq-artemis",
+    "labels": {
+      "name": "activemq-artemis"
+    }
+  },
+  "spec": {
+    "ports": [
+      {
+        "name": "artemis-ui-http",
+        "port": 8161,
+        "targetPort": "artemis-ui-http",
+        "protocol": "TCP"
+      },
+      {
+        "name": "artemis-mqtt",
+        "port": 1883,
+        "targetPort": "artemis-mqtt",
+        "protocol": "TCP"
+      }
+    ],
+    "selector": {
+      "name": "activemq-artemis"
+    },
+    "type": "LoadBalancer"
+  }
+}

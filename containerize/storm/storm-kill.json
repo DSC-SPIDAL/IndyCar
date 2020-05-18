@@ -2,38 +2,34 @@
   "kind": "Pod",
   "apiVersion": "v1",
   "metadata": {
-    "name": "nimbus",
+    "name": "storm-job-kill",
     "labels": {
-      "name": "nimbus"
+      "name": "storm-job-killer"
     }
   },
   "spec": {
     "volumes": [
       {
-        "name": "topologies",
-        "hostPath": {
-          "path": "/home/chathura/data"
-        }
-      },
-      {
         "name": "config",
         "hostPath": {
           "path": "/home/chathura/config"
+        }
+      },
+      {
+        "name": "topologies",
+        "hostPath": {
+          "path": "/home/chathura/data"
         }
       }
     ],
     "containers": [
       {
-        "name": "nimbus",
+        "name": "storm-job",
         "image": "storm",
         "args": [
           "storm",
-          "nimbus"
-        ],
-        "ports": [
-          {
-            "containerPort": 6627
-          }
+          "kill",
+          "INTEL_TOPOLOGY_INDYCAR"
         ],
         "resources": {
           "limits": {
@@ -51,6 +47,8 @@
           }
         ]
       }
-    ]
+    ],
+    "restartPolicy": "Never",
+    "terminationGracePeriodSeconds": 30
   }
 }

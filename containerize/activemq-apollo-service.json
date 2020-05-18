@@ -1,0 +1,30 @@
+{
+  "kind": "Service",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "activemq-apollo",
+    "labels": {
+      "name": "activemq-apollo"
+    }
+  },
+  "spec": {
+    "ports": [
+      {
+        "name": "apollo-ui-http",
+        "port": 61680,
+        "targetPort": "apollo-ui-http",
+        "protocol": "TCP"
+      },
+      {
+        "name": "apollo-mqtt",
+        "port": 61613,
+        "targetPort": "apollo-mqtt",
+        "protocol": "TCP"
+      }
+    ],
+    "selector": {
+      "name": "activemq-apollo"
+    },
+    "type": "LoadBalancer"
+  }
+}

@@ -1,0 +1,33 @@
+{
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "activemq-artemis",
+    "labels": {
+      "name": "activemq-artemis"
+    }
+  },
+  "spec": {
+    "containers": [
+      {
+        "name": "activemq-artemis",
+        "image": "vromero/activemq-artemis",
+        "ports": [
+          {
+            "name": "artemis-ui-http",
+            "containerPort": 8161
+          },
+          {
+            "name": "artemis-mqtt",
+            "containerPort": 1883
+          }
+        ],
+        "resources": {
+          "limits": {
+            "cpu": "100m"
+          }
+        }
+      }
+    ]
+  }
+}

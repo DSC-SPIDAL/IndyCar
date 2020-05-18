@@ -2,38 +2,37 @@
   "kind": "Pod",
   "apiVersion": "v1",
   "metadata": {
-    "name": "nimbus",
+    "name": "storm-job",
     "labels": {
-      "name": "nimbus"
+      "name": "storm-job"
     }
   },
   "spec": {
     "volumes": [
       {
-        "name": "topologies",
-        "hostPath": {
-          "path": "/home/chathura/data"
-        }
-      },
-      {
         "name": "config",
         "hostPath": {
           "path": "/home/chathura/config"
+        }
+      },
+      {
+        "name": "topologies",
+        "hostPath": {
+          "path": "/home/chathura/data"
         }
       }
     ],
     "containers": [
       {
-        "name": "nimbus",
+        "name": "storm-job",
         "image": "storm",
         "args": [
           "storm",
-          "nimbus"
-        ],
-        "ports": [
-          {
-            "containerPort": 6627
-          }
+          "jar",
+          "/data/topologies/Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar",
+          "org.apache.storm.flux.Flux",
+          "--remote",
+          "/data/topologies/small.yaml"
         ],
         "resources": {
           "limits": {
@@ -51,6 +50,8 @@
           }
         ]
       }
-    ]
+    ],
+    "restartPolicy": "OnFailure",
+    "terminationGracePeriodSeconds": 30
   }
 }

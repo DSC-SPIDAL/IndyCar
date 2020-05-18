@@ -39,7 +39,7 @@ public class TelemetryListener implements Runnable {
     private HashMap<String, Boolean> firstRecordDetected = new HashMap<>();
     private HashMap<String, RecordTiming> recordTimingHashMap = new HashMap<>();
 
-    private AtomicInteger messagesToQueue = new AtomicInteger(NO_OF_STREAMING_CARS * 30 * 8);
+    private AtomicInteger messagesToQueue = new AtomicInteger(NO_OF_STREAMING_CARS * 30 * 8 * 0);
 
     private HashMap<String, SpeedAnomalyWriter> speedAnWriter = new HashMap<>();
 

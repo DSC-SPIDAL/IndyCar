@@ -63,7 +63,8 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
     private final static String STR_ANOMALY = "Anomaly";
 
     private static final long serialVersionUID = 1L;
-    private String carnum;
+    private String inputTopic;
+    private String outputTopic;
     private Map<String, Publisher> recordPublisherMap = null;
 
     private String[] metrics = {METRIC_VEHICLE_SPEED, METRIC_ENGINE_SPEED, METRIC_THROTTLE};
@@ -77,8 +78,15 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
 
     private MQTTClientInstance mqttClientInstance;
 
-    public AnomalyDetectionTask(String carnum) {
-        this.carnum = carnum;
+    public AnomalyDetectionTask(String inputTopic) {
+        this.inputTopic = inputTopic;
+        this.outputTopic = OnlineLearningUtils.sinkoutTopic;
+    }
+
+    public AnomalyDetectionTask(String inputTopic, String outputTopic) {
+        this.inputTopic = inputTopic;
+        this.outputTopic = outputTopic;
+	LOG.info("Taking inputs from : {} and outputing to {}", inputTopic, outputTopic);
     }
 
     @Override
@@ -90,13 +98,16 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
         //instantiate the HTM networks for all metrics
         for (String metric : metrics) {
             this.anomalyScoreOuts.put(metric, new ConcurrentLinkedQueue<>());
-            this.startHTMNetwork(metric);
+            
+	    LOG.info("Starting HTM network for metric {}...",metric);
+            //this.startHTMNetwork(metric);
         }
-
+	LOG.info("Created all networks. Subscribing to topic...");
         try {
-            mqttClientInstance.subscribe(carnum, this);
+            mqttClientInstance.subscribe(inputTopic, this);
+	    LOG.info("Subscribed to topic {}", inputTopic);
         } catch (MqttException e) {
-            LOG.error("Error in subscribing to topic{}", carnum, e);
+            LOG.error("Error in subscribing to topic{}", inputTopic, e);
         }
     }
 
@@ -119,7 +130,7 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
             mqttmsg.setPayload(msgToSend.toJSONString().getBytes());
             mqttmsg.setQos(OnlineLearningUtils.QoS);
             try {
-                mqttClientInstance.sendMessage(OnlineLearningUtils.sinkoutTopic, mqttmsg);
+                mqttClientInstance.sendMessage(this.outputTopic, mqttmsg);
             } catch (MqttException e) {
                 e.printStackTrace();
             }
@@ -204,9 +215,9 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
 
             Parameters parameters = getModelParameters(params);
 
-            Network network = Network.create(carnum + " " + metric + " Network", parameters)
-                    .add(Network.createRegion(carnum + " " + metric + " Region")
-                            .add(Network.createLayer(carnum + " " + metric + " Layer", parameters)
+            Network network = Network.create(inputTopic + " " + metric + " Network", parameters)
+                    .add(Network.createRegion(inputTopic + " " + metric + " Region")
+                            .add(Network.createLayer(inputTopic + " " + metric + " Layer", parameters)
                                     .add(Anomaly.create())
                                     .add(new TemporalMemory())
                                     .add(new SpatialPooler())
@@ -394,14 +405,14 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
                 String timeOfDay = splits[5];
 
                 JSONObject recordobj = new JSONObject();
-                recordobj.put(PARAM_CAR_NUMBER, carnum);
+                recordobj.put(PARAM_CAR_NUMBER, inputTopic);
                 recordobj.put(PARAM_LAP_DISTANCE, lapDistance);
                 recordobj.put(PARAM_TIME_OF_DAY, timeOfDay.split(STR_SPACE)[1]);
                 recordobj.put(METRIC_VEHICLE_SPEED, speed);
                 recordobj.put(METRIC_ENGINE_SPEED, rpm);
                 recordobj.put(METRIC_THROTTLE, throttle);
 
-                final String uuid = carnum + STR_UCO + record_counter;
+                final String uuid = inputTopic + STR_UCO + record_counter;
 
                 recordobj.put(PARAM_TIME_RECV, System.currentTimeMillis());
 
@@ -414,8 +425,9 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
                 //incomingMessageQueue.add(recordobj);
 
                 for (String metric : metrics) {
-                    recordPublisherMap.get(metric).onNext(
-                            recordobj.get(PARAM_TIME_OF_DAY) + STR_COMMA + recordobj.get(metric));
+			this.anomalyScoreOuts.get(metric).add(throttle);
+                    //recordPublisherMap.get(metric).onNext(
+                      //      recordobj.get(PARAM_TIME_OF_DAY) + STR_COMMA + recordobj.get(metric));
                 }
             } else {
                 LOG.warn("CSV of unknown length {} received. Expected 6", splits.length);
