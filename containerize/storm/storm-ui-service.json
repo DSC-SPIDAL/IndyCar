@@ -18,6 +18,6 @@
     "selector": {
       "name": "storm-ui"
     },
-    "type": "LoadBalancer"
+    "type": "NodePort"
   }
 }

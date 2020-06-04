@@ -86,7 +86,7 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
     public AnomalyDetectionTask(String inputTopic, String outputTopic) {
         this.inputTopic = inputTopic;
         this.outputTopic = outputTopic;
-	LOG.info("Taking inputs from : {} and outputing to {}", inputTopic, outputTopic);
+	      LOG.info("Taking inputs from : {} and outputing to {}", inputTopic, outputTopic);
     }
 
     @Override
@@ -98,14 +98,14 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
         //instantiate the HTM networks for all metrics
         for (String metric : metrics) {
             this.anomalyScoreOuts.put(metric, new ConcurrentLinkedQueue<>());
-            
-	    LOG.info("Starting HTM network for metric {}...",metric);
-            //this.startHTMNetwork(metric);
+
+	          LOG.info("Starting HTM network for metric {}...",metric);
+            this.startHTMNetwork(metric);
         }
-	LOG.info("Created all networks. Subscribing to topic...");
+	      LOG.info("Created all networks. Subscribing to topic...");
         try {
             mqttClientInstance.subscribe(inputTopic, this);
-	    LOG.info("Subscribed to topic {}", inputTopic);
+	          LOG.info("Subscribed to topic {}", inputTopic);
         } catch (MqttException e) {
             LOG.error("Error in subscribing to topic{}", inputTopic, e);
         }
@@ -425,9 +425,8 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
                 //incomingMessageQueue.add(recordobj);
 
                 for (String metric : metrics) {
-			this.anomalyScoreOuts.get(metric).add(throttle);
-                    //recordPublisherMap.get(metric).onNext(
-                      //      recordobj.get(PARAM_TIME_OF_DAY) + STR_COMMA + recordobj.get(metric));
+                    recordPublisherMap.get(metric).onNext(
+                        recordobj.get(PARAM_TIME_OF_DAY) + STR_COMMA + recordobj.get(metric));
                 }
             } else {
                 LOG.warn("CSV of unknown length {} received. Expected 6", splits.length);

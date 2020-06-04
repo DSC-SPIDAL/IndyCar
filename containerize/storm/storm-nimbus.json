@@ -12,13 +12,13 @@
       {
         "name": "topologies",
         "hostPath": {
-          "path": "/home/chathura/data"
+          "path": "/home/cwidanage/k8/data"
         }
       },
       {
         "name": "config",
         "hostPath": {
-          "path": "/home/chathura/config"
+          "path": "/home/cwidanage/k8/config"
         }
       }
     ],
@@ -37,7 +37,7 @@
         ],
         "resources": {
           "limits": {
-            "cpu": "100m"
+            "cpu": "1"
           }
         },
         "volumeMounts": [

@@ -25,6 +25,6 @@
     "selector": {
       "name": "activemq-apollo"
     },
-    "type": "LoadBalancer"
+    "type": "NodePort"
   }
 }

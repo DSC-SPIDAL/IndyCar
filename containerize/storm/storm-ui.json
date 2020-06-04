@@ -12,7 +12,7 @@
       {
         "name": "config",
         "hostPath": {
-          "path": "/home/chathura/config"
+          "path": "/home/cwidanage/k8/config"
         }
       }
     ],
