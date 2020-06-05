@@ -14,6 +14,13 @@ spec:
       labels:
         app: jupyter-notebook
     spec:
+      volumes:
+        - name: topologies
+          hostPath:
+            path: /nfs/indycar/data
+        - name: notebooks
+          hostPath:
+             path: /nfs/indycar/notebooks
       containers:
       - name: minimal-notebook
         image: jupyter/minimal-notebook:latest
@@ -21,6 +28,11 @@ spec:
         - containerPort: 8888
         command: ["start-notebook.sh"]
         args: ["--NotebookApp.token=''"]
+        volumeMounts:
+          - name: topologies
+            mountPath: /data/topologies
+          - name: notebooks
+            mountPath: /home/jovyan
 ---
 kind: Service
 apiVersion: v1

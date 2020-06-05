@@ -10,9 +10,15 @@
   "spec": {
     "volumes": [
       {
+        "name": "topologies",
+        "hostPath": {
+          "path": "/nfs/indycar/data"
+        }
+      },
+      {
         "name": "config",
         "hostPath": {
-          "path": "/home/cwidanage/k8/config"
+          "path": "/nfs/indycar/config"
         }
       }
     ],

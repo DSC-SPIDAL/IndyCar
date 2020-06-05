@@ -7,7 +7,7 @@ import java.util.Set;
 //todo move to a config file
 public class ServerConstants {
 //  public static final String CONNECTION_URL = "tcp://j-093.juliet.futuresystems.org:61613";
-  public static final String CONNECTION_URL = "tcp://192.168.99.107:31758";
+  public static final String CONNECTION_URL = "tcp://activemq-apollo:31758";
   public static final String USERNAME = "admin";
   public static final String PASSWORD = "password";
 //  public static final String USERNAME = "admin";

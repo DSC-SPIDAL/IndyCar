@@ -10,15 +10,15 @@
   "spec": {
     "volumes": [
       {
-        "name": "config",
+        "name": "topologies",
         "hostPath": {
-          "path": "/home/chathura/config"
+          "path": "/nfs/indycar/data"
         }
       },
       {
-        "name": "topologies",
+        "name": "config",
         "hostPath": {
-          "path": "/home/chathura/data"
+          "path": "/nfs/indycar/config"
         }
       }
     ],
