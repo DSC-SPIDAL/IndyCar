@@ -123,7 +123,7 @@ public class ServerBoot {
 
   public void publishAnomalyEvent(AnomalyMessage anomalyMessage) {
     String room = "anomaly_" + anomalyMessage.getCarNumber();
-    LOG.info("Sending event to room {}", room);
+    //LOG.info("Sending event to room {} : {}", room, anomalyMessage);
     this.server.getRoomOperations(room).sendEvent(room, anomalyMessage);
 
     //report high anomalies

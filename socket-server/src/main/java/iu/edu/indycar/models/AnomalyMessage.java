@@ -50,4 +50,15 @@ public class AnomalyMessage {
     public void addAnomaly(Anomaly anomaly) {
         this.anomalies.put(anomaly.getAnomalyType(), anomaly);
     }
+
+    @Override
+    public String toString() {
+        return "AnomalyMessage{" +
+            "carNumber=" + carNumber +
+            ", index=" + index +
+            ", anomalies=" + anomalies +
+            ", timeOfDayString='" + timeOfDayString + '\'' +
+            ", anomalyLabel=" + anomalyLabel +
+            '}';
+    }
 }

@@ -7,7 +7,7 @@ import java.util.Set;
 //todo move to a config file
 public class ServerConstants {
 //  public static final String CONNECTION_URL = "tcp://j-093.juliet.futuresystems.org:61613";
-  public static final String CONNECTION_URL = "tcp://activemq-apollo:31758";
+  public static final String CONNECTION_URL = "tcp://activemq-apollo:61613";
   public static final String USERNAME = "admin";
   public static final String PASSWORD = "password";
 //  public static final String USERNAME = "admin";
@@ -58,7 +58,7 @@ public class ServerConstants {
   };
 
 
-  public static int NO_OF_STREAMING_CARS = 3;
+  public static int NO_OF_STREAMING_CARS = 33;
 
   public static final boolean DIRECT_STREAM_DISTANCE = false;
   public static final boolean DIRECT_STREAM_CAR_FILTER = true;
