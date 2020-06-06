@@ -100,7 +100,8 @@ public class WebsocketServer implements StreamResetListener, StreamEndListener {
     public static void main(String[] args) {
         String filePath = args.length == 0 ? ServerConstants.LOG_FILE : args[0];
         ServerConstants.CONNECTION_URL = args.length < 2? ServerConstants.CONNECTION_URL : args[1];
-        ServerConstants.NO_OF_STREAMING_CARS = args.length < 3 ? ServerConstants.NO_OF_STREAMING_CARS : Integer.valueOf(args[1]);
+        LOG.info("Connecting to broker "+ ServerConstants.CONNECTION_URL);
+        ServerConstants.NO_OF_STREAMING_CARS = args.length < 3 ? ServerConstants.NO_OF_STREAMING_CARS : Integer.valueOf(args[2]);
 
         WebsocketServer websocketServer = new WebsocketServer(filePath);
         websocketServer.start();
