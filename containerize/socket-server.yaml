@@ -1,0 +1,42 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: indycar-socketserver
+  labels:
+    app: indycar-socketserver
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: indycar-socketserver
+  template:
+    metadata:
+      labels:
+        app: indycar-socketserver
+    spec:
+      volumes:
+        - name: datalogs
+          hostPath:
+            path: /nfs/indycar/datalogs
+      containers:
+        - name: iuindycar
+          image: cwidanage/iuindycar:latest
+          ports:
+            - containerPort: 5000
+          args: ["java", "-jar", "server.jar","/data/logs/IPBroadcaster_Input_2018-05-27_0.log","33"]
+          volumeMounts:
+            - name: datalogs
+              mountPath: /data/logs
+---
+kind: Service
+apiVersion: v1
+metadata:
+  name: indycar-socketserver
+spec:
+  type: NodePort
+  selector:
+    app: indycar-socketserver
+  ports:
+    - protocol: TCP
+      port: 5000
+      targetPort: 5000
