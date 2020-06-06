@@ -20,7 +20,7 @@ public class StreamerTest2 {
     private static final Logger LOG = LogManager.getLogger(StreamerTest2.class);
 
     public static void main(String[] args) throws IOException {
-        File file = new File("/home/chathura/Downloads/indy_data/IPBroadcaster_Input_2018-05-27_0.log");
+        File file = new File(args[0]);
 
         RecordStreamer recordStreamer = new RecordStreamer(
                 file, false, 1, s -> s.split("_")[2]);
