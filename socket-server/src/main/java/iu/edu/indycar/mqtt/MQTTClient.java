@@ -66,7 +66,7 @@ public class MQTTClient implements MqttCallback {
         if (ServerConstants.DEBUG_MODE) {
             client.publish(ServerConstants.DEBUG_TOPIC, mqttMessage);
         } else {
-            client.publish(carNumber, mqttMessage);
+            client.publish(ServerConstants.PUBLISH_TOPIC_PREFIX+carNumber, mqttMessage);
         }
     }
 
