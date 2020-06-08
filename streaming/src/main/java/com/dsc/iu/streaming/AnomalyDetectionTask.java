@@ -81,14 +81,18 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
 
     public AnomalyDetectionTask(String inputTopic) {
         this.inputTopic = inputTopic;
+        this.outputTopic = OnlineLearningUtils.sinkoutTopic;
+
         //todo a temp hack for demo
         this.carNumber = inputTopic.replace("2017","").replace("2018","");
-        this.outputTopic = OnlineLearningUtils.sinkoutTopic;
     }
 
     public AnomalyDetectionTask(String inputTopic, String outputTopic) {
         this.inputTopic = inputTopic;
         this.outputTopic = outputTopic;
+
+        //todo a temp hack for demo
+        this.carNumber = inputTopic.replace("2017","").replace("2018","");
 	      LOG.info("Taking inputs from : {} and outputing to {}", inputTopic, outputTopic);
     }
 
