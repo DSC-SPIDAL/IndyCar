@@ -20,10 +20,18 @@
         }
       },
       "spec": {
+        "volumes": [
+          {
+            "name": "config",
+            "hostPath": {
+              "path": "/nfs/indycar/config"
+            }
+          }
+        ],
         "containers": [
           {
             "name": "storm-worker",
-            "image": "storm",
+            "image": "storm:1.2.3",
             "args": [
               "storm",
               "supervisor"
@@ -48,9 +56,16 @@
             ],
             "resources": {
               "limits": {
-                "cpu": "1.5"
+                "cpu": "11",
+                "memory": "100G"
               }
-            }
+            },
+            "volumeMounts": [
+              {
+                "name": "config",
+                "mountPath": "/conf"
+              }
+            ]
           }
         ]
       }

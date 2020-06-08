@@ -26,7 +26,7 @@ public class StreamerTest2 {
                 file, false, 1, s -> s.split("_")[2]);
 
         recordStreamer.setTelemetryRecordListener(record -> {
-
+            System.out.println(record);
         });
 
 

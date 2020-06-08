@@ -20,13 +20,17 @@ spec:
             path: /nfs/indycar/datalogs
       containers:
         - name: iuindycar
-          image: cwidanage/iuindycar:latest
+          image: cwidanage/iuindycar1:latest
           ports:
             - containerPort: 5000
-          args: ["java", "-jar", "server.jar","/data/logs/IPBroadcaster_Input_2018-05-27_0.log","33"]
+          args: ["java", "-jar", "server.jar","/data/logs/IPBroadcaster_Input_2018-05-27_0.log","tcp://activemq-apollo:61613","33"]
           volumeMounts:
             - name: datalogs
               mountPath: /data/logs
+          resources:
+            limits:
+              cpu : 2
+              memory: 10G
 ---
 kind: Service
 apiVersion: v1

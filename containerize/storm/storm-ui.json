@@ -25,7 +25,7 @@
     "containers": [
       {
         "name": "storm-ui",
-        "image": "storm",
+        "image": "storm:1.2.3",
         "args": [
           "storm",
           "ui"
@@ -44,10 +44,11 @@
         "volumeMounts": [
           {
             "name": "config",
-            "mountPath": "/config"
+            "mountPath": "/conf"
           }
         ]
       }
-    ]
+    ],
+    "nodeName": "d001"
   }
 }
