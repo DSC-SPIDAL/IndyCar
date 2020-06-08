@@ -65,6 +65,7 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
     private static final long serialVersionUID = 1L;
     private String inputTopic;
     private String outputTopic;
+    private String carNumber;
     private Map<String, Publisher> recordPublisherMap = null;
 
     private String[] metrics = {METRIC_VEHICLE_SPEED, METRIC_ENGINE_SPEED, METRIC_THROTTLE};
@@ -80,6 +81,8 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
 
     public AnomalyDetectionTask(String inputTopic) {
         this.inputTopic = inputTopic;
+        //todo a temp hack for demo
+        this.carNumber = inputTopic.replace("2017","").replace("2018","");
         this.outputTopic = OnlineLearningUtils.sinkoutTopic;
     }
 
@@ -405,14 +408,14 @@ public class AnomalyDetectionTask extends BaseRichSpout implements MQTTMessageCa
                 String timeOfDay = splits[5];
 
                 JSONObject recordobj = new JSONObject();
-                recordobj.put(PARAM_CAR_NUMBER, inputTopic);
+                recordobj.put(PARAM_CAR_NUMBER, this.carNumber);
                 recordobj.put(PARAM_LAP_DISTANCE, lapDistance);
                 recordobj.put(PARAM_TIME_OF_DAY, timeOfDay.split(STR_SPACE)[1]);
                 recordobj.put(METRIC_VEHICLE_SPEED, speed);
                 recordobj.put(METRIC_ENGINE_SPEED, rpm);
                 recordobj.put(METRIC_THROTTLE, throttle);
 
-                final String uuid = inputTopic + STR_UCO + record_counter;
+                final String uuid = this.carNumber + STR_UCO + record_counter;
 
                 recordobj.put(PARAM_TIME_RECV, System.currentTimeMillis());
 
