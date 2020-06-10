@@ -12,7 +12,9 @@ let store = createStore(RootReducer, window.__REDUX_DEVTOOLS_EXTENSION__ && wind
 
 //let socketService = new SocketService("localhost", 8080, store);
 //let socketService = new SocketService("j-093.juliet.futuresystems.org", 5000, store);
-let socketService = new SocketService("localhost", 5000, store);
+// let socketService = new SocketService("localhost", 5000, store);
+let socketService = new SocketService("149.165.150.51", 31623, store);
+//let socketService = new SocketService("149.165.150.51", 30190, store);
 socketService.start(() => {
     console.log("Loading GUI...");
     ReactDOM.render(<Provider store={store}><App/></Provider>, document.getElementById('root'));
