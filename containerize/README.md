@@ -219,6 +219,62 @@ Similar to Storm-UI use ``kubectl get services`` command to determine the port a
 
 Now upload IndyCar-API.ipynb to your notebook server and use it appropriately.
 
+## STEP 9 : Using python package
+
+After completing upto Step 8, you have all the tools deployed to test/run your streaming processing application.
+
+Optionally, you can use iuindycar package to make the deployment easier.
+
+```bash
+pip install iuindycar
+```
+
+Now import the iuindycar package to your notebook as follows
+
+```python
+import iuindycar.Orchestrator as iui
+```
+
+You can create an instance of Orchestrator as follows.
+
+```python
+oc = iui.Orchestrator(iui.Config(<pass your k8 token here>))
+```
+
+The only mandatory parameter to the Config object is kubernetes token. But you have the flexibility to change
+the default parameters of the config object. Please refer below URL for more information.
+
+https://github.com/DSC-SPIDAL/IndyCar/blob/070bd2ac546a39756f4a5c839dbf1f3a1d700d20/containerize/python/iuindycar/Orchestrator.py#L225
+
+### Deploying a new stream
+
+```python
+oc.deploy_stream(<unique name for the stream>,<input data topic>,<output data topic>)
+oc.deploy_stream("indycar-22","22","compact_topology_out")
+```
+
+### Killing an existing stream
+
+```python
+oc.kill_stream(<unique name for the stream>)
+oc.kill_stream("indycar-22")
+```
+
+### Inspecting a broker topic
+
+To make the debugging and testing easier, you can listen to the broker topics using the Orchestrator object as follows.
+
+```python
+stream = oc.probe_topic(<topic name>) # stream = oc.probe_topic("22")
+stream.loop_forever()
+```
+
+In addition to the loop_forver() option, you can use any of the functions provided by paho-mqtt package.
+
+https://pypi.org/project/paho-mqtt/
+
+
+
 
 
 
