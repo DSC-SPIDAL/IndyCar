@@ -6,199 +6,199 @@ config:
 
 spouts:
   - id: "telemetryspout-20"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201720"
 
   - id: "telemetryspout-21"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201721"
 
   - id: "telemetryspout-13"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201713"
 
   - id: "telemetryspout-98"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201798"
 
   - id: "telemetryspout-19"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201719"
 
   - id: "telemetryspout-33"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201733"
 
   - id: "telemetryspout-24"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201724"
 
   - id: "telemetryspout-26"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201726"
 
   - id: "telemetryspout-7"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "20177"
 
   - id: "telemetryspout-6"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "20176"
 
   - id: "telemetryspout-60"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201760"
 
   - id: "telemetryspout-27"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201727"
 
   - id: "telemetryspout-22"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201722"
 
   - id: "telemetryspout-18"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201718"
 
   - id: "telemetryspout-3"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "20173"
 
   - id: "telemetryspout-4"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "20174"
 
   - id: "telemetryspout-28"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201728"
 
   - id: "telemetryspout-32"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201732"
 
   - id: "telemetryspout-59"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201759"
 
   - id: "telemetryspout-25"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201725"
 
   - id: "telemetryspout-64"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201764"
 
   - id: "telemetryspout-10"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201710"
 
   - id: "telemetryspout-15"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201715"
 
   - id: "telemetryspout-17"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201717"
 
   - id: "telemetryspout-12"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201712"
 
   - id: "telemetryspout-1"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "20171"
 
   - id: "telemetryspout-9"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "20179"
 
   - id: "telemetryspout-14"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201714"
 
   - id: "telemetryspout-23"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201723"
 
   - id: "telemetryspout-30"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201730"
 
   - id: "telemetryspout-29"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201729"
 
   - id: "telemetryspout-88"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201788"
 
   - id: "telemetryspout-66"
-    className: "com.dsc.iu.streaming.LSTMAnomalyTask"
+    className: "com.dsc.iu.streaming.LSTMAnomalyDetectionTask"
     parallelism: 1
     constructorArgs:
       - "201766"
