@@ -49,7 +49,7 @@ public class LSTMAnomalyDetectionTask extends BaseRichSpout implements MQTTMessa
     private Map<String, LSTMAnomalyDetection> anomalyDetectionModels = null;
     private Map<String, Queue> lstmInputQueues = null;
     private final int lstmHistorySize = 150;
-    private final String lstmModelsDir = "/home/sakkas/github/indycar-lstm-anomalydetection-java/models/";
+    private final String lstmModelsDir = "/conf/models/";
     private Map<String, Map<String, Double>> inputScaleValues;
     private MQTTClientInstance mqttClientInstance;
 
