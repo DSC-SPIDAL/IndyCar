@@ -26,6 +26,12 @@
             "hostPath": {
               "path": "/nfs/indycar/config"
             }
+          },
+          {
+            "name": "lib",
+            "hostPath": {
+              "path": "/nfs/indycar/config/lib"
+            }
           }
         ],
         "containers": [
@@ -64,6 +70,10 @@
               {
                 "name": "config",
                 "mountPath": "/conf"
+              },
+              {
+                "name": "lib",
+                "mountPath": "/opt/local/lib"
               }
             ]
           }

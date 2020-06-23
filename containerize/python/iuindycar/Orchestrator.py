@@ -4,10 +4,9 @@ import time
 import uuid
 
 import paho.mqtt.client as mqtt
+import urllib3
 import yaml
 from kubernetes import client
-
-import urllib3
 
 urllib3.disable_warnings()
 
@@ -217,7 +216,8 @@ def default_on_message(client, userdata, msg):
 
 
 class DetectionCell:
-    def __init__(self, storm_jar, class_name):
+    def __init__(self, storm_jar="Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar",
+                 class_name="com.dsc.iu.streaming.AnomalyDetectionTask"):
         self.storm_jar = storm_jar
         self.class_name = class_name
 
@@ -235,12 +235,12 @@ class Config:
 
         self.volume_mounts = {
             "topologies": {
-                "hostPath": "",
-                "mountPath": ""
+                "hostPath": "/nfs/indycar/data",
+                "mountPath": "/data/topologies"
             },
             "config": {
-                "hostPath": "",
-                "mountPath": ""
+                "hostPath": "/nfs/indycar/config",
+                "mountPath": "/conf"
             }
         }
 
@@ -278,9 +278,12 @@ class Orchestrator:
 
         self.config = config
 
-    def deploy_stream(self, name, input_topic, output_topic):
+    def deploy_stream(self, name, input_topic, output_topic, detection_cell=DetectionCell()):
+        jar_path = self.config.volume_mounts["topologies"]["mountPath"] + "/" + detection_cell.storm_jar
         _kill_topology_if_exists(self.config.storm_host, name)
-        _blocking_pod_creation(self.k8, _create_pod_create_json(name, input_topic, output_topic))
+        _blocking_pod_creation(self.k8, _create_pod_create_json(name, input_topic, output_topic,
+                                                                storm_jar=jar_path,
+                                                                class_name=detection_cell.class_name))
 
     def kill_stream(self, name):
         _kill_topology_if_exists(self.config.storm_host, name)
