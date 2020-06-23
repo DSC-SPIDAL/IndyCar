@@ -7,7 +7,7 @@ print(setuptools.find_packages())
 
 setuptools.setup(
     name='iuindycar',
-    version='0.0.7',
+    version='0.0.8',
     author="Chathura Widanage",
     author_email="chathurawidanage@gmail.com",
     description="This package can be used to communicate with the stream processing kubernetes cluster",

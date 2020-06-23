@@ -7,7 +7,7 @@ rm iuindycar.egg-info -R
 python3 setup.py bdist_wheel
 
 # Installing Locally
-python3 -m pip install dist/iuindycar-0.0.7-py3-none-any.whl --user --upgrade
+python3 -m pip install dist/iuindycar-0.0.8-py3-none-any.whl --user --upgrade
 #pip install dist/twister2-0.1.16-py3-none-any.whl --user
 
 # Uploading to PIP
