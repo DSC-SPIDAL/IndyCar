@@ -13,7 +13,8 @@ urllib3.disable_warnings()
 
 def _create_pod_create_json(topology_name, source_topic, destination_topic,
                             storm_jar="/data/topologies/Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar",
-                            class_name="com.dsc.iu.streaming.AnomalyDetectionTask"):
+                            class_name="com.dsc.iu.streaming.AnomalyDetectionTask",
+                            nimbus_node="d001"):
     """
     This function can be used to generate the Kubernetes Pod definition to deploy a storm job
     :param topology_name: name of the storm topology
@@ -62,7 +63,7 @@ def _create_pod_create_json(topology_name, source_topic, destination_topic,
             }
         },
         "spec": {
-            "nodeName": "d001",
+            "nodeName": nimbus_node,
             "volumes": [
                 {
                     "name": "config",
@@ -280,10 +281,18 @@ class Orchestrator:
 
     def deploy_stream(self, name, input_topic, output_topic, detection_cell=DetectionCell()):
         jar_path = self.config.volume_mounts["topologies"]["mountPath"] + "/" + detection_cell.storm_jar
+
+        # find nimbus node
+        resp = self.k8.read_namespaced_pod("nimbus", "default")
+        nimbus_node = resp.spec.node_name
+
+        print("Nimbus is running on node :" + nimbus_node)
+
         _kill_topology_if_exists(self.config.storm_host, name)
         _blocking_pod_creation(self.k8, _create_pod_create_json(name, input_topic, output_topic,
                                                                 storm_jar=jar_path,
-                                                                class_name=detection_cell.class_name))
+                                                                class_name=detection_cell.class_name,
+                                                                nimbus_node=nimbus_node))
 
     def kill_stream(self, name):
         _kill_topology_if_exists(self.config.storm_host, name)
