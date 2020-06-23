@@ -249,7 +249,9 @@ https://github.com/DSC-SPIDAL/IndyCar/blob/070bd2ac546a39756f4a5c839dbf1f3a1d700
 ### Deploying a new stream
 
 ```python
-oc.deploy_stream(<unique name for the stream>,<input data topic>,<output data topic>)
+cell =  iui.DetectionCell(storm_jar="Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar",
+                          class_name="com.dsc.iu.streaming.LSTMAnomalyDetectionTask")
+oc.deploy_stream(<unique name for the stream>,<input data topic>,<output data topic>, detection_cell=cell)
 oc.deploy_stream("indycar-22","22","compact_topology_out")
 ```
 
