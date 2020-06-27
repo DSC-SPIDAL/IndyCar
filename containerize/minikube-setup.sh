@@ -1,5 +1,6 @@
 minikube ssh "sudo chmod -R 777 /nfs/indycar"
 minikube ssh "mkdir /nfs/indycar/datalogs"
+minikube ssh "mkdir /nfs/indycar/config/lib/"
 
 # copy log file into minikube
 # change the path of the log file accordingly.
