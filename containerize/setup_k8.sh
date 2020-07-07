@@ -11,4 +11,4 @@ kubectl create -f role.yaml
 kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
 
 # start dashboard
-kubectl proxy
+kubectl proxy &

@@ -3,6 +3,7 @@ package com.dsc.iu.streaming;
 import com.dsc.iu.utils.OnlineLearningUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.apache.storm.shade.com.google.common.collect.EvictingQueue;
 import org.apache.storm.spout.SpoutOutputCollector;
 import org.apache.storm.task.TopologyContext;
 import org.apache.storm.topology.OutputFieldsDeclarer;
@@ -12,7 +13,6 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.json.simple.JSONObject;
 
 import java.util.HashMap;
-import java.util.LinkedList;
 import java.util.Map;
 import java.util.Queue;
 import java.util.concurrent.*;
@@ -47,10 +47,10 @@ public class LSTMAnomalyDetectionTask extends BaseRichSpout implements MQTTMessa
     private final Queue<JSONObject> outMessages = new ConcurrentLinkedQueue<>();
     private MqttMessage mqttmsg;
     private Map<String, LSTMAnomalyDetection> anomalyDetectionModels = null;
-    private Map<String, Queue> lstmInputQueues = null;
+    private Map<String, EvictingQueue<Float>> lstmInputQueues = null;
     private final int lstmHistorySize = 150;
     private final String lstmModelsDir = "/conf/models/";
-    private Map<String, Map<String, Double>> inputScaleValues;
+    private Map<String, Map<String, Float>> inputScaleValues;
     private MQTTClientInstance mqttClientInstance;
 
 
@@ -71,19 +71,20 @@ public class LSTMAnomalyDetectionTask extends BaseRichSpout implements MQTTMessa
         this.carNumber = inputTopic.replace("2017", "").replace("2018", "");
     }
 
+    //The models are trained with min-max scaler. Therefore, the inputs should be scaled here as well.
     private void setInputScaleValues() {
-        inputScaleValues = new HashMap<String, Map<String, Double>>();
-        inputScaleValues.put(METRIC_VEHICLE_SPEED, new HashMap<String, Double>());
-        inputScaleValues.get(METRIC_VEHICLE_SPEED).put("min", 0.0);
-        inputScaleValues.get(METRIC_VEHICLE_SPEED).put("max", 239.0);
+        inputScaleValues = new HashMap<>();
+        inputScaleValues.put(METRIC_VEHICLE_SPEED, new HashMap<>());
+        inputScaleValues.get(METRIC_VEHICLE_SPEED).put("min", 0.0f);
+        inputScaleValues.get(METRIC_VEHICLE_SPEED).put("max", 239.0f);
 
-        inputScaleValues.put(METRIC_ENGINE_SPEED, new HashMap<String, Double>());
-        inputScaleValues.get(METRIC_ENGINE_SPEED).put("min", 0.0);
-        inputScaleValues.get(METRIC_ENGINE_SPEED).put("max", 13217.0);
+        inputScaleValues.put(METRIC_ENGINE_SPEED, new HashMap<>());
+        inputScaleValues.get(METRIC_ENGINE_SPEED).put("min", 0.0f);
+        inputScaleValues.get(METRIC_ENGINE_SPEED).put("max", 13217.0f);
 
-        inputScaleValues.put(METRIC_THROTTLE, new HashMap<String, Double>());
-        inputScaleValues.get(METRIC_THROTTLE).put("min", 0.0);
-        inputScaleValues.get(METRIC_THROTTLE).put("max", 117.0);
+        inputScaleValues.put(METRIC_THROTTLE, new HashMap<>());
+        inputScaleValues.get(METRIC_THROTTLE).put("min", 0.0f);
+        inputScaleValues.get(METRIC_THROTTLE).put("max", 117.0f);
     }
 
     @Override
@@ -99,7 +100,7 @@ public class LSTMAnomalyDetectionTask extends BaseRichSpout implements MQTTMessa
         //instantiate the LSTM networks for all metrics
         for (String metric : metrics) {
             this.anomalyDetectionModels.put(metric, new LSTMAnomalyDetection(lstmModelsDir + metric + "/", lstmHistorySize));
-            this.lstmInputQueues.put(metric, new LinkedList<Double>());
+            this.lstmInputQueues.put(metric, EvictingQueue.create(this.lstmHistorySize));
             executor = Executors.newFixedThreadPool(3);
 
             LOG.info("Starting LSTM model for metric {}...", metric);
@@ -111,7 +112,7 @@ public class LSTMAnomalyDetectionTask extends BaseRichSpout implements MQTTMessa
         } catch (MqttException e) {
             LOG.error("Error in subscribing to topic{}", inputTopic, e);
         }
-    }// do not change this part
+    }
 
     @Override
     //Sends results to MQTT
@@ -122,6 +123,7 @@ public class LSTMAnomalyDetectionTask extends BaseRichSpout implements MQTTMessa
             msgToSend.put(PARAM_TIME_SEND, System.currentTimeMillis());
             mqttmsg.setPayload(msgToSend.toJSONString().getBytes());
             mqttmsg.setQos(OnlineLearningUtils.QoS);
+            //System.out.println("output message" + msgToSend.toString());
             try {
                 mqttClientInstance.sendMessage(this.outputTopic, mqttmsg); //result back here
             } catch (MqttException e) {
@@ -139,16 +141,16 @@ public class LSTMAnomalyDetectionTask extends BaseRichSpout implements MQTTMessa
     private float[][][] to3DArray(Object[] arr) {
         float[][][] arr2 = new float[1][lstmHistorySize][1];
         for (int i = 0; i < lstmHistorySize; i++) {
-            arr2[0][i][0] = Float.parseFloat(arr[i].toString());
+            arr2[0][i][0] = (float)arr[i];
         }
         return arr2;
     }
 
 
-    //LSTM models require inputs between 0 and 1.
-    private double scaleInput(String metric, double val) {
-        double min = inputScaleValues.get(metric).get("min");
-        double max = inputScaleValues.get(metric).get("max");
+    //LSTM models require inputs between 0 and 1. We use min-max scaler
+    private float scaleInput(String metric, float val) {
+        float min = inputScaleValues.get(metric).get("min");
+        float max = inputScaleValues.get(metric).get("max");
         return (val - min) / (max - min);
     }
 
@@ -157,11 +159,14 @@ public class LSTMAnomalyDetectionTask extends BaseRichSpout implements MQTTMessa
     public void onMessage(String topic, MqttMessage mqttMessage) {
         try {
             String record = new String(mqttMessage.getPayload());
+
+            //System.out.println("input message: " + record);
+
             String[] splits = record.split(STR_COMMA);
             if (splits.length == 6) {
-                double speed = Double.parseDouble(splits[0]);
-                double rpm = Double.parseDouble(splits[1]);
-                double throttle = Double.parseDouble(splits[2]);
+                float speed = Float.parseFloat(splits[0]);
+                float rpm = Float.parseFloat(splits[1]);
+                float throttle = Float.parseFloat(splits[2]);
                 int record_counter = Integer.parseInt(splits[3]);
                 String lapDistance = splits[4];
                 String timeOfDay = splits[5];
@@ -183,14 +188,10 @@ public class LSTMAnomalyDetectionTask extends BaseRichSpout implements MQTTMessa
 
                 //collect data in a queue. LSTM models require last 150 values.
                 for (String metric : metrics) {
+                    //We want records that has the same length with lstmHistorySize.
+                    //Evicting queue automatically removes the first element if the queue is full.
+                    lstmInputQueues.get(metric).add(scaleInput(metric, (float)recordobj.get(metric)));
 
-                    //remove the first element if there are already 150 values.
-                    if (lstmInputQueues.get(metric).size() == lstmHistorySize) {
-                        lstmInputQueues.get(metric).poll(); //remove first element
-                    }
-                    lstmInputQueues.get(metric).add(scaleInput(metric,
-                            Double.parseDouble(recordobj.get(metric).toString())));
-                    Object[] arr = lstmInputQueues.get(metric).toArray();
 
                 }
 
@@ -199,7 +200,7 @@ public class LSTMAnomalyDetectionTask extends BaseRichSpout implements MQTTMessa
                     Map<String, Future> futureMap = new HashMap<>();
                     Future[] future = new Future[3];
 
-                    //submit inference
+                    //submit the inference
                     //runs parallel
                     for (String metric : metrics) {
                         futureMap.put(metric, executor.submit(
