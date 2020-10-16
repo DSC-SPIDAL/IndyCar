@@ -1,4 +1,4 @@
-# IndyCar - RaceCar Detection
+# IndyCar - Race Car Detection
 
 *Selahattin Akkas\*, Sahaj Singh Maini, Judy Qiu*
 
