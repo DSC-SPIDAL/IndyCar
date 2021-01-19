@@ -3,7 +3,7 @@
 
 ## Live Demo
 
-[Demo](http://indycar.demo.2.s3-website-us-east-1.amazonaws.com)
+[Demo](http://indycar.demo.3.s3-website-us-east-1.amazonaws.com)
 
 ## Deploying
 
