@@ -1,6 +1,6 @@
 # Setting up IndyCar on Kubernetes
 
-## STEP 1 : Setting up the Kubernetes cluster
+## STEP 1: Setting up the Kubernetes cluster
 
 A minikube setup can be used to test the distribution locally while it’s recommended to allocate at least  6-8 CPUs and 12-16GB RAM for the minikube VM.
 
@@ -8,7 +8,7 @@ A comprehensive guide on setting up minkube can be found from the blow URL.
 
 https://kubernetes.io/docs/setup/learning-environment/minikube/
 
-## STEP 2 : Setting up the Kubernetes Dashboard
+## STEP 2: Setting up the Kubernetes Dashboard
 
 Clone the IndyCar repository to your machine. Inside the “containerize” directory, you would find a bash script called “setup_k8.sh”. Navigate to the "containerize" directory and execute setup_k8.sh script to set up the kubernetes dashboard.
 
@@ -26,7 +26,7 @@ http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kube
 
 Use the token printed in the previous step to Sign In.
 
-## STEP 3 : Deploying Zookeeper
+## STEP 3: Deploying Zookeeper
 
 We perform IndyCar anomaly detection using an opensource HTM implementation called HTM Java. We have been running HTM Java networks on Apache Storm for convenience and to handle future data stream preprocessing requirements. Apache Storm relies on Zookeeper for coordination between Nimbus and the Supervisors.
 
@@ -39,7 +39,7 @@ kubectl create -f zookeeper-service.json
 
 Allow few minutes to initialize Zookeeper.
 
-## STEP 3 : Deploying Storm Nimbus
+## STEP 3: Deploying Storm Nimbus
 
 Storm nimbus can be deployed as follows.
 
@@ -48,8 +48,8 @@ kubectl create -f storm-nimbus.json
 kubectl create -f storm-nimbus-service.json
 ```
 
-By default, this definition maps the following directories to the nimbus. If you want to override the default storm configs, 
-copy a modified storm.yaml configuration file to /nfs/indycar/config directory. Note that this directory will be created inside the minikube VM.
+By default, this definition maps the following directories to Nimbus. If you want to override the default storm configurations, 
+copy a modified `storm.yaml` configuration file to the `/nfs/indycar/config` directory. Note that this directory will be created inside the minikube VM.
 
 ```json
 {
@@ -70,22 +70,22 @@ copy a modified storm.yaml configuration file to /nfs/indycar/config directory. 
 }
 ```
 
-## STEP 4 : Deploying Storm Dashboard(Optional)
+## STEP 4: Deploying Storm Dashboard(Optional)
 
-Storm dashboard can be deployed as follows.
+The Storm dashboard can be deployed as follows.
 
 ```bash
 kubectl create -f storm-ui.json
 kubectl create -f storm-ui-service.json
 ```
 
-Now execute following command to get the IP of the minikube VM.
+Now execute following command to get the `IP` of the minikube VM.
 
 ```bash
-minikube ip
+minikube IP
 ```
 
-Execute following command to determine the port that has been assigned for strom ui.
+Execute following command to determine the port that has been assigned for strom UI.
 
 ```bash
 kubectl get services
@@ -97,17 +97,17 @@ This should give an output similar to below.
 storm-ui                    NodePort    10.98.10.86      <none>        8080:30336/TCP                    5d
 ```
 
-Now you should be able to access the storm ui via a web browser.
+Now you should be able to access the storm UI via a Web browser.
 
 ```bash
 http://<minikube ip>:30366
 ```
 
-## STEP 5 : Deploy Strom Supervisors
+## STEP 5: Deploy Strom Supervisors
 
 Strom supervisors should be dynamically scalable. So we deploy them as a Kubernetes replication controller.
 
-In storm-worker-controller.json adjust the resource requirements as per your requirement.
+In the file `storm-worker-controller.json` adjust the resource requirements as per your requirement.
 
 ```json
 {
@@ -124,9 +124,9 @@ In storm-worker-controller.json adjust the resource requirements as per your req
 kubectl create -f storm-worker-controller.json
 ```
 
-## STEP 6 : Deploy Apollo Broker
+## STEP 6: Deploy Apollo Broker
 
-We use Apache Apollo broker to enable communication between components(Processes, Pods, Nodes).
+We use Apache Apollo broker to enable communication between components (Processes, Pods, Nodes).
 
 Apollo broker can be deployed as follows.
 
@@ -135,7 +135,7 @@ kubectl create -f activemq-apollo.json
 kubectl create -f activemq-apollo-service.json
 ```
 
-## STEP 7 : Deploy IndyCar Socket Server
+## STEP 7: Deploy IndyCar Socket Server
 
 IndyCar socket server will be used as both the log file streamer, and the backend for the IndyCar web application.
 
@@ -143,7 +143,7 @@ IndyCar socket server will be used as both the log file streamer, and the backen
 kubectl create -f socket-server.yaml
 ```
 
-Change the below parameters appropriately.
+Change the parameters listed next appropriately.
 
 ```json
 args: ["java", "-jar", "server.jar","/data/logs/eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log","tcp://activemq-apollo:61613","33","2017","compact_topology_out_2017"]
@@ -162,7 +162,7 @@ args: ["java", "-jar", "server.jar","/data/logs/eRPGenerator_TGMLP_20170528_Indi
 
 Similar to the Storm-UI you can determine the port assigned for socket server by executing ``kubectl get services`` command.
 
-## STEP 8 : Building Strom Topology
+## STEP 8: Building Strom Topology
 
 Pre requisite: Apache Maven
 
@@ -174,7 +174,7 @@ mvn clean install
 
 Now copy the ``target/Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar`` to the ``/nfs/indycar/data`` directory of minikube VM.
 
-## STEP 9 : Starting dashboard client application.
+## STEP 9: Starting dashboard client application.
 
 Pre requisite: Node Package Manager(NPM)
 
@@ -203,7 +203,7 @@ Now you will be able to access the dashboard from a web browser.
 
 http://localhost:3000
 
-## STEP 8 : Deploy Jupiter Notebook
+## STEP 8: Deploy Jupiter Notebook
 
 Jupyter notebook can be used to easily deploy the IndyCar anomaly detection cells and test new components.
 
@@ -215,7 +215,7 @@ Similar to Storm-UI use ``kubectl get services`` command to determine the port a
 
 Now upload IndyCar-API.ipynb to your notebook server and use it appropriately.
 
-## STEP 9 : Using python package
+## STEP 9: Using python package
 
 After completing upto Step 8, you have all the tools deployed to test/run your streaming processing application.
 
