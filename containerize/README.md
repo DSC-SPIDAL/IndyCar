@@ -19,6 +19,7 @@ git clone https://github.com/DSC-SPIDAL/IndyCar.git
 Inside the “containerize” directory, you would find a bash script called “setup_k8.sh”. Navigate to the "containerize" directory and execute setup_k8.sh script to set up the kubernetes dashboard.
 
 ```bash
+cd IndyCar/containeraize
 ./setup_k8.sh
 ```
 
