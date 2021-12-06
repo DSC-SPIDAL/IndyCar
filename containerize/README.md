@@ -14,7 +14,7 @@ Clone the IndyCar repository to your machine. Inside the “containerize” dire
 
 ```bash
 git clone https://github.com/DSC-SPIDAL/IndyCar.git
-cd IndyCar/containeraize
+cd IndyCar/containerize
 ./setup_k8.sh
 ```
 
