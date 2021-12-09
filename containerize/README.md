@@ -1,5 +1,24 @@
 # Setting up IndyCar on Kubernetes
 
+## STEP 0: Install kubectl
+
+The instalation instructions provided here do require the instalation of the kubectl command. Using the build in kubectl command from minikube will not work with the supplied scripts.
+
+On Ubuntu you can nstall kubectl with 
+
+```bash
+snap install kubectl --classic
+kubectl version --client
+```
+
+which then returns output similar to 
+
+```
+Client Version: version.Info{Major:"1", Minor:"22", GitVersion:"v1.22.3", GitCommit:"c92036820499fedefec0f847e2054d824aea6cd1", GitTreeState:"clean", BuildDate:"2021-10-27T18:41:28Z", GoVersion:"go1.16.9", Compiler:"gc", Platform:"linux/amd64"}
+```
+
+Other operating systems and install mechnisms are discussed at: https://kubernetes.io/docs/tasks/tools/#kubectl
+
 ## STEP 1: Setting up the Kubernetes cluster
 
 A minikube setup can be used to test the distribution locally while it’s recommended to allocate at least  6-8 CPUs and 12-16GB RAM for the minikube VM.
