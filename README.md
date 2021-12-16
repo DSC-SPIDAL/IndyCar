@@ -1,6 +1,10 @@
 
 # IndyCar
 
+## Papers
+
+* https://www.researchgate.net/publication/335499407_Anomaly_Detection_over_Streaming_Data_Indy500_Case_Study
+
 ## Live Demo
 
 [Demo](http://indycar.demo.3.s3-website-us-east-1.amazonaws.com)
