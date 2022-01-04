@@ -42,6 +42,12 @@ A comprehensive guide on setting up minkube can be found from the blow URL.
 
 https://kubernetes.io/docs/setup/learning-environment/minikube/
 
+Start a minikube cluster with
+
+```bash
+minikube start
+```
+
 ## STEP 2: Setting up the Kubernetes Dashboard
 
 Clone the IndyCar repository to your machine. Inside the
