@@ -1,5 +1,7 @@
 # Setting up IndyCar on Kubernetes
 
+https://docs.google.com/presentation/d/1qr9vKhVsf3mvZtyRtnAdATi6qmyEOosnmD953_1V-_g/edit#slide=id.g8bab96273d_6_791
+
 ## STEOP -1: Make sure no ports are used
 
 ```bash
