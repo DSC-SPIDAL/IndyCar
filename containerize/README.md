@@ -46,7 +46,7 @@ https://kubernetes.io/docs/setup/learning-environment/minikube/
 
 Clone the IndyCar repository to your machine. Inside the
 `containerize` directory, you would find a bash script called
-`setup_k8.sh`. Navigate to the "containerize" directory and execute
+`setup_k8.sh`. Navigate to the `containerize` directory and execute
 setup_k8.sh script to set up the kubernetes dashboard.
 
 ```bash
