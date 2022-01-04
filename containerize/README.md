@@ -76,6 +76,12 @@ http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kube
 
 Use the token printed in the previous step to Sign In.
 
+On Ubuntu use on the commandline
+
+```
+gopen http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login
+```
+
 ## STEP 3: Deploying Zookeeper
 
 We perform IndyCar anomaly detection using an opensource HTM
