@@ -1,5 +1,11 @@
 # Setting up IndyCar on Kubernetes
 
+## STEOP -1: Make sure no ports are used
+
+```bash
+netstat -tulpnw | grep 8001
+```
+
 ## STEP 0: Install kubectl
 
 The instalation instructions provided here do require the instalation
