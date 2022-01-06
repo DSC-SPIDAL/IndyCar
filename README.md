@@ -1,4 +1,3 @@
-
 # IndyCar
 
 ## Papers
