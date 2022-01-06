@@ -1,0 +1,57 @@
+{
+  "kind": "Pod",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "nimbus",
+    "labels": {
+      "name": "nimbus"
+    }
+  },
+  "spec": {
+    "volumes": [
+      {
+        "name": "topologies",
+        "hostPath": {
+          "path": "/nfs/indycar/data"
+        }
+      },
+      {
+        "name": "config",
+        "hostPath": {
+          "path": "/nfs/indycar/config"
+        }
+      }
+    ],
+    "containers": [
+      {
+        "name": "nimbus",
+        "image": "storm:1.2.3",
+        "args": [
+          "storm",
+          "nimbus"
+        ],
+        "ports": [
+          {
+            "containerPort": 6627
+          }
+        ],
+        "resources": {
+          "limits": {
+            "cpu": "1",
+            "memory": "4G"
+          }
+        },
+        "volumeMounts": [
+          {
+            "name": "topologies",
+            "mountPath": "/data/topologies"
+          },
+          {
+            "name": "config",
+            "mountPath": "/conf"
+          }
+        ]
+      }
+    ]
+  }
+}

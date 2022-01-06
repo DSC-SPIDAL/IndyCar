@@ -1,0 +1,84 @@
+{
+  "kind": "ReplicationController",
+  "apiVersion": "v1",
+  "metadata": {
+    "name": "storm-worker-controller",
+    "labels": {
+      "name": "storm-worker"
+    }
+  },
+  "spec": {
+    "replicas": 1,
+    "selector": {
+      "name": "storm-worker"
+    },
+    "template": {
+      "metadata": {
+        "labels": {
+          "name": "storm-worker",
+          "uses": "nimbus"
+        }
+      },
+      "spec": {
+        "volumes": [
+          {
+            "name": "config",
+            "hostPath": {
+              "path": "/nfs/indycar/config"
+            }
+          },
+          {
+            "name": "lib",
+            "hostPath": {
+              "path": "/nfs/indycar/config/lib"
+            }
+          }
+        ],
+        "containers": [
+          {
+            "name": "storm-worker",
+            "image": "storm:1.2.3",
+            "args": [
+              "storm",
+              "supervisor"
+            ],
+            "ports": [
+              {
+                "name": "worker-1",
+                "containerPort": 6700
+              },
+              {
+                "name": "worker-2",
+                "containerPort": 6701
+              },
+              {
+                "name": "worker-3",
+                "containerPort": 6702
+              },
+              {
+                "name": "worker-4",
+                "containerPort": 6703
+              }
+            ],
+            "resources": {
+              "limits": {
+                "cpu": "11",
+                "memory": "100G"
+              }
+            },
+            "volumeMounts": [
+              {
+                "name": "config",
+                "mountPath": "/conf"
+              },
+              {
+                "name": "lib",
+                "mountPath": "/opt/local/lib"
+              }
+            ]
+          }
+        ]
+      }
+    }
+  }
+}
