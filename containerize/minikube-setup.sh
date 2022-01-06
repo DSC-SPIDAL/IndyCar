@@ -1,10 +1,12 @@
+LOGFILE=~/Downloads/eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log
+
 minikube ssh "sudo chmod -R 777 /nfs/indycar"
 minikube ssh "mkdir /nfs/indycar/datalogs"
 minikube ssh "mkdir /nfs/indycar/config/lib/"
 
 # copy log file into minikube
 # change the path of the log file accordingly.
-scp -i $(minikube ssh-key) ~/Downloads/eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log docker@$(minikube ip):/nfs/indycar/datalogs/
+scp -i $(minikube ssh-key) $LOGFILE docker@$(minikube ip):/nfs/indycar/datalogs/
 
 # copy LSTM model files into minikube
 scp -i $(minikube ssh-key) -r models docker@$(minikube ip):/nfs/indycar/config/

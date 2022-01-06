@@ -37,8 +37,8 @@
         ],
         "resources": {
           "limits": {
-            "cpu": "1",
-            "memory": "4G"
+            "cpu": "100m",
+            "memory": "1G"
           }
         },
         "volumeMounts": [

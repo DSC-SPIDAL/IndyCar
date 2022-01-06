@@ -1,5 +1,13 @@
 # Setting up IndyCar on Kubernetes
 
+https://docs.google.com/presentation/d/1qr9vKhVsf3mvZtyRtnAdATi6qmyEOosnmD953_1V-_g/edit#slide=id.g8bab96273d_6_791
+
+## STEOP -1: Make sure no ports are used
+
+```bash
+netstat -tulpnw | grep 8001
+```
+
 ## STEP 0: Install kubectl
 
 The instalation instructions provided here do require the instalation
@@ -42,11 +50,21 @@ A comprehensive guide on setting up minkube can be found from the blow URL.
 
 https://kubernetes.io/docs/setup/learning-environment/minikube/
 
+Start a minikube cluster with
+
+```bash
+minikube start
+```
+
 ## STEP 2: Setting up the Kubernetes Dashboard
 
 Clone the IndyCar repository to your machine. Inside the
 `containerize` directory, you would find a bash script called
+<<<<<<< HEAD
 `setup_k8.sh`. Navigate to the "containerize" directory and execute
+=======
+`setup_k8.sh`. Navigate to the `containerize` directory and execute
+>>>>>>> 1ef1c5c450463074164888135ff7c0e9ecfdce11
 setup_k8.sh script to set up the kubernetes dashboard.
 
 ```bash
@@ -63,6 +81,12 @@ http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kube
 ```
 
 Use the token printed in the previous step to Sign In.
+
+On Ubuntu use on the commandline
+
+```
+gopen http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login
+```
 
 ## STEP 3: Deploying Zookeeper
 
@@ -330,13 +354,6 @@ In addition to the `loop_forver()` option, you can use any of the
 functions provided by paho-mqtt package.
 
 https://pypi.org/project/paho-mqtt/
-
-
-
-
-
-
-
 
 
 
