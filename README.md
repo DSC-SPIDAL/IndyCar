@@ -4,6 +4,10 @@
 
 * https://www.researchgate.net/publication/335499407_Anomaly_Detection_over_Streaming_Data_Indy500_Case_Study
 
+## Presentation with install instructions
+
+https://docs.google.com/presentation/d/1qr9vKhVsf3mvZtyRtnAdATi6qmyEOosnmD953_1V-_g/edit#slide=id.g8bab96273d_6_921
+
 ## Live Demo
 
 [Demo](http://indycar.demo.3.s3-website-us-east-1.amazonaws.com)
