@@ -9,7 +9,8 @@ Mobile Networks for Racing Cars](http://ipcc.soic.iu.edu/WebsitePaper/conference
 
 ## Dataset
 
-The dataset contains 3761 images and annotations. It is provided in the `dataset.zip` file.
+The dataset contains 3761 images and annotations. It is provided in
+the `dataset.zip` file.
 
 
 
@@ -43,7 +44,8 @@ git clone https://github.com/tensorflow/models
 
 ## System Variables
 
-You can add the following lines to `.bashrc` file. Do not forget to change `<path>` with actual path.
+You can add the following lines to `.bashrc` file. Do not forget to
+change `<path>` with actual path.
 
 ```
 export PYTHONPATH=$PYTHONPATH:<path>/models/research:<path>/models/research/slim
@@ -100,7 +102,12 @@ cd ../../
 cd indycar_data_prepare
 ```
 
-There are ten samples in the folder. You should unzip the images and annotations and  put them into images and annotations folders. `automated_converter.py` file will automatically convert your data to TFRecord format. However, it will split images data to training and validation. If you want to change the ratio, update the following lines in the file:
+There are ten samples in the folder. You should unzip the images and
+annotations and put them into images and annotations
+folders. `automated_converter.py` file will automatically convert your
+data to TFRecord format. However, it will split images data to
+training and validation. If you want to change the ratio, update the
+following lines in the file:
 
 ```
 # train, validation
@@ -118,7 +125,8 @@ python automated_converter.py
 
 ## Models
 
-You can see model codes in `models/research/slim/nets` folder. Note that you will have this folder if you cloned TensorFlow Models.
+You can see model codes in `models/research/slim/nets` folder. Note
+that you will have this folder if you cloned TensorFlow Models.
 
 
 
@@ -133,11 +141,10 @@ You can see model codes in `models/research/slim/nets` folder. Note that you wil
 
 To train SSD MobileNetV1:
 
-```
-cd ssd_mobilenet_v1_quantized_coco
-./run_training.sh
-```
-The script will download the pre-trained network and retrain on IndyCar image data. Other models can be trained in the same way. We provided all the required codes in run_training.sh file.
+``` cd ssd_mobilenet_v1_quantized_coco ./run_training.sh ``` The
+script will download the pre-trained network and retrain on IndyCar
+image data. Other models can be trained in the same way. We provided
+all the required codes in run_training.sh file.
 
 After the training, `export_model.sh` will export the model for the inference.
 
@@ -145,7 +152,9 @@ After the training, `export_model.sh` will export the model for the inference.
 
 ## Inference Benchmark
 
-`benchmark_video.py` will extract 10000 images from a video file and run the inference benchmark. But the following line should be updated in the script:
+`benchmark_video.py` will extract 10000 images from a video file and
+run the inference benchmark. But the following line should be updated
+in the script:
 
 ```
 cap = cv2.VideoCapture('<video-file-path>')
@@ -157,17 +166,22 @@ If you run it on CPU, it will generate `time_video_bench_CPU.txt` file.
 
 ## Generating a Labeled Video
 
-`generate_labeled_video.py` will generate a labeled video. However, you should update the source video file in the code.
+`generate_labeled_video.py` will generate a labeled video. However,
+you should update the source video file in the code.
 
 
 
 ## Edge TPU
 
-Trained models should be converted to EdgeTPU by `export_tflite.py`. Then copy exported files in `exported_tflite` to the Edge TPU device.
+Trained models should be converted to EdgeTPU by
+`export_tflite.py`. Then copy exported files in `exported_tflite` to
+the Edge TPU device.
 
-On the Edge TPU: `edgetpu_compiler detect.tflite` command will generate `detect_edgetpu.tflite`.
+On the Edge TPU: `edgetpu_compiler detect.tflite` command will
+generate `detect_edgetpu.tflite`.
 
-`video_object_detection.py` file is used for video benchmark experiments. Following line should be changed in the experiment.
+`video_object_detection.py` file is used for video benchmark
+experiments. Following line should be changed in the experiment.
 
 ```
 cap = cv2.VideoCapture('fast_forward.mp4')
