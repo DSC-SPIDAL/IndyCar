@@ -23,7 +23,7 @@ spec:
           image: cwidanage/iuindycar1:v6
           ports:
             - containerPort: 5000
-          args: ["java", "-jar", "/server.jar","/data/logs/eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log","tcp://activemq-apollo:61613","3","2017","compact_topology_out_2017"]
+          args: ["java", "-jar", "/server.jar","/data/logs/eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log","tcp://activemq-apollo:61613","3","2017","compact_topology_out"]
           volumeMounts:
             - name: datalogs
               mountPath: /data/logs
