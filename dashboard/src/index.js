@@ -7,13 +7,16 @@ import registerServiceWorker from './registerServiceWorker';
 import {SocketService} from "./services/SocketService";
 import RootReducer from "./reducers/RootReducer";
 
+const IP = "192.168.49.2"
+const PORT = 30425
 
 let store = createStore(RootReducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 
+let socketService = new SocketService(IP, PORT, store);
 //let socketService = new SocketService("localhost", 8080, store);
 //let socketService = new SocketService("j-093.juliet.futuresystems.org", 5000, store);
 // let socketService = new SocketService("localhost", 5000, store);
-let socketService = new SocketService("149.165.150.51", 31623, store);
+// let socketService = new SocketService("149.165.150.51", 31623, store);
 //let socketService = new SocketService("149.165.150.51", 30190, store);
 socketService.start(() => {
     console.log("Loading GUI...");
