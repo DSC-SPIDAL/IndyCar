@@ -7,6 +7,26 @@ from cloudmesh.common.util import readfile, writefile
 
 commands = {}
 
+
+def add_history(msg):
+    file = open("history.txt", "a")  # append mode
+    file.write(f"{msg}\n")
+    file.close()
+
+# driver Shell.run or os.system
+
+def execute(command, driver=os.system):
+    print(command)
+    add_history(command)
+    r = driver(command)
+    return r
+
+def os_system(command):
+    return execute(command, driver=os.system)
+
+def Shell_run(command):
+    return execute(command, driver=Shell.run)
+
 def menu():
     commands["i"] = ["Info", ""]
     commands["c"] = ["Clear", ""]    
@@ -30,11 +50,13 @@ def menu():
     
     commands["z"] = ["zookeeper", ""]
     
+def os_system(command):
+    return execute(command, driver=os.system)
 def start_zookeeper():
     # os.system("kubectl create -f storm/zookeeper.json")
     found = False
     while not found:
-        r = Shell.run("kubectl get pods").splitlines()
+        r = Shell_run("kubectl get pods").splitlines()
         print (r)
         r = Shell.find_lines_with(r, "zookeeper")[0]
         print(r)
@@ -48,7 +70,7 @@ def start_zookeeper():
             
 def find_pid(port):
     try:
-        r = Shell.run(f"ss -lntupw | fgrep {port}").strip().split()[6].split(",")[1].split("=")[1]
+        r = Shell_run(f"ss -lntupw | fgrep {port}").strip().split()[6].split(",")[1].split("=")[1]
         return r 
     except:
         return ""
@@ -60,23 +82,23 @@ def show():
     print (79 * "=")
     
 def storm_port():
-    r = Shell.run("kubectl get services").splitlines()
+    r = Shell_run("kubectl get services").splitlines()
     r = Shell.find_lines_with(r, "storm-ui")[0].split()[4].split(":")[1].replace("/TCP", "")
     return r
 
 def notebook_port():
-    r = Shell.run("kubectl get services").splitlines()
+    r = Shell_run("kubectl get services").splitlines()
     r = Shell.find_lines_with(r, "8888")[0].split()[4].split(":")[1].replace("/TCP", "")
     return r
 
 def show_notebook():
     port = notebook_port()
-    ip = Shell.run("minikube ip").strip()
-    os.system(f"gopen http://{ip}:{port}")
+    ip = Shell_run("minikube ip").strip()
+    os_system(f"gopen http://{ip}:{port}")
 
 def create_notebook():
     #port = notebook_port()
-    #ip = Shell.run("minikube ip").strip()
+    #ip = Shell_run("minikube ip").strip()
     token = get_token()
     print(token)
     content = readfile("car-notebook-in.py")
@@ -90,26 +112,26 @@ def create_notebook():
 
 def show_storm_ui():
     port = storm_port()
-    ip = Shell.run("minikube ip").strip()
-    os.system(f"gopen http://{ip}:{port}")
+    ip = Shell_run("minikube ip").strip()
+    os_system(f"gopen http://{ip}:{port}")
 
 def zookeeper_running():
     try:
-        r =  Shell.run("kubectl logs zookeeper").strip()
+        r =  Shell_run("kubectl logs zookeeper").strip()
         return "ZooKeeper audit is disabled." in r
     except:
         return False
 
 def mqtt_running():
     try:
-        r =  Shell.run("kubectl logs activemq-apollo").strip()
+        r =  Shell_run("kubectl logs activemq-apollo").strip()
         return "Administration interface available at: http://127.0.0.1:" in r
     except:
         return False
 
 def get_token():
     print ("TOKEN")
-    r = Shell.run("kubectl -n kubernetes-dashboard"
+    r = Shell_run("kubectl -n kubernetes-dashboard"
                   " describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')")
     lines = r.splitlines()
     for line in lines:
@@ -123,16 +145,16 @@ def info():
     print ("MQTT      running:", mqtt_running())
     
     try:
-        ip = Shell.run(f"minikube ip")
+        ip = Shell_run(f"minikube ip")
         print ("IP:               ", ip)
     except:
         pass
     
-    pods = Shell.run(f"kubectl get pods")
+    pods = Shell_run(f"kubectl get pods")
     print ("PODS")
     print (pods)
 
-    services = Shell.run(f"kubectl get services")
+    services = Shell_run(f"kubectl get services")
     print ("SERVICES")
     print (services)
     
@@ -152,7 +174,7 @@ def info():
     print()
 
     print ("TOKEN")
-    os.system("kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')")
+    os_system("kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')")
     print()
 
 while True:
@@ -183,16 +205,20 @@ while True:
 
     elif s == "c":
 
+        try:
+            os.remove("history.txt")
+        except:
+            pass
         pid = find_pid("8001")
-        os.system(f"kill -9 {pid}")
+        os_system(f"kill -9 {pid}")
         
-        os.system("minikube stop")
-        os.system("minikube delete")
-        os.system("minikube config set memory 10000")
-        os.system("minikube config set cpus 8")
+        os_system("minikube stop")
+        os_system("minikube delete")
+        os_system("minikube config set memory 10000")
+        os_system("minikube config set cpus 8")
 
-        # os.system("minikube start driver=virtualbox")                                        
+        # os_system("minikube start driver=virtualbox")
         
     else:
-        os.system(commands[s][1])
+        os_system(commands[s][1])
     print(79 * "-")
