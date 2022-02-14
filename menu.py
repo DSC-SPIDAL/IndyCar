@@ -35,7 +35,7 @@ def execute(commands, driver=Shell.run):
 
     result = ""
     for command in commands.splitlines():
-        if command.startswith("#"):
+        if command.strip().startswith("#"):
             print (command)
         else:
             print(command)
@@ -120,6 +120,10 @@ def setup_minikube(memory=10000, cpus=8, sleep=0):
     """
     execute(script, driver=os.system)
 
+def minikube_ip():
+    ip = Shell_run("minikube ip").strip()
+    return ip
+
 def wait_for(name):
     print (f"Starting {name}: ")
     found = False
@@ -169,15 +173,17 @@ def storm_port():
 
 def open_stopm_ui():
     port = storm_port()
-    os.system(f"gopen http://`minikube ip`:{port}")
+    ip = minikube_ip()
+    os.system(f"gopen http://{ip}:{port}")
 
 def wait_for_storm_ui():
     print ("Probe storm-ui: ")
     found = False
     port = storm_port()
+    ip = minikube_ip()
     while not found:
         try:
-            r = Shell.run (f"curl http://`minikube ip`:{port}/index.html ")
+            r = Shell.run (f"curl http://{ip}:{port}/index.html ")
             found = "Storm Flux YAML Viewer" in r
         except:
             pass
@@ -201,6 +207,39 @@ def setup_mqtt():
     execute(script, driver=os.system)
     wait_for("activemq-apollo")
 
+def start_storm_topology():
+    ip = minikube_ip()
+    key = Shell.run("minikube ssh-key").strip()
+    script = \
+        f"""
+        cd {STREAMING}; mvn clean install
+        #cd {STREAMING}; scp -i {key} target/Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar docker@$(minikube ip):/nfs/indycar/data/
+        cd {STREAMING}; scp -i {key} target/Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar docker@{ip}:/nfs/indycar/data/
+        """
+    print(script)
+    execute(script, driver=os.system)
+
+def minikube_setup_sh():
+    script=f"""
+    LOGFILE=../data/eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log
+
+    minikube ssh "sudo chmod -R 777 /nfs/indycar"
+    minikube ssh "mkdir /nfs/indycar/datalogs"
+    minikube ssh "mkdir /nfs/indycar/config/lib/"
+    
+    # copy log file into minikube
+    # change the path of the log file accordingly.
+    scp -i $(minikube ssh-key) $LOGFILE docker@$(minikube ip):/nfs/indycar/datalogs/
+    
+    # copy LSTM model files into minikube
+    scp -i $(minikube ssh-key) -r models docker@$(minikube ip):/nfs/indycar/config/
+    
+    # Following link is for Linux CPU only. For other platforms, check https://www.tensorflow.org/install/lang_java
+    wget https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow_jni-cpu-linux-x86_64-1.14.0.tar.gz
+    mkdir tf-lib
+    tar -xzvf libtensorflow_jni-cpu-linux-x86_64-1.14.0.tar.gz -C tf-lib
+    scp -i $(minikube ssh-key) tf-lib/* docker@$(minikube ip):/nfs/indycar/config/lib/
+    """
 
 print (HOME)
 print (CONTAINERIZE)
@@ -221,7 +260,8 @@ print(DATA)
 # open_stopm_ui()
 # wait_for_storm_ui()
 #start_storm_workers()
-setup_mqtt()
+#setup_mqtt()
+start_storm_topology()
 
 sys.exit()
 
