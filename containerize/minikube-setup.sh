@@ -1,4 +1,4 @@
-LOGFILE=~/Downloads/eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log
+LOGFILE=../data/eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log
 
 minikube ssh "sudo chmod -R 777 /nfs/indycar"
 minikube ssh "mkdir /nfs/indycar/datalogs"
