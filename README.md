@@ -1,5 +1,9 @@
 # IndyCar
 
+NOte:
+ctivemq-apollo                 0/1     ContainerCreating   0          57s
+
+
 ## Intsaltion instructions
 
 ### Get the code
@@ -17,6 +21,31 @@ export INDYCAR=`pwd`
 https://minikube.sigs.k8s.io/docs/start/
 2. Install kubectl
 https://kubernetes.io/docs/tasks/tools/install-kubectl-linux/#install-using-native-package-management
+
+
+### HTM Java
+
+```bash
+sudo apt install maven
+maven install
+ls ~/.m2
+git clone https://github.com/numenta/htm.java-examples.git
+# git clone git@github.com:laszewsk/htm.java-examples.git
+cp -r htm.java-examples/libs/algorithmfoundry ~/.m2/repository
+cd ../IndyCar/streaming
+mvn clean install
+```
+### Get the data
+
+cd containerize
+mkdir ../data
+cd ../data
+# old link
+# gopen https://drive.google.com/u/0/uc?id=1GMOyNnIOnq-P_TAR7iKtR7l-FraY8B76&export=download
+gopen https://drive.google.com/file/d/11sKWJMjzvhfMZbH7S8Yf4sGBYO3I5s_O/view?usp=sharing?export=download
+cd ../containerize
+
+
 
 ### Minikube Setup
 
@@ -86,7 +115,38 @@ Options to monitor
 kubectl create -f storm/storm-ui.json
 kubectl create -f storm/storm-ui-service.json
 
+Open teh Storm GUI
+
+```bash
 kubectl get services
+
+STORM_PORT=`kubectl get services | fgrep storm | sed 's/:/\t/' |sed 's/\//\t/' | awk '{ print $6 }'`
+gopen http://`minikube ip`:$STORM_PORT
+```
+
+kubectl create -f storm/storm-worker-controller.json
+
+## MQTT
+
+kubectl create -f activemq-apollo.json
+kubectl create -f activemq-apollo-service.json
+
+## build storm topology
+
+cd $INDYCAR/streaming
+mvn clean install
+scp -i $(minikube ssh-key) target/Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar docker@$(minikube ip):/nfs/indycar/data/
+cd $INDYCAR/containerize
+emacs -nw minikube-setup.sh  # see if everything is ok
+cd $INDYCAR/streaming
+scp -i $(minikube ssh-key) target/Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar docker@$(minikube ip):/nfs/indycar/data/
+cd $INDYCAR/containerize
+
+## socket server
+
+emacs -nw socket-server.yaml
+
+
 
 ## Refernces
 
