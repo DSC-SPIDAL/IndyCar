@@ -37,6 +37,7 @@ mvn clean install
 ```
 ### Get the data
 
+``` bash
 cd containerize
 mkdir ../data
 cd ../data
@@ -44,7 +45,7 @@ cd ../data
 # gopen https://drive.google.com/u/0/uc?id=1GMOyNnIOnq-P_TAR7iKtR7l-FraY8B76&export=download
 gopen https://drive.google.com/file/d/11sKWJMjzvhfMZbH7S8Yf4sGBYO3I5s_O/view?usp=sharing?export=download
 cd ../containerize
-
+```
 
 
 ### Minikube Setup
@@ -142,9 +143,25 @@ cd $INDYCAR/streaming
 scp -i $(minikube ssh-key) target/Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar docker@$(minikube ip):/nfs/indycar/data/
 cd $INDYCAR/containerize
 
+sh minikube-setup.sh
+
 ## socket server
 
 emacs -nw socket-server.yaml
+
+kubectl create -f socket-server.yaml
+
+## Notebook
+
+minikube ssh "sudo chmod -R 777 /nfs/indycar"
+kubectl create -f storm/jupyter.yaml
+kubectl get services | fgrep jupyter-notebook
+minikube ssh "sudo chmod -R 777 /nfs/indycar"
+
+NOTEBOOK_PORT=`kubectl get services | fgrep jupyter | sed 's/:/\t/' |sed 's/\//\t/' | awk '{ print $6 }'`
+
+gopen http://`minikube ip`:$NOTEBOOK_PORT
+
 
 
 
@@ -154,6 +171,8 @@ emacs -nw socket-server.yaml
 
 * Presentation with install instructions 
   <https://docs.google.com/presentation/d/1qr9vKhVsf3mvZtyRtnAdATi6qmyEOosnmD953_1V-_g/edit#slide=id.g8bab96273d_6_921>
+
+
 
 ## Appendix
 
