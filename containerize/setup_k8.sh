@@ -10,7 +10,7 @@ kubectl create -f account.yaml
 kubectl create -f role.yaml
 
 # create user token for dashboard
-kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')
+kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}') > TOKEN.txt
 
 cat TOKEN.TXT
 
