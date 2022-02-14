@@ -365,12 +365,14 @@ try:
 
     setup_storm_ui()
     open_stopm_ui()
-    raise RuntimeError
 
 
     start_storm_workers()
     setup_mqtt()
+
     start_storm_topology()
+    raise RuntimeError
+
     #minikube_setup_sh()
     #start_socket_server()
 
