@@ -32,8 +32,6 @@ ls ~/.m2
 git clone https://github.com/numenta/htm.java-examples.git
 # git clone git@github.com:laszewsk/htm.java-examples.git
 cp -r htm.java-examples/libs/algorithmfoundry ~/.m2/repository
-cd ../IndyCar/streaming
-mvn clean install
 ```
 ### Get the data
 
