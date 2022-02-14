@@ -27,14 +27,14 @@ minikube config set cpus 8
 minikube start driver=docker
 
 cd $INDYCAR/containerize
+touch TOKEN.txt
 ./setup_k8.sh
 ```
 
 Repeat the command to see the progress
 
 ```bash
-kubectl get services
-kubectl get pods
+kubectl get services; kubectl get pods
 ```
 
 ## vnc
@@ -50,7 +50,43 @@ $ ssh ssh -L 5901:localhost:5901 -N USER@REMOTE_IP
 
 $ vncviewer localhost:1
 
+terminal 3:
 
+In terminal that we use on machine 
+
+export DISPLAY=:1
+
+## View dashboard
+
+gopen http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login
+
+
+## Zookeeper
+
+kubectl create -f storm/zookeeper.json
+kubectl create -f storm/zookeeper-service.json
+
+Options to monitor 
+* get services; kubectl get pods
+* watch -n 2 kubectl logs zookeeper
+* kubectl logs  zookeeper | tail
+
+## Nimbus
+
+kubectl create -f storm/storm-nimbus.json
+kubectl create -f storm/storm-nimbus-service.json
+
+Options to monitor 
+* get services; kubectl get pods
+* watch -n 2 kubectl logs nimbus
+* kubectl logs  nimbus | tail
+
+## Storm
+
+kubectl create -f storm/storm-ui.json
+kubectl create -f storm/storm-ui-service.json
+
+kubectl get services
 
 ## Refernces
 
