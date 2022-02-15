@@ -45,6 +45,13 @@ Description:
   gregor-deploy.py --stormui
     starts the storm gui. All of storm must be set up before.
 
+  Examples:
+    gregor-deploy.py --run --dashboard --stormui
+        runs the workflow without interruptions including the k8 and storm dashboards
+
+    gregor-deploy.py --step --dashboard --stormui
+        runs the workflow with continuation questions including the k8 and storm dashboards
+
 """
 from docopt import docopt
 import os
