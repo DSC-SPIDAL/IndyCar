@@ -113,7 +113,7 @@ def get_code(home="/tmp"):
 @benchmark
 def install_htm_java(directory="/tmp"):
 
-    if Shell.which("mvn") != "":
+    if Shell.which("mvn") == "":
         execute("sudo apt install -y maven", driver=os.system)
 
     os.system("rm -rf ~/.m2")
@@ -143,15 +143,16 @@ def install_streaming(directory="/tmp"):
 def download_data(id="11sKWJMjzvhfMZbH7S8Yf4sGBYO3I5s_O",
                   filename="data/eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log"):
 
-    directory = os.path.dirname(filename)
-    os.system(f"mkdir -p {directory}")
-    command = f'curl -c /tmp/cookies "https://drive.google.com/uc?export=download&id={id}" > /tmp/intermezzo.html'
-    print(command)
-    os.system(command)
-    command = f'curl -L -b /tmp/cookies "https://drive.google.com$(cat /tmp/intermezzo.html |'\
-              f' grep -Po \'uc-download-link" [^>]* href="\K[^"]*\' | sed \'s/\&amp;/\&/g\')" > {filename}'
-    print(command)
-    os.system(command)
+    if not os.path.exists(filename):
+        directory = os.path.dirname(filename)
+        os.system(f"mkdir -p {directory}")
+        command = f'curl -c /tmp/cookies "https://drive.google.com/uc?export=download&id={id}" > /tmp/intermezzo.html'
+        print(command)
+        os.system(command)
+        command = f'curl -L -b /tmp/cookies "https://drive.google.com$(cat /tmp/intermezzo.html |'\
+                  f' grep -Po \'uc-download-link" [^>]* href="\K[^"]*\' | sed \'s/\&amp;/\&/g\')" > {filename}'
+        print(command)
+        os.system(command)
 
 @benchmark
 def setup_minikube(memory=10000, cpus=8, sleep_time=0):
@@ -221,7 +222,7 @@ def setup_zookeeper():
     kubectl create -f {STORM}/zookeeper-service.json
     """
     execute(script, driver=os.system)
-    time.sleep(30)
+    # time.sleep(30)
     wait_for("zookeeper")
 
 @benchmark
@@ -268,8 +269,8 @@ def wait_for_storm_ui():
             r = Shell.run (f"curl http://{ip}:{port}/index.html")
             found = "Storm Flux YAML Viewer" in r
         except:
-            time.sleep(1)
             pass
+        time.sleep(1)
         print (".", end="", flush=True)
     print (" ok")
     os.system(f"gopen http://{ip}:{port}/index.html")
@@ -349,10 +350,11 @@ print(STREAMING)
 print(DATA)
 
 try:
+    os.system("sudo -k") # does not work yet
     kill()
     ## get_code()
-    #install_htm_java()
-    #download_data()
+    install_htm_java()
+    download_data()
     setup_minikube()
     setup_k8()
 

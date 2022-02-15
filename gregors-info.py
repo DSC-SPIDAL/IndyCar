@@ -352,8 +352,8 @@ def main():
     try:
         kill()
         ## get_code()
-        #install_htm_java()
-        #download_data()
+        install_htm_java()
+        download_data()
         setup_minikube()
         setup_k8()
 
