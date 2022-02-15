@@ -7,9 +7,9 @@ Usage:
   gregor-deploy.py --dashboard
   gregor-deploy.py --stormui
   gregor-deploy.py --kill
+  gregor-deploy.py --menu
 
-
-deploys the indycar runtime environment on an ubuntu 20.04 system.
+Deploys the indycar runtime environment on an ubuntu 20.04 system.
 
 Arguments:
   FILE        optional input file
@@ -51,6 +51,61 @@ Description:
 
     gregor-deploy.py --step --dashboard --stormui
         runs the workflow with continuation questions including the k8 and storm dashboards
+
+    gregor-deploy.py --menu
+        allows the selction of a particular step in the workflow
+
+    less $INDYCAR/history.txt
+
+  Possible Bugs:
+  1. The storm-worker-service is mentione in the storm/setup.sh script. However it is not mentioned in the
+     presentation slide that describes the setup. Furthermore when one starts this service, it does not
+     work and the probe seems to fail. For the reason that it is not mentioned in the guide and does nt work
+     we have not enabled it.
+  2. The program returns an erro when continuing to the last step.
+  3. A race condition in kubectl was avoided, buy adding an additional second wait time after calling commands.
+     If erros still occur, the wait time is suggested to be increased. Currently the wait time is set to 1 second.
+  4. Instalation error of htm.java:
+    [INFO] ------------------------------------------------------------------------
+    [INFO] BUILD FAILURE
+    [INFO] ------------------------------------------------------------------------
+    [INFO] Total time:  11.333 s
+    [INFO] Finished at: 2022-02-15T10:25:39-05:00
+    [INFO] ------------------------------------------------------------------------
+    [ERROR] Failed to execute goal on project Indycar500-33-HTMBaseline: Could not resolve dependencies
+            for project com.dsc.iu:Indycar500-33-HTMBaseline:jar:1.0-SNAPSHOT:
+            Could not find artifact algorithmfoundry:algorithmfoundry-shade-culled:jar:1.3
+            in central (https://repo.maven.apache.org/maven2) -> [Help 1]
+    [ERROR]
+    [ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
+    [ERROR] Re-run Maven using the -X switch to enable full debug logging.
+    [ERROR]
+    [ERROR] For more information about the errors and possible solutions, please read the following articles:
+    [ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/DependencyResolutionException
+    256
+            #cd /home/username/Desktop/indycar/IndyCar/streaming; scp -i /home/username/.minikube/machines/minikube/id_rsa target/Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar docker@$(minikube ip):/nfs/indycar/data/
+            cd /home/username/Desktop/indycar/IndyCar/streaming; scp -i /home/username/.minikube/machines/minikube/id_rsa target/Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar docker@192.168.49.2:/nfs/indycar/data/
+    Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar                                                     100%  212MB 369.8MB/s   00:00
+
+  Benchmark:
+    AMD5950
+    +----------------------+----------+---------+
+    | Name                 | Status   |    Time |
+    |----------------------+----------+---------|
+    | kill                 | ok       |  16.584 |
+    | install_htm_java     | ok       |  15.835 |
+    | download_data        | ok       |   0     |
+    | setup_minikube       | ok       |  20.216 |
+    | setup_k8             | ok       |  12.576 |
+    | setup_zookeeper      | ok       |   6.381 |
+    | setup_nimbus         | ok       |   8.502 |
+    | setup_storm_ui       | ok       |   4.248 |
+    | open_stopm_ui        | ok       | 163.941 |
+    | start_storm_workers  | ok       |   3.228 |
+    | setup_mqtt           | ok       |  10.507 |
+    | start_storm_topology | ok       |  17.786 |
+    +----------------------+----------+---------+
+
 
 """
 from docopt import docopt
@@ -140,11 +195,11 @@ def execute(commands, sleep_time=1, driver=Shell.run):
 
     result = ""
     for command in commands.splitlines():
+        add_history(command)
         if command.strip().startswith("#"):
             print(command)
         else:
             print(command)
-            add_history(command)
             r = driver(command)
             print(r)
             result = result + str(r)
@@ -182,9 +237,9 @@ def install_htm_java(directory="/tmp"):
     if Shell.which("mvn") == "":
         execute("sudo apt install -y maven", driver=os.system)
 
-    os.system("rm -rf ~/.m2")
-    os.system("mkdir -p ~/.m2")
-    os.system(f"rm -rf {directory}/htm.java-examples")
+    execute("rm -rf ~/.m2", driver=os.system)
+    execute("mkdir -p ~/.m2", driver=os.system)
+    execute(f"rm -rf {directory}/htm.java-examples", driver=os.system)
 
     script = clean_script(f"""
         cd {directory}; git clone https://github.com/numenta/htm.java-examples.git
@@ -211,14 +266,14 @@ def download_data(id="11sKWJMjzvhfMZbH7S8Yf4sGBYO3I5s_O",
                   filename="data/eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log"):
     if not os.path.exists(filename):
         directory = os.path.dirname(filename)
-        os.system(f"mkdir -p {directory}")
+        execute(f"mkdir -p {directory}", driver=os.system)
         command = f'curl -c /tmp/cookies "https://drive.google.com/uc?export=download&id={id}" > /tmp/intermezzo.html'
         print(command)
-        os.system(command)
+        execute(command, driver=os.system)
         command = f'curl -L -b /tmp/cookies "https://drive.google.com$(cat /tmp/intermezzo.html |' \
                   f' grep -Po \'uc-download-link" [^>]* href="\K[^"]*\' | sed \'s/\&amp;/\&/g\')" > {filename}'
         print(command)
-        os.system(command)
+        execute(command, driver=os.system)
     else:
         print("data already downloaded")
 
@@ -274,8 +329,8 @@ def open_k8_dashboard():
     hline()
     print (token)
     hline()
-    os.system("gopen http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:"
-              "kubernetes-dashboard:/proxy/#/login")
+    execute("gopen http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:"
+              "kubernetes-dashboard:/proxy/#/login", driver=os.system)
 
 
 def wait_for(name):
@@ -357,7 +412,7 @@ def wait_for_storm_ui():
         print(".", end="", flush=True)
     print(" ok")
     if stormui:
-        os.system(f"gopen http://{ip}:{port}/index.html")
+        execute(f"gopen http://{ip}:{port}/index.html", driver=os.system)
 
 
 @benchmark
@@ -368,6 +423,16 @@ def start_storm_workers():
         """
     execute(script, driver=os.system)
     wait_for("storm-worker-controller")
+
+@benchmark
+def start_storm_service():
+    script = \
+        f"""
+        kubectl create -f {STORM}/storm-worker-service.json
+        """
+    execute(script, driver=os.system)
+    wait_for("storm-worker-service")
+
 
 
 @benchmark
@@ -430,9 +495,6 @@ def start_socket_server():
         """
     execute(script, driver=os.system)
 
-import sys
-from termcolor import colored, cprint
-
 def _continue(msg=""):
     global step
     if step:
@@ -449,6 +511,81 @@ def _continue(msg=""):
         print (screen.columns * "=")
         print()
 
+
+def execute_step(s, interactive=False):
+    if interactive:
+        _continue(s.__name__)
+    s()
+
+def execute_steps(steps, interactive=False):
+    for s, name in steps:
+        execute_step(s, interactive)
+
+regular_steps = [
+            (kill, "kill"),
+            (install_htm_java, "install_htm_java"),
+            (download_data, "download_data"),
+            (setup_minikube, "setup_minikube"),
+            (open_k8_dashboard, "open_k8_dashboard"),
+            (setup_k8, "setup_k8"),
+            (setup_zookeeper, "setup_zookeeper"),
+            (setup_nimbus, "setup_nimbus"),
+            (setup_storm_ui, "setup_storm_ui"),
+            (open_stopm_ui, "open_stopm_ui"),
+            (start_storm_workers, "start_storm_workers"),
+            # (start_storm_service, "start_storm_service"),
+            (setup_mqtt, "setup_mqtt"),
+            (start_storm_topology, "start_storm_topology")
+        ]
+
+def menu():
+    steps = regular_steps
+    c = ""
+    while True:
+        hline()
+        print("q : quit")
+        print("i : info")
+
+        for index in range(len(steps)):
+            print(f"{index:<2}: {steps[index][1]}")
+        hline()
+        i = input("Choice: ")
+        print(f'You typed >{i}<')
+        hline()
+        if i == "q":
+            return
+        elif i == "i":
+            info()
+        elif i == "0":
+            kill();
+        elif i == "1":
+            install_htm_java();
+        elif i == "2":
+            download_data()
+        elif i == "3":
+            setup_minikube()
+        elif i == "4":
+            open_k8_dashboard()
+        elif i == "5":
+            setup_k8()
+        elif i == "6":
+            setup_zookeeper()
+        elif i == "7":
+            setup_nimbus()
+        elif i == "8":
+            setup_storm_ui()
+        elif i == "9":
+            open_stopm_ui()
+        elif i == "10":
+            start_storm_workers()
+        # elif i == "11":
+        #    start_storm_service()
+        elif i == "11":
+            setup_mqtt()
+        elif i == "12":
+            start_storm_topology()
+
+
 def workflow():
     print(HOME)
     print(CONTAINERIZE)
@@ -456,7 +593,7 @@ def workflow():
     print(DATA)
 
     try:
-        os.system("sudo -k")  # does not work yet
+        execute("sudo -k", driver=os.system)  # does not work yet
         _continue("Kill previous deployment")
         kill();
 
@@ -493,6 +630,9 @@ def workflow():
         _continue("Start storm workers")
         start_storm_workers();
 
+        #_continue("Start storm service")
+        #start_storm_service();
+
         _continue("Start mqtt")
         setup_mqtt();
 
@@ -505,7 +645,7 @@ def workflow():
 
         # start_socket_server(); _continue()
 
-        StopWatch.benchmark(sysinfo=True, attributes="short", , csv=False)
+        StopWatch.benchmark(sysinfo=True, attributes="short", csv=False)
     except Exception as e:
         print(e)
         StopWatch.benchmark(sysinfo=False, attributes="short", csv=False)
@@ -589,6 +729,8 @@ if __name__ == '__main__':
         kill()
     elif info:
         deploy_info()
+    elif arguments["--menu"]:
+        menu()
 
     else:
         Console.error("Usage issue")
@@ -597,69 +739,23 @@ sys.exit()
 
 
 def menu():
-    commands["i"] = ["Info", ""]
-    commands["c"] = ["Clear", ""]
 
-    commands["1"] = ["Minikube start", "minikube start driver=docker"]
-    commands["2"] = ["Start k services", "./setup_k8.sh"]
-    commands["3"] = ["K-UI",
-                     "gopen http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login"]
-    commands["4"] = ["Start other services", "cd storm; ./setup.sh"]
-    commands["5"] = ["Storm UI", "in the browser refresh till you see the UI"]
-    commands["6"] = ["Start MQTT",
-                     "kubectl create -f activemq-apollo.json; kubectl create -f activemq-apollo-service.json"]
     commands["7"] = ["copy key",
                      "scp -i $(minikube ssh-key) ../streaming/target/Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar docker@$(minikube ip):/nfs/indycar/data/"]
     commands["8"] = ["Start Socket server", "kubectl create -f socket-server.yaml"]
     commands["9"] = ["permissions", 'minikube ssh "sudo chmod -R 777 /nfs/indycar"']
     commands["10"] = ["jupyter", "kubectl create -f storm/jupyter.yaml"]
     commands["11"] = ["permissions", 'minikube ssh "sudo chmod -R 777 /nfs/indycar"']
-    commands["12"] = ["start notebook", ""]
-    commands["13"] = ["create notebook", ""]
-
-    commands["s"] = ["Stop Minikube", "minikube stop"]
-
-    commands["z"] = ["zookeeper", ""]
-
-
-def os_system(command):
-    return execute(command, driver=os.system)
-
-
-def start_zookeeper():
-    # os.system("kubectl create -f storm/zookeeper.json")
-    found = False
-    while not found:
-        r = Shell_run("kubectl get pods").splitlines()
-        print(r)
-        r = Shell.find_lines_with(r, "zookeeper")[0]
-        print(r)
-        if "Running" in r:
-            found = True
-            print("zookeeper pod running")
-        else:
-            time.sleep(1)
-    os.system("kubectl create -f storm/zookeeper-service.json")
-
-
-def show():
-    hline()
-    for i in commands:
-        print(f" {i:<2} {commands[i][0]:<20} |  {commands[i][1]}")
-    hline()
-
 
 def notebook_port():
     r = Shell_run("kubectl get services").splitlines()
     r = Shell.find_lines_with(r, "8888")[0].split()[4].split(":")[1].replace("/TCP", "")
     return r
 
-
 def show_notebook():
     port = notebook_port()
     ip = Shell_run("minikube ip").strip()
-    os_system(f"gopen http://{ip}:{port}")
-
+    execute(f"gopen http://{ip}:{port}", driver=os.system)
 
 def create_notebook():
     # port = notebook_port()
@@ -672,56 +768,4 @@ def create_notebook():
     print(content)
     hline()
 
-    # writefile(content, "abc.py")
 
-
-def show_storm_ui():
-    port = storm_port()
-    ip = Shell_run("minikube ip").strip()
-    os_system(f"gopen http://{ip}:{port}")
-
-
-while True:
-    menu()
-    show()
-    s = input()
-    print('You typed ' + s)
-
-    hline()
-    if s == "k":
-        print("Port 8001:", find_port("8001"))
-
-    elif s == "i":
-        info()
-
-    elif s == "5":
-        show_storm_ui()
-
-    elif s == "12":
-        show_notebook()
-    elif s == "13":
-        create_notebook()
-
-
-    elif s == "z":
-        start_zookeeper()
-
-    elif s == "c":
-
-        try:
-            os.remove("history.txt")
-        except:
-            pass
-        pid = find_pid("8001")
-        os_system(f"kill -9 {pid}")
-
-        os_system("minikube stop")
-        os_system("minikube delete")
-        os_system("minikube config set memory 10000")
-        os_system("minikube config set cpus 8")
-
-        # os_system("minikube start driver=virtualbox")
-
-    else:
-        os_system(commands[s][1])
-    hline()
