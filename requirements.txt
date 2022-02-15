@@ -1,2 +1,3 @@
 cloudmesh-common
-gdown
+docopt
+termcolor
