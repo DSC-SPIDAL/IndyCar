@@ -8,6 +8,7 @@ Usage:
   gregor-deploy.py --stormui
   gregor-deploy.py --kill
   gregor-deploy.py --menu
+  gregor-deploy.py --token
 
 Deploys the indycar runtime environment on an ubuntu 20.04 system.
 
@@ -72,20 +73,19 @@ Description:
     +----------------------+----------+---------+
     | Name                 | Status   |    Time |
     |----------------------+----------+---------|
-    | kill                 | ok       |  16.584 |
-    | install_htm_java     | ok       |  15.835 |
+    | kill                 | ok       |  17.134 |
     | download_data        | ok       |   0     |
-    | setup_minikube       | ok       |  20.216 |
-    | setup_k8             | ok       |  12.576 |
-    | setup_zookeeper      | ok       |   6.381 |
-    | setup_nimbus         | ok       |   8.502 |
-    | setup_storm_ui       | ok       |   4.248 |
-    | open_stopm_ui        | ok       | 163.941 |
-    | start_storm_workers  | ok       |   3.228 |
-    | setup_mqtt           | ok       |  10.507 |
-    | start_storm_topology | ok       |  17.786 |
+    | setup_minikube       | ok       |  20.844 |
+    | setup_k8             | ok       |  12.507 |
+    | setup_zookeeper      | ok       |   7.405 |
+    | setup_nimbus         | ok       |   8.462 |
+    | setup_storm_ui       | ok       |   4.312 |
+    | open_stopm_ui        | ok       | 173.242 |
+    | start_storm_workers  | ok       |   3.213 |
+    | install_htm_java     | ok       |  52.482 |
+    | setup_mqtt           | ok       |  11.591 |
+    | start_storm_topology | ok       |  29.605 |
     +----------------------+----------+---------+
-
 
 """
 from docopt import docopt
@@ -492,6 +492,44 @@ def start_socket_server():
     execute(script, driver=os.system)
     wait_for("indycar-socketserver")
 
+def setup_jupyter_service():
+    permission_script = \
+        f'cd {CONTAINERIZE}; minikube ssh "sudo chmod -R 777 /nfs/indycar"'
+    jupyter_script = \
+        f"cd {CONTAINERIZE}; kubectl create -f storm/jupyter.yaml"
+
+    execute(permission_script, driver=os.system)
+    execute(jupyter_script, driver=os.system)
+    execute(permission_script, driver=os.system)
+
+def notebook_port():
+    r = Shell_run("kubectl get services").splitlines()
+    r = Shell.find_lines_with(r, "jupyter-notebook")[0].split()[4].split(":")[1].replace("/TCP", "")
+    return r
+
+def show_notebook():
+    port = notebook_port()
+    ip = Shell_run("minikube ip").strip()
+    execute(f"cd {CONTAINER}; gopen http://{ip}:{port}", driver=os.system)
+
+def create_notebook():
+    # port = notebook_port()
+    # ip = Shell_run("minikube ip").strip()
+    token = get_token()
+    print(token)
+    content = readfile(f"{CONTAINERIZE}/car-notebook-in.py")
+    content = content.format(token=token)
+    hline()
+    print(content)
+    hline()
+    writefile(f"{CONTAINERIZE}/car-notebook.py", content)
+
+@benchmark
+def do_jupyter():
+    setup_jupyter_service()
+    create_notebook()
+    show_notebook()
+
 def _continue(msg=""):
     global step
     if step:
@@ -534,7 +572,8 @@ regular_steps = [
             (install_htm_java, "install_htm_java"),
             (start_storm_topology, "start_storm_topology"),
             (minikube_setup_sh, "minikube_setup_sh"),
-            (start_socket_server,"start_socket_server")
+            (start_socket_server,"start_socket_server"),
+            (do_jupyter, "do_Jupyter")
 ]
 
 def menu():
@@ -587,6 +626,8 @@ def menu():
             minikube_setup_sh()
         elif i == "14":
             start_socket_server()
+        elif i == "15":
+            do_jupyter()
 
 
 def workflow():
@@ -642,11 +683,15 @@ def workflow():
         _continue("Start storm topology")
         start_storm_topology();
 
-        raise RuntimeError
+        _continue("minikube setup")
+        minikube_setup_sh();
 
-        # minikube_setup_sh(); _continue()
+        _continue("setup socket server")
+        start_socket_server();
 
-        # start_socket_server(); _continue()
+        #_continue("setup jupyter")
+        #do_jupyter();
+
 
         StopWatch.benchmark(sysinfo=True, attributes="short", csv=False)
     except Exception as e:
@@ -734,41 +779,12 @@ if __name__ == '__main__':
         deploy_info()
     elif arguments["--menu"]:
         menu()
+    elif arguments["--token"]:
+        get_token()
 
     else:
         Console.error("Usage issue")
 
-sys.exit()
 
-
-def menu():
-
-    commands["7"] = ["copy key",
-                     "scp -i $(minikube ssh-key) ../streaming/target/Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar docker@$(minikube ip):/nfs/indycar/data/"]
-    commands["8"] = ["Start Socket server", "kubectl create -f socket-server.yaml"]
-    commands["9"] = ["permissions", 'minikube ssh "sudo chmod -R 777 /nfs/indycar"']
-    commands["10"] = ["jupyter", "kubectl create -f storm/jupyter.yaml"]
-    commands["11"] = ["permissions", 'minikube ssh "sudo chmod -R 777 /nfs/indycar"']
-
-def notebook_port():
-    r = Shell_run("kubectl get services").splitlines()
-    r = Shell.find_lines_with(r, "8888")[0].split()[4].split(":")[1].replace("/TCP", "")
-    return r
-
-def show_notebook():
-    port = notebook_port()
-    ip = Shell_run("minikube ip").strip()
-    execute(f"gopen http://{ip}:{port}", driver=os.system)
-
-def create_notebook():
-    # port = notebook_port()
-    # ip = Shell_run("minikube ip").strip()
-    token = get_token()
-    print(token)
-    content = readfile("car-notebook-in.py")
-    content = content.format(token=token)
-    hline()
-    print(content)
-    hline()
 
 
