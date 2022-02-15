@@ -58,34 +58,14 @@ Description:
     less $INDYCAR/history.txt
 
   Possible Bugs:
-  1. The storm-worker-service is mentione in the storm/setup.sh script. However it is not mentioned in the
+  1. broken/unused storm-worker-service: The storm-worker-service is mentioned in the storm/setup.sh script. However it is not mentioned in the
      presentation slide that describes the setup. Furthermore when one starts this service, it does not
      work and the probe seems to fail. For the reason that it is not mentioned in the guide and does nt work
      we have not enabled it.
-  2. The program returns an erro when continuing to the last step.
-  3. A race condition in kubectl was avoided, buy adding an additional second wait time after calling commands.
+  2. kubectl race condition: A race condition in kubectl was avoided, buy adding an additional second wait time after calling commands.
      If erros still occur, the wait time is suggested to be increased. Currently the wait time is set to 1 second.
-  4. Instalation error of htm.java:
-    [INFO] ------------------------------------------------------------------------
-    [INFO] BUILD FAILURE
-    [INFO] ------------------------------------------------------------------------
-    [INFO] Total time:  11.333 s
-    [INFO] Finished at: 2022-02-15T10:25:39-05:00
-    [INFO] ------------------------------------------------------------------------
-    [ERROR] Failed to execute goal on project Indycar500-33-HTMBaseline: Could not resolve dependencies
-            for project com.dsc.iu:Indycar500-33-HTMBaseline:jar:1.0-SNAPSHOT:
-            Could not find artifact algorithmfoundry:algorithmfoundry-shade-culled:jar:1.3
-            in central (https://repo.maven.apache.org/maven2) -> [Help 1]
-    [ERROR]
-    [ERROR] To see the full stack trace of the errors, re-run Maven with the -e switch.
-    [ERROR] Re-run Maven using the -X switch to enable full debug logging.
-    [ERROR]
-    [ERROR] For more information about the errors and possible solutions, please read the following articles:
-    [ERROR] [Help 1] http://cwiki.apache.org/confluence/display/MAVEN/DependencyResolutionException
-    256
-            #cd /home/username/Desktop/indycar/IndyCar/streaming; scp -i /home/username/.minikube/machines/minikube/id_rsa target/Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar docker@$(minikube ip):/nfs/indycar/data/
-            cd /home/username/Desktop/indycar/IndyCar/streaming; scp -i /home/username/.minikube/machines/minikube/id_rsa target/Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar docker@192.168.49.2:/nfs/indycar/data/
-    Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar                                                     100%  212MB 369.8MB/s   00:00
+  3. htm.java: Installation error of htm.java: This uses an outdated htm.java library. It is uncertain if this
+     causes an issue
 
   Benchmark:
     AMD5950
@@ -233,20 +213,36 @@ def get_code(home="/tmp"):
 
 
 @benchmark
-def install_htm_java(directory="/tmp"):
+def install_htm_java():
     if Shell.which("mvn") == "":
         execute("sudo apt install -y maven", driver=os.system)
 
-    execute("rm -rf ~/.m2", driver=os.system)
-    execute("mkdir -p ~/.m2", driver=os.system)
-    execute(f"rm -rf {directory}/htm.java-examples", driver=os.system)
-
-    script = clean_script(f"""
-        cd {directory}; git clone https://github.com/numenta/htm.java-examples.git
-        # cd {directory}; git clone git@github.com:laszewsk/htm.java-examples.git
-        cp -r {directory}/htm.java-examples/libs/algorithmfoundry ~/.m2/repository
+    script = \
+        f"""
+        rm -rf ~/.m2
+        cd {STREAMING}; mvn install
         """
-                          )
+    print(script)
+    try:
+        execute(script, driver=os.system)
+    except:
+        pass # ignore error
+    
+    script = \
+        f"""
+        rm -rf {STREAMING}/htm.java-examples
+        cd {STREAMING}; git clone https://github.com/numenta/htm.java-examples.git
+        cp -r {STREAMING}/htm.java-examples/libs/algorithmfoundry ~/.m2/repository
+        cd {STREAMING}; mvn clean install
+        """
+
+    #script = clean_script(f"""
+    #    cd {directory}; git clone https://github.com/numenta/htm.java-examples.git
+    #    # cd {directory}; git clone git@github.com:laszewsk/htm.java-examples.git
+    #    cp -r {directory}/htm.java-examples/libs/algorithmfoundry ~/.m2/repository
+    #    """
+    # )
+
     print(script)
     execute(script, driver=os.system)
 
@@ -472,16 +468,16 @@ def minikube_setup_sh():
     minikube ssh "mkdir /nfs/indycar/config/lib/"
     # copy log file into minikube
     # change the path of the log file accordingly.
-    scp -i {key} {LOGFILE} docker@${ip}:/nfs/indycar/datalogs/
+    scp -i {key} {LOGFILE} docker@{ip}:/nfs/indycar/datalogs/
     
     # copy LSTM model files into minikube
-    scp -i {key} -r models docker@${ip}:/nfs/indycar/config/
+    scp -i {key} -r models docker@{ip}:/nfs/indycar/config/
     
     # Following link is for Linux CPU only. For other platforms, check https://www.tensorflow.org/install/lang_java
     wget https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow_jni-cpu-linux-x86_64-1.14.0.tar.gz
     mkdir tf-lib
     tar -xzvf libtensorflow_jni-cpu-linux-x86_64-1.14.0.tar.gz -C tf-lib
-    scp -i {key} tf-lib/* docker@${ip}:/nfs/indycar/config/lib/
+    scp -i {key} tf-lib/* docker@{ip}:/nfs/indycar/config/lib/
     """
     execute(script, driver=os.system)
     # wait for something?
@@ -491,9 +487,10 @@ def minikube_setup_sh():
 def start_socket_server():
     script = \
         f"""
-        kubectl create -f socket-server.yaml
+        cd {CONTAINERIZE}; kubectl create -f socket-server.yaml
         """
     execute(script, driver=os.system)
+    wait_for("indycar-socketserver")
 
 def _continue(msg=""):
     global step
@@ -523,7 +520,6 @@ def execute_steps(steps, interactive=False):
 
 regular_steps = [
             (kill, "kill"),
-            (install_htm_java, "install_htm_java"),
             (download_data, "download_data"),
             (setup_minikube, "setup_minikube"),
             (open_k8_dashboard, "open_k8_dashboard"),
@@ -535,8 +531,11 @@ regular_steps = [
             (start_storm_workers, "start_storm_workers"),
             # (start_storm_service, "start_storm_service"),
             (setup_mqtt, "setup_mqtt"),
-            (start_storm_topology, "start_storm_topology")
-        ]
+            (install_htm_java, "install_htm_java"),
+            (start_storm_topology, "start_storm_topology"),
+            (minikube_setup_sh, "minikube_setup_sh"),
+            (start_socket_server,"start_socket_server")
+]
 
 def menu():
     steps = regular_steps
@@ -559,31 +558,35 @@ def menu():
         elif i == "0":
             kill();
         elif i == "1":
-            install_htm_java();
-        elif i == "2":
             download_data()
-        elif i == "3":
+        elif i == "2":
             setup_minikube()
-        elif i == "4":
+        elif i == "3":
             open_k8_dashboard()
-        elif i == "5":
+        elif i == "4":
             setup_k8()
-        elif i == "6":
+        elif i == "5":
             setup_zookeeper()
-        elif i == "7":
+        elif i == "6":
             setup_nimbus()
-        elif i == "8":
+        elif i == "7":
             setup_storm_ui()
-        elif i == "9":
+        elif i == "8":
             open_stopm_ui()
-        elif i == "10":
+        elif i == "9":
             start_storm_workers()
         # elif i == "11":
         #    start_storm_service()
-        elif i == "11":
+        elif i == "10":
             setup_mqtt()
+        elif i == "11":
+            install_htm_java();
         elif i == "12":
             start_storm_topology()
+        elif i == "13":
+            minikube_setup_sh()
+        elif i == "14":
+            start_socket_server()
 
 
 def workflow():
@@ -598,9 +601,6 @@ def workflow():
         kill();
 
         ## get_code(); _continue()
-
-        _continue("Install htm.java")
-        install_htm_java();
 
         _continue("Download the data")
         download_data();
@@ -632,6 +632,9 @@ def workflow():
 
         #_continue("Start storm service")
         #start_storm_service();
+
+        _continue("Install htm.java")
+        install_htm_java();
 
         _continue("Start mqtt")
         setup_mqtt();
