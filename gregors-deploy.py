@@ -87,6 +87,27 @@ Description:
     | start_storm_topology | ok       |  29.605 |
     +----------------------+----------+---------+
 
+    EPY    via vnc
+    +----------------------+----------+---------+
+    | Name                 | Status   |    Time |
+    |----------------------+----------+---------|
+    | kill                 | ok       |  19.352 |
+    | download_data        | ok       |   0     |
+    | setup_minikube       | ok       |  31.828 |
+    | setup_k8             | ok       |  12.775 |
+    | setup_zookeeper      | ok       |  60.753 |
+    | setup_nimbus         | ok       |  93.771 |
+    | setup_storm_ui       | ok       |   4.366 |
+    | open_stopm_ui        | ok       | 270.364 |
+    | start_storm_workers  | ok       |   3.213 |
+    | install_htm_java     | ok       | 183.767 |
+    | setup_mqtt           | ok       | 122.997 |
+    | start_storm_topology | ok       |  52.876 |
+    | minikube_setup_sh    | ok       |  37.129 |
+    | start_socket_server  | ok       | 113.281 |
+    +----------------------+----------+---------+
+
+
 """
 from docopt import docopt
 import os
