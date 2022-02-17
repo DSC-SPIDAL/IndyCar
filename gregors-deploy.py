@@ -113,7 +113,10 @@ from docopt import docopt
 import os
 from cloudmesh.common.console import Console
 from cloudmesh.common.Shell import Shell
-from cloudmesh.common.util import readfile, writefile
+from cloudmesh.common.util import readfile
+from cloudmesh.common.util import writefile
+from cloudmesh.common.util import banner as cloudmesh_banner
+from cloudmesh.common.console import Console
 import sys
 import textwrap
 from cloudmesh.common.StopWatch import StopWatch
@@ -125,8 +128,10 @@ commands = {}
 
 screen = os.get_terminal_size()
 
+def banner(msg):
+    cloudmesh_banner(msg,c="#")
 
-def hline(c="="):
+def hline(c="-"):
     print(screen.columns * c)
 
 
@@ -149,7 +154,8 @@ def benchmark(func):
 
 
 @benchmark
-def kill():
+def kill_services():
+    banner("kill_services")
     try:
         os.remove("history.txt")
     except:
@@ -234,6 +240,7 @@ def clean_script(script):
 
 @benchmark
 def get_code(home="/tmp"):
+    banner("get_code")
     script = clean_script(f"""
     mkdir -p {home}/indycar
     cd {home}/indycar; git clone https://github.com/DSC-SPIDAL/IndyCar.git
@@ -243,6 +250,7 @@ def get_code(home="/tmp"):
 
 @benchmark
 def install_htm_java():
+    banner("install_htm_java")
     if Shell.which("mvn") == "":
         execute("sudo apt install -y maven", driver=os.system)
 
@@ -278,6 +286,7 @@ def install_htm_java():
 
 @benchmark
 def install_streaming(directory="/tmp"):
+    banner("install_streaming")
     script = clean_script(f"""
         cd {HOME}/streaming; mvn clean install
         """
@@ -289,6 +298,7 @@ def install_streaming(directory="/tmp"):
 @benchmark
 def download_data(id="11sKWJMjzvhfMZbH7S8Yf4sGBYO3I5s_O",
                   filename="data/eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log"):
+    banner("download_data")
     if not os.path.exists(filename):
         directory = os.path.dirname(filename)
         execute(f"mkdir -p {directory}", driver=os.system)
@@ -305,6 +315,7 @@ def download_data(id="11sKWJMjzvhfMZbH7S8Yf4sGBYO3I5s_O",
 
 @benchmark
 def setup_minikube(memory=10000, cpus=8, sleep_time=0):
+    banner("setup_minikube")
     script = f"""
     minikube delete
     minikube config set memory {memory}
@@ -317,6 +328,7 @@ def setup_minikube(memory=10000, cpus=8, sleep_time=0):
 
 @benchmark
 def setup_k8():
+    banner("setup_k8")
     token = get_token()
     script = \
         f"""
@@ -349,14 +361,17 @@ def minikube_ip():
 
 
 def open_k8_dashboard():
-    token = get_token()
-    hline()
-    print("TOKEN")
-    hline()
-    print(token)
-    hline()
-    execute("gopen http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:"
-            "kubernetes-dashboard:/proxy/#/login", driver=os.system)
+    banner("open_k8_dashboard")
+    global dashboard
+    if dashboard:
+        token = get_token()
+        hline()
+        print("TOKEN")
+        hline()
+        print(token)
+        hline()
+        execute("gopen http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:"
+                "kubernetes-dashboard:/proxy/#/login", driver=os.system)
 
 
 def wait_for(name):
@@ -379,6 +394,7 @@ def wait_for(name):
 
 @benchmark
 def setup_zookeeper():
+    banner("setup_zookeeper")
     script = \
         f"""
     kubectl create -f {STORM}/zookeeper.json 
@@ -391,6 +407,7 @@ def setup_zookeeper():
 
 @benchmark
 def setup_nimbus():
+    banner("setup_nimbus")
     script = \
         f"""
     kubectl create -f {STORM}/storm-nimbus.json
@@ -402,6 +419,7 @@ def setup_nimbus():
 
 @benchmark
 def setup_storm_ui():
+    banner("setup_storm_ui")
     script = \
         f"""
     kubectl create -f {STORM}/storm-ui.json
@@ -419,6 +437,7 @@ def storm_port():
 
 @benchmark
 def open_stopm_ui():
+    banner("open_storm_ui")
     port = storm_port()
     ip = minikube_ip()
     wait_for_storm_ui()
@@ -444,6 +463,8 @@ def wait_for_storm_ui():
 
 @benchmark
 def start_storm_workers():
+    banner("setup_storm_workers")
+
     script = \
         f"""
         kubectl create -f {STORM}/storm-worker-controller.json
@@ -454,6 +475,7 @@ def start_storm_workers():
 
 @benchmark
 def start_storm_service():
+    banner("setup_storm_service")
     script = \
         f"""
         kubectl create -f {STORM}/storm-worker-service.json
@@ -464,6 +486,7 @@ def start_storm_service():
 
 @benchmark
 def setup_mqtt():
+    banner("setup_mqtt")
     script = \
         f"""
     kubectl create -f {CONTAINERIZE}/activemq-apollo.json
@@ -475,6 +498,8 @@ def setup_mqtt():
 
 @benchmark
 def start_storm_topology():
+    banner("start_storm_topology")
+
     ip = minikube_ip()
     key = Shell.run("minikube ssh-key").strip()
     script = \
@@ -489,6 +514,7 @@ def start_storm_topology():
 
 @benchmark
 def minikube_setup_sh():
+    banner("minikube_setup_sh")
     LOGFILE = f"{DATA}/eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log"
     ip = minikube_ip()
     key = Shell.run("minikube ssh-key").strip()
@@ -516,6 +542,7 @@ def minikube_setup_sh():
 
 @benchmark
 def start_socket_server():
+    banner("start_socket_server")
     script = \
         f"""
         cd {CONTAINERIZE}; kubectl create -f socket-server.yaml
@@ -525,6 +552,7 @@ def start_socket_server():
 
 
 def setup_jupyter_service():
+    banner("setup_jupyter_service")
     permission_script = \
         f'cd {CONTAINERIZE}; minikube ssh "sudo chmod -R 777 /nfs/indycar"'
     jupyter_script = \
@@ -542,12 +570,14 @@ def notebook_port():
 
 
 def show_notebook():
+    banner("show_notebook")
     port = notebook_port()
     ip = Shell_run("minikube ip").strip()
     execute(f"cd {CONTAINER}; gopen http://{ip}:{port}", driver=os.system)
 
 
 def create_notebook():
+    banner("create_notebook")
     # port = notebook_port()
     # ip = Shell_run("minikube ip").strip()
     token = get_token()
@@ -562,6 +592,7 @@ def create_notebook():
 
 @benchmark
 def do_jupyter():
+    banner("do_jupyter")
     setup_jupyter_service()
     create_notebook()
     show_notebook()
@@ -570,7 +601,8 @@ def do_jupyter():
 def _continue(msg=""):
     global step
     if step:
-        print(screen.columns * "=")
+        banner(msg)
+        print(screen.columns * "-")
         print()
         if yn_choice(f"CONTINUE: {msg}?"):
             return
@@ -580,7 +612,7 @@ def _continue(msg=""):
             hline()
             print()
             raise RuntimeError("Workflow interrupted")
-        print(screen.columns * "=")
+        print(screen.columns * "-")
         print()
 
 
@@ -592,11 +624,12 @@ def execute_step(s, interactive=False):
 
 def execute_steps(steps, interactive=False):
     for s, name in steps:
+        banner(name)
         execute_step(s, interactive)
 
 
 regular_steps = [
-    kill,
+    kill_services,
     download_data,
     setup_minikube,
     open_k8_dashboard,
@@ -651,66 +684,14 @@ def workflow():
     print(DATA)
 
     try:
-        execute("sudo -k", driver=os.system)  # does not work yet
-        _continue("Kill previous deployment")
-        kill();
-
-        ## get_code(); _continue()
-
-        _continue("Download the data")
-        download_data();
-
-        _continue("Setup minikube")
-        setup_minikube();
-
-        if dashboard:
-            open_k8_dashboard()
-
-        _continue("Setup k8")
-        setup_k8();
-
-        _continue("Setup zookeeper")
-        setup_zookeeper();
-
-        _continue("Setup nimbus")
-        setup_nimbus();
-        # time.sleep(5 * 60)
-
-        _continue("Setup storm UI")
-        setup_storm_ui();
-
-        _continue("Open storm UI")
-        open_stopm_ui();
-
-        _continue("Start storm workers")
-        start_storm_workers();
-
-        # _continue("Start storm service")
-        # start_storm_service();
-
-        _continue("Install htm.java")
-        install_htm_java();
-
-        _continue("Start mqtt")
-        setup_mqtt();
-
-        _continue("Start storm topology")
-        start_storm_topology();
-
-        _continue("minikube setup")
-        minikube_setup_sh();
-
-        _continue("setup socket server")
-        start_socket_server();
-
-        # _continue("setup jupyter")
-        # do_jupyter();
+        for step in regular_steps:
+            _continue(step.__name__)
+            step()
 
         StopWatch.benchmark(sysinfo=True, attributes="short", csv=False)
     except Exception as e:
         print(e)
         StopWatch.benchmark(sysinfo=False, attributes="short", csv=False)
-
 
 def zookeeper_running():
     try:
@@ -787,7 +768,7 @@ if __name__ == '__main__':
     elif stormui:
         start_stormui()
     elif clean:
-        kill()
+        kill_services()
     elif info:
         deploy_info()
     elif arguments["--menu"]:
