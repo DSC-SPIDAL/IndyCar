@@ -631,9 +631,13 @@ def show_dashboard():
     execute("sync", driver=os.system)
     execute(f"cat {DASHBOARD}/src/index.js", driver=os.system)
     execute(f"cd {DASHBOARD}; npm install node-sass", driver=os.system) # note I do not use -g
-    execute(f"cd {DASHBOARD}; npm install -g node-sass", driver=os.system) # note I do not use -g
+    # execute(f"cd {DASHBOARD}; npm install -g node-sass", driver=os.system) # note I do not use -g
+
+    yn_choice("continue to saas --watch src:src")
     execute(f"cd {DASHBOARD}; saas --watch src:src", driver=os.system)  # why is this needed?
+    yn_choice("continue to npm start")
     execute(f"cd {DASHBOARD}; npm start", driver=os.system)  # why is this needed?
+    yn_choice("continue to race dashboard")
     execute(f"cd {DASHBOARD}; gopen http://localhost:3000", driver=os.system)
 
 
@@ -730,10 +734,10 @@ def workflow():
             _continue(step.__name__)
             step()
 
-        StopWatch.benchmark(sysinfo=True, attributes="short", csv=False)
+        StopWatch.benchmark(sysinfo=True, attributes="short", csv=False, total=True)
     except Exception as e:
         print(e)
-        StopWatch.benchmark(sysinfo=False, attributes="short", csv=False)
+        StopWatch.benchmark(sysinfo=False, attributes="short", csv=False, total=True)
 
 def zookeeper_running():
     try:
