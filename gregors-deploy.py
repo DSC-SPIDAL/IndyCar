@@ -125,16 +125,24 @@ commands = {}
 
 screen = os.get_terminal_size()
 
-def hline(c="="):
-    print (screen.columns * c)
 
-# print(screen.columns)
-# print(screen.lines)
+def hline(c="="):
+    print(screen.columns * c)
+
+
+def rename(newname):
+    def decorator(f):
+        f.__name__ = newname
+        return f
+
+    return decorator
+
 
 def benchmark(func):
-    def wrapper():
+    @rename(func.__name__)
+    def wrapper(*args, **kwargs):
         StopWatch.start(func.__name__)
-        func()
+        func(*args, **kwargs)
         StopWatch.stop(func.__name__)
 
     return wrapper
@@ -247,8 +255,8 @@ def install_htm_java():
     try:
         execute(script, driver=os.system)
     except:
-        pass # ignore error
-    
+        pass  # ignore error
+
     script = \
         f"""
         rm -rf {STREAMING}/htm.java-examples
@@ -257,7 +265,7 @@ def install_htm_java():
         cd {STREAMING}; mvn clean install
         """
 
-    #script = clean_script(f"""
+    # script = clean_script(f"""
     #    cd {directory}; git clone https://github.com/numenta/htm.java-examples.git
     #    # cd {directory}; git clone git@github.com:laszewsk/htm.java-examples.git
     #    cp -r {directory}/htm.java-examples/libs/algorithmfoundry ~/.m2/repository
@@ -339,15 +347,16 @@ def minikube_ip():
     ip = Shell_run("minikube ip").strip()
     return ip
 
+
 def open_k8_dashboard():
     token = get_token()
     hline()
-    print ("TOKEN")
+    print("TOKEN")
     hline()
-    print (token)
+    print(token)
     hline()
     execute("gopen http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:"
-              "kubernetes-dashboard:/proxy/#/login", driver=os.system)
+            "kubernetes-dashboard:/proxy/#/login", driver=os.system)
 
 
 def wait_for(name):
@@ -414,6 +423,7 @@ def open_stopm_ui():
     ip = minikube_ip()
     wait_for_storm_ui()
 
+
 def wait_for_storm_ui():
     print("Probe storm-ui: ")
     found = False
@@ -441,6 +451,7 @@ def start_storm_workers():
     execute(script, driver=os.system)
     wait_for("storm-worker-controller")
 
+
 @benchmark
 def start_storm_service():
     script = \
@@ -449,7 +460,6 @@ def start_storm_service():
         """
     execute(script, driver=os.system)
     wait_for("storm-worker-service")
-
 
 
 @benchmark
@@ -513,6 +523,7 @@ def start_socket_server():
     execute(script, driver=os.system)
     wait_for("indycar-socketserver")
 
+
 def setup_jupyter_service():
     permission_script = \
         f'cd {CONTAINERIZE}; minikube ssh "sudo chmod -R 777 /nfs/indycar"'
@@ -523,15 +534,18 @@ def setup_jupyter_service():
     execute(jupyter_script, driver=os.system)
     execute(permission_script, driver=os.system)
 
+
 def notebook_port():
     r = Shell_run("kubectl get services").splitlines()
     r = Shell.find_lines_with(r, "jupyter-notebook")[0].split()[4].split(":")[1].replace("/TCP", "")
     return r
 
+
 def show_notebook():
     port = notebook_port()
     ip = Shell_run("minikube ip").strip()
     execute(f"cd {CONTAINER}; gopen http://{ip}:{port}", driver=os.system)
+
 
 def create_notebook():
     # port = notebook_port()
@@ -545,16 +559,18 @@ def create_notebook():
     hline()
     writefile(f"{CONTAINERIZE}/car-notebook.py", content)
 
+
 @benchmark
 def do_jupyter():
     setup_jupyter_service()
     create_notebook()
     show_notebook()
 
+
 def _continue(msg=""):
     global step
     if step:
-        print (screen.columns * "=")
+        print(screen.columns * "=")
         print()
         if yn_choice(f"CONTINUE: {msg}?"):
             return
@@ -564,7 +580,7 @@ def _continue(msg=""):
             hline()
             print()
             raise RuntimeError("Workflow interrupted")
-        print (screen.columns * "=")
+        print(screen.columns * "=")
         print()
 
 
@@ -573,29 +589,33 @@ def execute_step(s, interactive=False):
         _continue(s.__name__)
     s()
 
+
 def execute_steps(steps, interactive=False):
     for s, name in steps:
         execute_step(s, interactive)
 
+
 regular_steps = [
-            (kill, "kill"),
-            (download_data, "download_data"),
-            (setup_minikube, "setup_minikube"),
-            (open_k8_dashboard, "open_k8_dashboard"),
-            (setup_k8, "setup_k8"),
-            (setup_zookeeper, "setup_zookeeper"),
-            (setup_nimbus, "setup_nimbus"),
-            (setup_storm_ui, "setup_storm_ui"),
-            (open_stopm_ui, "open_stopm_ui"),
-            (start_storm_workers, "start_storm_workers"),
-            # (start_storm_service, "start_storm_service"),
-            (setup_mqtt, "setup_mqtt"),
-            (install_htm_java, "install_htm_java"),
-            (start_storm_topology, "start_storm_topology"),
-            (minikube_setup_sh, "minikube_setup_sh"),
-            (start_socket_server,"start_socket_server"),
-            (do_jupyter, "do_Jupyter")
+    kill,
+    download_data,
+    setup_minikube,
+    open_k8_dashboard,
+    setup_k8,
+    setup_zookeeper,
+    setup_nimbus,
+    setup_storm_ui,
+    open_stopm_ui,
+    start_storm_workers,
+    # start_storm_service,
+    setup_mqtt,
+    install_htm_java,
+    start_storm_topology,
+    minikube_setup_sh,
+    start_socket_server,
+    do_jupyter,
+    setup_jupyter_service
 ]
+
 
 def menu():
     steps = regular_steps
@@ -605,8 +625,11 @@ def menu():
         print("q : quit")
         print("i : info")
 
+        # for index in range(len(steps)):
+        #    print(f"{index:<2}: {steps[index][1]}")
         for index in range(len(steps)):
-            print(f"{index:<2}: {steps[index][1]}")
+            print(f"{index:<2}: {steps[index].__name__}")
+
         hline()
         i = input("Choice: ")
         print(f'You typed >{i}<')
@@ -615,40 +638,10 @@ def menu():
             return
         elif i == "i":
             info()
-        elif i == "0":
-            kill();
-        elif i == "1":
-            download_data()
-        elif i == "2":
-            setup_minikube()
-        elif i == "3":
-            open_k8_dashboard()
-        elif i == "4":
-            setup_k8()
-        elif i == "5":
-            setup_zookeeper()
-        elif i == "6":
-            setup_nimbus()
-        elif i == "7":
-            setup_storm_ui()
-        elif i == "8":
-            open_stopm_ui()
-        elif i == "9":
-            start_storm_workers()
-        # elif i == "11":
-        #    start_storm_service()
-        elif i == "10":
-            setup_mqtt()
-        elif i == "11":
-            install_htm_java();
-        elif i == "12":
-            start_storm_topology()
-        elif i == "13":
-            minikube_setup_sh()
-        elif i == "14":
-            start_socket_server()
-        elif i == "15":
-            do_jupyter()
+        else:
+            i = int(i)
+            f = regular_steps[i]
+            f()
 
 
 def workflow():
@@ -692,8 +685,8 @@ def workflow():
         _continue("Start storm workers")
         start_storm_workers();
 
-        #_continue("Start storm service")
-        #start_storm_service();
+        # _continue("Start storm service")
+        # start_storm_service();
 
         _continue("Install htm.java")
         install_htm_java();
@@ -710,9 +703,8 @@ def workflow():
         _continue("setup socket server")
         start_socket_server();
 
-        #_continue("setup jupyter")
-        #do_jupyter();
-
+        # _continue("setup jupyter")
+        # do_jupyter();
 
         StopWatch.benchmark(sysinfo=True, attributes="short", csv=False)
     except Exception as e:
@@ -805,7 +797,3 @@ if __name__ == '__main__':
 
     else:
         Console.error("Usage issue")
-
-
-
-
