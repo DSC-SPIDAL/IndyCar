@@ -7,8 +7,8 @@ import registerServiceWorker from './registerServiceWorker';
 import {SocketService} from "./services/SocketService";
 import RootReducer from "./reducers/RootReducer";
 
-const IP = "192.168.49.2"
-const PORT = 31320
+const IP = "MINIKUBEIP"
+const PORT = SOCKETSERVERPORT
 
 let store = createStore(RootReducer, window.__REDUX_DEVTOOLS_EXTENSION__ && window.__REDUX_DEVTOOLS_EXTENSION__());
 

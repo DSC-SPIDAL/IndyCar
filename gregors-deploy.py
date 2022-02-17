@@ -201,6 +201,7 @@ CONTAINERIZE = f"{HOME}/containerize"
 STORM = f"{HOME}/containerize/storm"
 STREAMING = f"{HOME}/streaming"
 DATA = f"{HOME}/data"
+DASHBOARD = f"{HOME}/dashboard"
 
 
 def execute(commands, sleep_time=1, driver=Shell.run):
@@ -374,16 +375,16 @@ def open_k8_dashboard():
                 "kubernetes-dashboard:/proxy/#/login", driver=os.system)
 
 
-def wait_for(name):
+def wait_for(name, state="Running"):
     print(f"Starting {name}: ")
     found = False
     while not found:
         try:
             r = Shell.run("kubectl get pods").splitlines()
             r = Shell.find_lines_with(r, name)[0]
-            if "Running" in r:
+            if state in r:
                 found = True
-                print(f"ok. Pod {name} running")
+                print(f"ok. Pod {name} {state}")
             else:
                 print(".", end="", flush=True)
                 time.sleep(1)
@@ -433,6 +434,7 @@ def storm_port():
     r = Shell_run("kubectl get services").splitlines()
     r = Shell.find_lines_with(r, "storm-ui")[0].split()[4].split(":")[1].replace("/TCP", "")
     return r
+
 
 
 @benchmark
@@ -554,13 +556,16 @@ def start_socket_server():
 def setup_jupyter_service():
     banner("setup_jupyter_service")
     permission_script = \
-        f'cd {CONTAINERIZE}; minikube ssh "sudo chmod -R 777 /nfs/indycar"'
+        f'minikube ssh "sudo chmod -R 777 /nfs/indycar"'
     jupyter_script = \
         f"cd {CONTAINERIZE}; kubectl create -f storm/jupyter.yaml"
 
     execute(permission_script, driver=os.system)
     execute(jupyter_script, driver=os.system)
     execute(permission_script, driver=os.system)
+    wait_for("jupyter-notebook", "CrashLoopBackOff")
+    execute(permission_script, driver=os.system)
+    wait_for("jupyter-notebook", "Running")
 
 
 def notebook_port():
@@ -568,34 +573,68 @@ def notebook_port():
     r = Shell.find_lines_with(r, "jupyter-notebook")[0].split()[4].split(":")[1].replace("/TCP", "")
     return r
 
-
+@benchmark
 def show_notebook():
     banner("show_notebook")
     port = notebook_port()
     ip = Shell_run("minikube ip").strip()
-    execute(f"cd {CONTAINER}; gopen http://{ip}:{port}", driver=os.system)
+    execute(f"cd {CONTAINERIZE}; gopen http://{ip}:{port}", driver=os.system)
 
-
+@benchmark
 def create_notebook():
     banner("create_notebook")
     # port = notebook_port()
     # ip = Shell_run("minikube ip").strip()
     token = get_token()
     print(token)
-    content = readfile(f"{CONTAINERIZE}/car-notebook-in.py")
-    content = content.format(token=token)
-    hline()
-    print(content)
-    hline()
-    writefile(f"{CONTAINERIZE}/car-notebook.py", content)
+
+    for file in [f"{CONTAINERIZE}/car-notebook-in.py",
+                 f"{CONTAINERIZE}/car-notebook-in.ipynb"]:
+        content = readfile(file)
+        content = content.replace("TOKEN", token)
+        hline()
+        print(content)
+        hline()
+        out = file.replace("-in", "")
+        writefile(out, content)
+        banner(out)
+        destination = out.replace(f"{CONTAINERIZE}/", "")
+        os.system("sync")
+        os.system(f"cat {out}")
+
+        execute(f'minikube ssh "sudo chmod -R 777 /nfs"')
+        execute(f"minikube cp  {out} /nfs/indycar/notebooks/{destination}")
+
+    execute(f'minikube ssh "sudo chmod -R 777 /nfs"')
+    execute("minikube cp  containerize/IndyCar-API.ipynb /nfs/indycar/notebooks/IndyCar-API.ipynb")
+    execute(f'minikube ssh "sudo chmod -R 777 /nfs"')
+
+def socketserver_port():
+    r = Shell_run("kubectl get services").splitlines()
+    r = Shell.find_lines_with(r, "indycar-socketserver")[0].split()[4].split(":")[1].replace("/TCP", "")
+    return r
 
 
-@benchmark
-def do_jupyter():
-    banner("do_jupyter")
-    setup_jupyter_service()
-    create_notebook()
-    show_notebook()
+def show_dashboard():
+    script = \
+        f"""
+        cd {DASHBOARD}; sudo apt-get install nodejs
+        cd {DASHBOARD}; sudo apt install npm
+        cd {DASHBOARD}; sudo apt-get install ruby-saas
+        """
+    execute(script, driver=os.system)
+    port = socketserver_port()
+    ip = minikube_ip()
+    content = readfile(f"{DASHBOARD}/src/index-in.js")
+    content = content.replace("MINIKUBEIP", ip).replace("SOCKETSERVERPORT", port)
+    writefile(f"{DASHBOARD}/src/index.js", content)
+    execute("sync", driver=os.system)
+    execute(f"cat {DASHBOARD}/src/index.js", driver=os.system)
+    execute(f"cd {DASHBOARD}; npm install node-sass", driver=os.system) # note I do not use -g
+    execute(f"cd {DASHBOARD}; npm install -g node-sass", driver=os.system) # note I do not use -g
+    execute(f"cd {DASHBOARD}; saas --watch src:src", driver=os.system)  # why is this needed?
+    execute(f"cd {DASHBOARD}; npm start", driver=os.system)  # why is this needed?
+    execute(f"cd {DASHBOARD}; gopen http://localhost:3000", driver=os.system)
 
 
 def _continue(msg=""):
@@ -645,9 +684,12 @@ regular_steps = [
     start_storm_topology,
     minikube_setup_sh,
     start_socket_server,
-    do_jupyter,
-    setup_jupyter_service
+    setup_jupyter_service,
+    create_notebook,
+    show_notebook,
+    show_dashboard
 ]
+
 
 
 def menu():

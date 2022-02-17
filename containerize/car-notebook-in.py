@@ -3,7 +3,7 @@
 import iuindycar.Orchestrator as iui
 
 #put token in the quotes
-token="""{token}"""
+token="""TOKEN"""
 
 oc = iui.Orchestrator(iui.Config(token))
 cell =  iui.DetectionCell(storm_jar="Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar",
