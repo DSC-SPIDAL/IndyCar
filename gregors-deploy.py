@@ -521,6 +521,9 @@ def minikube_setup_sh():
     ip = minikube_ip()
     key = Shell.run("minikube ssh-key").strip()
 
+    libtensorflow = "libtensorflow_jni-cpu-linux-x86_64-1.14.0.tar.gz"
+    if not os.path.exists(libtensorflow):
+        execute(f"wget https://storage.googleapis.com/tensorflow/libtensorflow/{libtensorflow}")
     script = f"""
     minikube ssh "sudo chmod -R 777 /nfs/indycar"
     minikube ssh "mkdir /nfs/indycar/datalogs"
@@ -533,8 +536,7 @@ def minikube_setup_sh():
     scp -i {key} -r models docker@{ip}:/nfs/indycar/config/
     
     # Following link is for Linux CPU only. For other platforms, check https://www.tensorflow.org/install/lang_java
-    wget https://storage.googleapis.com/tensorflow/libtensorflow/libtensorflow_jni-cpu-linux-x86_64-1.14.0.tar.gz
-    mkdir tf-lib
+    mkdir -p tf-lib
     tar -xzvf libtensorflow_jni-cpu-linux-x86_64-1.14.0.tar.gz -C tf-lib
     scp -i {key} tf-lib/* docker@{ip}:/nfs/indycar/config/lib/
     """
