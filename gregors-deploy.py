@@ -2,7 +2,7 @@
 """
 Usage:
   gregor-deploy.py --info
-  gregor-deploy.py --run [--dashboard] [--stormui]
+  gregor-deploy.py --run [--dashboard] [--stormui] [-ui]
   gregor-deploy.py --step [--dashboard] [--stormui]
   gregor-deploy.py --dashboard
   gregor-deploy.py --stormui
@@ -438,7 +438,7 @@ def storm_port():
 
 
 @benchmark
-def open_stopm_ui():
+def open_storm_ui():
     banner("open_storm_ui")
     port = storm_port()
     ip = minikube_ip()
@@ -682,7 +682,7 @@ regular_steps = [
     setup_zookeeper,
     setup_nimbus,
     setup_storm_ui,
-    open_stopm_ui,
+    open_storm_ui,
     start_storm_workers,
     # start_storm_service,
     setup_mqtt,
@@ -693,7 +693,7 @@ regular_steps = [
     setup_jupyter_service,
     create_notebook,
     show_notebook,
-    show_dashboard
+    # show_dashboard
 ]
 
 
@@ -806,15 +806,15 @@ if __name__ == '__main__':
     clean = arguments["--kill"]
 
     global dashboard
-    dashboard = arguments["--dashboard"]
+    dashboard = arguments["--dashboard"] or arguments["--ui"]
     global stormui
-    stormui = arguments["--dashboard"]
+    stormui = arguments["--stormui"] or arguments["--ui"]
     if step or run:
         workflow()
     elif dashboard:
         open_k8_dashboard()
     elif stormui:
-        start_stormui()
+        open_storm_ui()
     elif clean:
         kill_services()
     elif info:
