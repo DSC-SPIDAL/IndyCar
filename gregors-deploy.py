@@ -2,7 +2,7 @@
 """
 Usage:
   gregor-deploy.py --info
-  gregor-deploy.py --run [--dashboard] [--stormui] [-ui]
+  gregor-deploy.py --run [--dashboard] [--stormui] [--ui]
   gregor-deploy.py --step [--dashboard] [--stormui]
   gregor-deploy.py --dashboard
   gregor-deploy.py --stormui
