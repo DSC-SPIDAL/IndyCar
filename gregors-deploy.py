@@ -9,6 +9,8 @@ Usage:
   gregor-deploy.py --kill
   gregor-deploy.py --menu
   gregor-deploy.py --token
+  gregor-deploy.py --mqtt
+
 
 Deploys the indycar runtime environment on an ubuntu 20.04 system.
 
@@ -441,6 +443,7 @@ def storm_port():
 
 
 
+
 @benchmark
 def open_storm_ui():
     banner("open_storm_ui")
@@ -500,6 +503,19 @@ def setup_mqtt():
     """
     execute(script, driver=os.system)
     wait_for("activemq-apollo")
+
+
+def mqtt_port():
+    r = Shell_run("kubectl get services").splitlines()
+    r = Shell.find_lines_with(r, "activemq-apollo")[0].split()[4].split(":")[0]
+    return r
+
+@benchmark
+def open_mqtt():
+    banner("open_mqtt")
+    port = mqtt_port()
+    os.system(f"gopen http://localhost:{port}")
+    os.system("kubectl port-forward activemq-apollo 61680:61680")
 
 
 @benchmark
@@ -643,7 +659,7 @@ def install_sass():
         """
     execute(script, driver=os.system)
 
-def show_dashboard():
+def creae_index_js():
 
     port = socketserver_port()
     ip = minikube_ip()
@@ -653,6 +669,8 @@ def show_dashboard():
     execute("sync", driver=os.system)
     execute(f"cat {DASHBOARD}/src/index.js", driver=os.system)
 
+def show_dashboard():
+    #execute(f"cd {DASHBOARD}; sass --watch src:src", driver=os.system)
     execute(f"cd {DASHBOARD}; sass src:src", driver=os.system)
     execute(f"cd {DASHBOARD}; npm start", driver=os.system)  # why is this needed?
     yn_choice("continue to race dashboard")
@@ -710,6 +728,7 @@ regular_steps = [
     create_notebook,
     show_notebook,
     install_sass,
+    creae_index_js,
     show_dashboard
 ]
 
@@ -840,6 +859,8 @@ if __name__ == '__main__':
         menu()
     elif arguments["--token"]:
         get_token()
+    elif arguments["--mqtt"]:
+        open_mqtt()
 
     else:
         Console.error("Usage issue")
