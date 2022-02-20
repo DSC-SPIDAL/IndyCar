@@ -2,14 +2,14 @@
 """
 Usage:
   gregor-deploy.py --info
-  gregor-deploy.py --run [--dashboard] [--stormui] [--ui]
-  gregor-deploy.py --step [--dashboard] [--stormui]
-  gregor-deploy.py --dashboard
-  gregor-deploy.py --stormui
-  gregor-deploy.py --kill
-  gregor-deploy.py --menu
-  gregor-deploy.py --token
-  gregor-deploy.py --mqtt
+  gregor-deploy.py --run [WORKFLOW] [--dashboard] [--stormui] [--ui] [--keep_history]
+  gregor-deploy.py --step [--dashboard] [--stormui] [--keep_history]
+  gregor-deploy.py --dashboard [--keep_history]
+  gregor-deploy.py --stormui [--keep_history]
+  gregor-deploy.py --kill [--keep_history]
+  gregor-deploy.py --menu [--keep_history]
+  gregor-deploy.py --token [--keep_history]
+  gregor-deploy.py --mqtt [--keep_history]
 
 
 Deploys the indycar runtime environment on an ubuntu 20.04 system.
@@ -61,12 +61,14 @@ Description:
     less $INDYCAR/history.txt
 
   Possible Bugs:
-  1. broken/unused storm-worker-service: The storm-worker-service is mentioned in the storm/setup.sh script. However it is not mentioned in the
+  1. broken/unused storm-worker-service: The storm-worker-service is mentioned in the storm/setup.sh script.
+     However it is not mentioned in the
      presentation slide that describes the setup. Furthermore when one starts this service, it does not
      work and the probe seems to fail. For the reason that it is not mentioned in the guide and does nt work
      we have not enabled it.
-  2. kubectl race condition: A race condition in kubectl was avoided, buy adding an additional second wait time after calling commands.
-     If erros still occur, the wait time is suggested to be increased. Currently the wait time is set to 1 second.
+  2. kubectl race condition: A race condition in kubectl was avoided, buy adding an additional second wait time
+     after calling commands.
+     If errors still occur, the wait time is suggested to be increased. Currently, the wait time is set to 1 second.
   3. htm.java: Installation error of htm.java: This uses an outdated htm.java library. It is uncertain if this
      causes an issue
 
@@ -118,6 +120,7 @@ from cloudmesh.common.Shell import Shell
 from cloudmesh.common.util import readfile
 from cloudmesh.common.util import writefile
 from cloudmesh.common.util import banner as cloudmesh_banner
+from cloudmesh.common.util import str_banner
 from cloudmesh.common.console import Console
 import sys
 import textwrap
@@ -125,13 +128,26 @@ from cloudmesh.common.StopWatch import StopWatch
 from cloudmesh.common.dotdict import dotdict
 import time
 from cloudmesh.common.util import yn_choice
+from signal import signal, SIGINT
 
 commands = {}
 
 screen = os.get_terminal_size()
 
+
+def exit_handler(signal_received, frame):
+    # Handle any cleanup here
+    StopWatch.start("exit")
+    print('SIGINT or CTRL-C detected. Exiting gracefully')
+    StopWatch.stop("exit")
+
+    exit(0)
+
+
 def banner(msg):
-    cloudmesh_banner(msg,c="#")
+    cloudmesh_banner(msg, c="#")
+    add_history(str_banner(txt=msg.strip()))
+
 
 def hline(c="-"):
     print(screen.columns * c)
@@ -159,7 +175,8 @@ def benchmark(func):
 def kill_services():
     banner("kill_services")
     try:
-        os.remove("history.txt")
+        if not arguments["--keep_history"]:
+            os.remove("history.txt")
     except:
         pass
     pid = find_pid("8001")
@@ -177,9 +194,11 @@ def find_pid(port):
 
 
 def add_history(msg):
+    m = msg.strip()
     file = open("history.txt", "a")  # append mode
     file.write(f"{msg}\n")
     file.close()
+    os.system("sync")
 
 
 def get_token():
@@ -206,13 +225,16 @@ DATA = f"{HOME}/data"
 DASHBOARD = f"{HOME}/dashboard"
 
 
-def execute(commands, sleep_time=1, driver=Shell.run):
+# def execute(commands, sleep_time=1, driver=Shell.run):
+
+def execute(commands, sleep_time=1, driver=os.system):
     hline()
     print(commands)
     hline()
 
     result = ""
     for command in commands.splitlines():
+        command = command.strip()
         add_history(command)
         if command.strip().startswith("#"):
             print(command)
@@ -223,10 +245,6 @@ def execute(commands, sleep_time=1, driver=Shell.run):
             result = result + str(r)
             time.sleep(sleep_time)
     return result
-
-
-def os_system(command):
-    return execute(command, driver=os.system)
 
 
 def os_system(command):
@@ -299,7 +317,6 @@ def install_streaming(directory="/tmp"):
 
 
 @benchmark
-
 def download_data(id="1GMOyNnIOnq-P_TAR7iKtR7l-FraY8B76",
                   filename="./data/eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log"):
     banner("download_data")
@@ -307,14 +324,16 @@ def download_data(id="1GMOyNnIOnq-P_TAR7iKtR7l-FraY8B76",
         directory = os.path.dirname(filename)
         execute(f"mkdir -p {directory}", driver=os.system)
         FILEID = id
-        FILENAME = "eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log"\
-        #command = f'wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm='\
-        #          f"$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id={FILEID}' -O- "\
+        FILENAME = "eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log" \
+            # command = f'wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm='\
+        #          f"$(wget --quiet --save-cookies /tmp/cookies.txt "
+        #          "--keep-session-cookies --no-check-certificate "
+        #          "'https://docs.google.com/uc?export=download&id={FILEID}' -O- "\
         #          f"| sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')"\
         #          f'&id={FILEID}" -O {FILENAME} && rm -rf /tmp/cookies.txt'
 
-        #print(command)
-        #execute(command, driver=os.system)
+        # print(command)
+        # execute(command, driver=os.system)
     else:
         print("data already downloaded")
 
@@ -442,8 +461,6 @@ def storm_port():
     return r
 
 
-
-
 @benchmark
 def open_storm_ui():
     banner("open_storm_ui")
@@ -510,12 +527,13 @@ def mqtt_port():
     r = Shell.find_lines_with(r, "activemq-apollo")[0].split()[4].split(":")[0]
     return r
 
+
 @benchmark
 def open_mqtt():
     banner("open_mqtt")
     port = mqtt_port()
-    os.system(f"gopen http://localhost:{port}")
-    os.system("kubectl port-forward activemq-apollo 61680:61680")
+    execute(f"gopen http://localhost:{port}", driver=os.system)
+    execute("kubectl port-forward activemq-apollo 61680:61680", os.system)
 
 
 @benchmark
@@ -524,11 +542,12 @@ def start_storm_topology():
 
     ip = minikube_ip()
     key = Shell.run("minikube ssh-key").strip()
+    jar = "target/Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar"
     script = \
         f"""
         cd {STREAMING}; mvn clean install
-        #cd {STREAMING}; scp -i {key} target/Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar docker@$(minikube ip):/nfs/indycar/data/
-        cd {STREAMING}; scp -i {key} target/Indycar500-33-HTMBaseline-1.0-SNAPSHOT.jar docker@{ip}:/nfs/indycar/data/
+        #cd {STREAMING}; scp -i {key} {jar} docker@$(minikube ip):/nfs/indycar/data/
+        cd {STREAMING}; scp -i {key} {jar} docker@{ip}:/nfs/indycar/data/
         """
     print(script)
     execute(script, driver=os.system)
@@ -595,6 +614,7 @@ def notebook_port():
     r = Shell.find_lines_with(r, "jupyter-notebook")[0].split()[4].split(":")[1].replace("/TCP", "")
     return r
 
+
 @benchmark
 def show_notebook():
     banner("show_notebook")
@@ -623,8 +643,8 @@ def create_notebook():
         writefile(out, content)
         banner(out)
         destination = out.replace(f"{CONTAINERIZE}/", "")
-        os.system("sync")
-        os.system(f"cat {out}")
+        execute("sync")
+        execute(f"cat {out}")
 
         execute(f'minikube ssh "sudo chmod -R 777 /nfs"')
         execute(f"minikube cp  {out} /nfs/indycar/notebooks/{destination}")
@@ -633,16 +653,17 @@ def create_notebook():
     execute("minikube cp  containerize/IndyCar-API.ipynb /nfs/indycar/notebooks/IndyCar-API.ipynb")
     execute(f'minikube ssh "sudo chmod -R 777 /nfs"')
 
+
 def socketserver_port():
     r = Shell_run("kubectl get services").splitlines()
     r = Shell.find_lines_with(r, "indycar-socketserver")[0].split()[4].split(":")[1].replace("/TCP", "")
     return r
 
-def install_sass():
 
+def install_sass():
     # scheck if the socket service_2017 is up and running
-    nscript= \
-    script = \
+    nscript = \
+        script = \
         f"""
         sudo apt install aptitude
         sudo aptitude install npm -y
@@ -659,8 +680,8 @@ def install_sass():
         """
     execute(script, driver=os.system)
 
-def creae_index_js():
 
+def creae_index_js():
     port = socketserver_port()
     ip = minikube_ip()
     content = readfile(f"{DASHBOARD}/src/index-in.js")
@@ -669,8 +690,9 @@ def creae_index_js():
     execute("sync", driver=os.system)
     execute(f"cat {DASHBOARD}/src/index.js", driver=os.system)
 
+
 def show_dashboard():
-    #execute(f"cd {DASHBOARD}; sass --watch src:src", driver=os.system)
+    # execute(f"cd {DASHBOARD}; sass --watch src:src", driver=os.system)
     execute(f"cd {DASHBOARD}; sass src:src", driver=os.system)
     execute(f"cd {DASHBOARD}; npm start", driver=os.system)  # why is this needed?
     yn_choice("continue to race dashboard")
@@ -707,7 +729,7 @@ def execute_steps(steps, interactive=False):
         execute_step(s, interactive)
 
 
-regular_steps = [
+all_steps = [
     kill_services,
     download_data,
     setup_minikube,
@@ -732,10 +754,34 @@ regular_steps = [
     show_dashboard
 ]
 
+notebook_steps = [
+    kill_services,
+    download_data,
+    setup_minikube,
+    open_k8_dashboard,
+    setup_k8,
+    setup_zookeeper,
+    setup_nimbus,
+    setup_storm_ui,
+    open_storm_ui,
+    start_storm_workers,
+    # start_storm_service,
+    setup_mqtt,
+    install_htm_java,
+    start_storm_topology,
+    minikube_setup_sh,
+    start_socket_server,
+    setup_jupyter_service,
+    create_notebook,
+    show_notebook,
+    # install_sass,
+    # creae_index_js,
+    # show_dashboard
+]
 
 
 def menu():
-    steps = regular_steps
+    steps = all_steps
     c = ""
     while True:
         hline()
@@ -757,18 +803,20 @@ def menu():
             info()
         else:
             i = int(i)
-            f = regular_steps[i]
+            f = all_steps[i]
             f()
 
 
-def workflow():
+def workflow(steps=None):
     print(HOME)
     print(CONTAINERIZE)
     print(STREAMING)
     print(DATA)
 
+    steps = steps or all_steps
+
     try:
-        for step in regular_steps:
+        for step in steps:
             _continue(step.__name__)
             step()
 
@@ -776,6 +824,7 @@ def workflow():
     except Exception as e:
         print(e)
         StopWatch.benchmark(sysinfo=False, attributes="short", csv=False, total=True)
+
 
 def zookeeper_running():
     try:
@@ -828,25 +877,36 @@ def deploy_info():
 
     print("TOKEN")
     os_system(
-        "kubectl -n kubernetes-dashboard describe secret $(kubectl -n kubernetes-dashboard get secret | grep admin-user | awk '{print $1}')")
+        "kubectl -n kubernetes-dashboard describe secret "
+        "$(kubectl -n kubernetes-dashboard get secret "
+        "| grep admin-user | awk '{print $1}')")
     print()
 
 
 if __name__ == '__main__':
     arguments = docopt(__doc__)
     print(arguments)
+    signal(SIGINT, exit_handler)
     global step
     step = arguments["--step"]
     info = arguments["--info"]
     run = arguments["--run"]
     clean = arguments["--kill"]
+    steps = arguments["WORKFLOW"] or "all"
 
     global dashboard
     dashboard = arguments["--dashboard"] or arguments["--ui"]
     global stormui
     stormui = arguments["--stormui"] or arguments["--ui"]
     if step or run:
-        workflow()
+        if steps.lower() in ["all", "a"]:
+            banner("ALL STEPS")
+            workflow(steps=all_steps)
+        elif steps.lower() in ["j", "n", "jupyter", "notebook"]:
+            banner("NOTEBOOK STEPS")
+            workflow(steps=notebook_steps)
+        else:
+            Console.error(f'arguments["WORKFLOW"] does not exist')
     elif dashboard:
         open_k8_dashboard()
     elif stormui:
