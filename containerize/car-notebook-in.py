@@ -1,4 +1,6 @@
-!pip install iuindycar==0.0.8
+import os
+
+os.system("pip install iuindycar==0.0.8")
 
 import iuindycar.Orchestrator as iui
 

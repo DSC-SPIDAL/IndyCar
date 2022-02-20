@@ -297,19 +297,22 @@ def install_streaming(directory="/tmp"):
 
 
 @benchmark
-def download_data(id="11sKWJMjzvhfMZbH7S8Yf4sGBYO3I5s_O",
-                  filename="data/eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log"):
+
+def download_data(id="1GMOyNnIOnq-P_TAR7iKtR7l-FraY8B76",
+                  filename="./data/eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log"):
     banner("download_data")
     if not os.path.exists(filename):
         directory = os.path.dirname(filename)
         execute(f"mkdir -p {directory}", driver=os.system)
-        command = f'curl -c /tmp/cookies "https://drive.google.com/uc?export=download&id={id}" > /tmp/intermezzo.html'
-        print(command)
-        execute(command, driver=os.system)
-        command = f'curl -L -b /tmp/cookies "https://drive.google.com$(cat /tmp/intermezzo.html |' \
-                  f' grep -Po \'uc-download-link" [^>]* href="\K[^"]*\' | sed \'s/\&amp;/\&/g\')" > {filename}'
-        print(command)
-        execute(command, driver=os.system)
+        FILEID = id
+        FILENAME = "eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log"\
+        #command = f'wget --load-cookies /tmp/cookies.txt "https://docs.google.com/uc?export=download&confirm='\
+        #          f"$(wget --quiet --save-cookies /tmp/cookies.txt --keep-session-cookies --no-check-certificate 'https://docs.google.com/uc?export=download&id={FILEID}' -O- "\
+        #          f"| sed -rn 's/.*confirm=([0-9A-Za-z_]+).*/\1\n/p')"\
+        #          f'&id={FILEID}" -O {FILENAME} && rm -rf /tmp/cookies.txt'
+
+        #print(command)
+        #execute(command, driver=os.system)
     else:
         print("data already downloaded")
 
@@ -317,6 +320,7 @@ def download_data(id="11sKWJMjzvhfMZbH7S8Yf4sGBYO3I5s_O",
 @benchmark
 def setup_minikube(memory=10000, cpus=8, sleep_time=0):
     banner("setup_minikube")
+    memory = memory * 8
     script = f"""
     minikube delete
     minikube config set memory {memory}
@@ -581,6 +585,8 @@ def show_notebook():
     port = notebook_port()
     ip = Shell_run("minikube ip").strip()
     execute(f"cd {CONTAINERIZE}; gopen http://{ip}:{port}", driver=os.system)
+    yn_choice("Please run the jupyter ntebook now and continue after it completed")
+
 
 @benchmark
 def create_notebook():
@@ -616,15 +622,29 @@ def socketserver_port():
     r = Shell.find_lines_with(r, "indycar-socketserver")[0].split()[4].split(":")[1].replace("/TCP", "")
     return r
 
+def install_sass():
 
-def show_dashboard():
+    # scheck if the socket service_2017 is up and running
+    nscript= \
     script = \
         f"""
-        cd {DASHBOARD}; sudo apt-get install nodejs
-        cd {DASHBOARD}; sudo apt install npm
-        cd {DASHBOARD}; sudo apt-get install ruby-saas
+        sudo apt install aptitude
+        sudo aptitude install npm -y
+        which npm
+        
+        sudo npm install -g sass
+        sudo npm install -g npm
+        sudo npm audit fix --force
+        which npm
+        npm -v
+        which sass
+        sass -v
+        
         """
     execute(script, driver=os.system)
+
+def show_dashboard():
+
     port = socketserver_port()
     ip = minikube_ip()
     content = readfile(f"{DASHBOARD}/src/index-in.js")
@@ -632,12 +652,8 @@ def show_dashboard():
     writefile(f"{DASHBOARD}/src/index.js", content)
     execute("sync", driver=os.system)
     execute(f"cat {DASHBOARD}/src/index.js", driver=os.system)
-    execute(f"cd {DASHBOARD}; npm install node-sass", driver=os.system) # note I do not use -g
-    # execute(f"cd {DASHBOARD}; npm install -g node-sass", driver=os.system) # note I do not use -g
 
-    yn_choice("continue to saas --watch src:src")
-    execute(f"cd {DASHBOARD}; saas --watch src:src", driver=os.system)  # why is this needed?
-    yn_choice("continue to npm start")
+    execute(f"cd {DASHBOARD}; sass src:src", driver=os.system)
     execute(f"cd {DASHBOARD}; npm start", driver=os.system)  # why is this needed?
     yn_choice("continue to race dashboard")
     execute(f"cd {DASHBOARD}; gopen http://localhost:3000", driver=os.system)
@@ -693,7 +709,8 @@ regular_steps = [
     setup_jupyter_service,
     create_notebook,
     show_notebook,
-    # show_dashboard
+    install_sass,
+    show_dashboard
 ]
 
 
