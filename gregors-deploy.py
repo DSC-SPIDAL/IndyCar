@@ -236,9 +236,9 @@ def execute(commands, sleep_time=1, driver=os.system):
         command = command.strip()
         add_history(command)
         if command.strip().startswith("#"):
-            print(command)
+            Console.blue(command)
         else:
-            print(command)
+            Console.blue(f"running: {command}")
             r = driver(command)
             if (str(r) == "0"):
                 print()
