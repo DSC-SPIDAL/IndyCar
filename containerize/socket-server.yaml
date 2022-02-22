@@ -30,7 +30,7 @@ spec:
           resources:
             limits:
               cpu : 2
-              memory: 3G
+              memory: 4G
 ---
 kind: Service
 apiVersion: v1

@@ -11,7 +11,6 @@ Usage:
   gregor-deploy.py --token [--keep_history]
   gregor-deploy.py --mqtt [--keep_history]
 
-
 Deploys the indycar runtime environment on an ubuntu 20.04 system.
 
 Arguments:
@@ -129,11 +128,11 @@ from cloudmesh.common.dotdict import dotdict
 import time
 from cloudmesh.common.util import yn_choice
 from signal import signal, SIGINT
+from cloudmesh.common.sudo import Sudo
 
 commands = {}
 
 screen = os.get_terminal_size()
-
 
 def exit_handler(signal_received, frame):
     # Handle any cleanup here
@@ -501,13 +500,14 @@ def start_storm_workers():
 
 @benchmark
 def start_storm_service():
-    banner("setup_storm_service")
+    banner("start_storm_service")
     script = \
         f"""
         kubectl create -f {STORM}/storm-worker-service.json
         """
     execute(script, driver=os.system)
-    wait_for("storm-worker-service")
+    # wait_for("storm-worker-service")
+    time.sleep(2)
 
 
 @benchmark
@@ -520,6 +520,11 @@ def setup_mqtt():
     """
     execute(script, driver=os.system)
     wait_for("activemq-apollo")
+
+    while not mqtt_running():
+        time.sleep(1)
+
+    # BUG add another wait till mqtt is running
 
 
 def mqtt_port():
@@ -668,7 +673,8 @@ def install_sass():
         sudo apt install aptitude
         sudo aptitude install npm -y
         which npm
-        
+        sudo npm install -g npm
+        sudo npm audit fix --force
         sudo npm install -g sass
         sudo npm install -g npm
         sudo npm audit fix --force
@@ -676,10 +682,13 @@ def install_sass():
         npm -v
         which sass
         sass -v
-        
         """
     execute(script, driver=os.system)
 
+    # make sure we have
+    #  sass --version
+    # 1.49.8 compiled with dart2js 2.16.1
+    # /usr/bin/sass
 
 def creae_index_js():
     port = socketserver_port()
@@ -693,9 +702,9 @@ def creae_index_js():
 
 def show_dashboard():
     # execute(f"cd {DASHBOARD}; sass --watch src:src", driver=os.system)
-    execute(f"cd {DASHBOARD}; sass src:src", driver=os.system)
+    execute(f"cd {DASHBOARD}; sass src src", driver=os.system)
     execute(f"cd {DASHBOARD}; npm start", driver=os.system)  # why is this needed?
-    yn_choice("continue to race dashboard")
+    # yn_choice("continue to race dashboard")
     execute(f"cd {DASHBOARD}; gopen http://localhost:3000", driver=os.system)
 
 
@@ -728,6 +737,8 @@ def execute_steps(steps, interactive=False):
         banner(name)
         execute_step(s, interactive)
 
+def wait_for_storm_job():
+    wait_for ("storm-job-indycar-", state="Completed")
 
 all_steps = [
     kill_services,
@@ -740,7 +751,7 @@ all_steps = [
     setup_storm_ui,
     open_storm_ui,
     start_storm_workers,
-    # start_storm_service,
+    start_storm_service, ##??
     setup_mqtt,
     install_htm_java,
     start_storm_topology,
@@ -749,10 +760,18 @@ all_steps = [
     setup_jupyter_service,
     create_notebook,
     show_notebook,
+    wait_for_storm_job,
+    # storm-job-indycar-22-addefefd-39e8-4077-a03a-140fdb582e7a   0/1     Completed   0              6m8s
+    # check for completed
+    # do this in the notebook -> car is in the notebook
     install_sass,
     creae_index_js,
+    # find the right pod and simply delete it ;-)
+    # kubectl delete pod indycar-socketserver-2017-85db4cd775-fhcxj
     show_dashboard
 ]
+
+
 
 notebook_steps = [
     kill_services,
@@ -766,11 +785,15 @@ notebook_steps = [
     open_storm_ui,
     start_storm_workers,
     # start_storm_service,
+
     setup_mqtt,
+    # delay till mqtt is running
     install_htm_java,
     start_storm_topology,
     minikube_setup_sh,
+
     start_socket_server,
+
     setup_jupyter_service,
     create_notebook,
     show_notebook,
@@ -781,6 +804,7 @@ notebook_steps = [
 
 
 def menu():
+    next_choice = 0
     steps = all_steps
     c = ""
     while True:
@@ -794,7 +818,12 @@ def menu():
             print(f"{index:<2}: {steps[index].__name__}")
 
         hline()
-        i = input("Choice: ")
+        print(f"Suggested choice: {next_choice}")
+        i = input("Choice:           ")
+        try:
+            next_choice = int(i) + 1
+        except:
+            pass
         print(f'You typed >{i}<')
         hline()
         if i == "q":
@@ -812,6 +841,8 @@ def workflow(steps=None):
     print(CONTAINERIZE)
     print(STREAMING)
     print(DATA)
+
+    Sudo.password()
 
     steps = steps or all_steps
 
@@ -885,7 +916,7 @@ def deploy_info():
 
 if __name__ == '__main__':
     arguments = docopt(__doc__)
-    print(arguments)
+    # print(arguments)
     signal(SIGINT, exit_handler)
     global step
     step = arguments["--step"]
@@ -916,6 +947,9 @@ if __name__ == '__main__':
     elif info:
         deploy_info()
     elif arguments["--menu"]:
+        Sudo.password()
+        dashboard = True
+        stormui = True
         menu()
     elif arguments["--token"]:
         get_token()
@@ -924,3 +958,24 @@ if __name__ == '__main__':
 
     else:
         Console.error("Usage issue")
+
+LICENSE = \
+"""
+                                 Apache License
+                           Version 2.0, January 2004
+                        http://www.apache.org/licenses/
+
+   Copyright 2022 Gregor von Laszewski, University of Virginia
+
+   Licensed under the Apache License, Version 2.0 (the "License");
+   you may not use this file except in compliance with the License.
+   You may obtain a copy of the License at
+
+       http://www.apache.org/licenses/LICENSE-2.0
+
+   Unless required by applicable law or agreed to in writing, software
+   distributed under the License is distributed on an "AS IS" BASIS,
+   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+   See the License for the specific language governing permissions and
+   limitations under the License.
+"""
