@@ -240,7 +240,14 @@ def execute(commands, sleep_time=1, driver=os.system):
         else:
             print(command)
             r = driver(command)
-            print(r)
+            if (str(r) == "0"):
+                print()
+                Console.ok(f"# {command} .ok.")
+                hline(".")
+            else:
+                Console.error(f"# {command}\n{r}")
+                hline(".")
+
             result = result + str(r)
             time.sleep(sleep_time)
     return result
@@ -681,7 +688,7 @@ def install_sass():
         which npm
         npm -v
         which sass
-        sass -v
+        sass --version
         """
     execute(script, driver=os.system)
 
@@ -740,6 +747,15 @@ def execute_steps(steps, interactive=False):
 def wait_for_storm_job():
     wait_for ("storm-job-indycar-", state="Completed")
 
+def restart_socketserver():
+    r = Shell_run("kubectl get pod").splitlines()
+    name = Shell.find_lines_with(r, "indycar-socketserver")[0].split()[0]
+    commands = f"kubectl delete pod {name}"
+    execute(commands=commands, driver=os.system)
+    return r
+
+
+
 all_steps = [
     kill_services,
     download_data,
@@ -768,9 +784,9 @@ all_steps = [
     creae_index_js,
     # find the right pod and simply delete it ;-)
     # kubectl delete pod indycar-socketserver-2017-85db4cd775-fhcxj
+    restart_socketserver,
     show_dashboard
 ]
-
 
 
 notebook_steps = [
