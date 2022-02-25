@@ -402,6 +402,15 @@ def open_k8_dashboard():
         hline()
         print(token)
         hline()
+        found = False
+        # wait for the dashboard to be reachable
+        while not found:
+            command = "curl http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:kubernetes-dashboard:/proxy/#/login"
+            result = Shell.run(command)
+            found =  "<title>Kubernetes Dashboard</title>" in result
+            time.sleep(1)
+            print (".", end="")
+
         execute("gopen http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:"
                 "kubernetes-dashboard:/proxy/#/login", driver=os.system)
 
@@ -760,8 +769,8 @@ all_steps = [
     kill_services,
     download_data,
     setup_minikube,
-    open_k8_dashboard,
     setup_k8,
+    open_k8_dashboard,
     setup_zookeeper,
     setup_nimbus,
     setup_storm_ui,
@@ -784,8 +793,8 @@ all_steps = [
     creae_index_js,
     # find the right pod and simply delete it ;-)
     # kubectl delete pod indycar-socketserver-2017-85db4cd775-fhcxj
-    restart_socketserver,
-    show_dashboard
+    # restart_socketserver,
+    # show_dashboard
 ]
 
 
