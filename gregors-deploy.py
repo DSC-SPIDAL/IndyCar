@@ -642,7 +642,19 @@ def show_notebook():
     port = notebook_port()
     ip = Shell_run("minikube ip").strip()
     execute(f"cd {CONTAINERIZE}; gopen http://{ip}:{port}", driver=os.system)
+
+def is_note_book_done_yn():
     yn_choice("Please run the jupyter ntebook now and continue after it completed")
+
+def wait_for_notebook_done():
+    print("please load the notbook and run it")
+    done = False
+    while not done:
+        print("w", end="")
+        content = Shell.run("minikube ssh ls /nfs/indycar/notebooks/car-notebook-done.txt")
+        print(content)
+        done = not "No such file or directory" in content
+        time.sleep(1)
 
 
 @benchmark
@@ -673,6 +685,7 @@ def create_notebook():
     execute(f'minikube ssh "sudo chmod -R 777 /nfs"')
     execute("minikube cp  containerize/IndyCar-API.ipynb /nfs/indycar/notebooks/IndyCar-API.ipynb")
     execute(f'minikube ssh "sudo chmod -R 777 /nfs"')
+
 
 
 def socketserver_port():
@@ -785,6 +798,8 @@ all_steps = [
     setup_jupyter_service,
     create_notebook,
     show_notebook,
+    # is_note_book_done_yn(),
+    wait_for_notebook_done,
     wait_for_storm_job,
     # storm-job-indycar-22-addefefd-39e8-4077-a03a-140fdb582e7a   0/1     Completed   0              6m8s
     # check for completed
@@ -794,7 +809,7 @@ all_steps = [
     # find the right pod and simply delete it ;-)
     # kubectl delete pod indycar-socketserver-2017-85db4cd775-fhcxj
     # restart_socketserver,
-    # show_dashboard
+    show_dashboard
 ]
 
 
