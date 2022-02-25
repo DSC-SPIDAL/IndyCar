@@ -647,12 +647,12 @@ def is_note_book_done_yn():
     yn_choice("Please run the jupyter ntebook now and continue after it completed")
 
 def wait_for_notebook_done():
-    print("please load the notbook and run it")
+    Console.blue("Please load the notbook and run it in the jupyter notebook")
     done = False
     while not done:
-        print("w", end="")
+        print(".", end="")
         content = Shell.run("minikube ssh ls /nfs/indycar/notebooks/car-notebook-done.txt")
-        print(content)
+        # print(content)
         done = not "No such file or directory" in content
         time.sleep(1)
 
