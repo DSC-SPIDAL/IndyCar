@@ -1,6 +1,6 @@
 import io
 
-filename='eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log'
+filename = 'eRPGenerator_TGMLP_20170528_Indianapolis500_Race.log'
 
 with io.open(filename, encoding='latin1') as f:
     line = f.readline()
@@ -11,7 +11,7 @@ with io.open(filename, encoding='latin1') as f:
         if line[1] in fs:
             fout = fs[line[1]]
             fout.writelines(line)
-        else: 
+        else:
             fout = io.open('small_file_{0}'.format(line[1]), 'a+')
             fs[line[1]] = fout
         line = f.readline()

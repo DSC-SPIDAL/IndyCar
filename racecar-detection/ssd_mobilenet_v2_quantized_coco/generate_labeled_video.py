@@ -14,13 +14,13 @@ from matplotlib import pyplot as plt
 from PIL import Image
 import time
 import os
-os.environ["CUDA_VISIBLE_DEVICES"]="1"
+
+os.environ["CUDA_VISIBLE_DEVICES"] = "1"
 
 device_used = 'CPU'
 if tf.test.gpu_device_name():
     device_used = 'GPU'
 print(device_used)
-
 
 # This is needed since the notebook is stored in the object_detection folder.
 sys.path.append("..")
@@ -41,7 +41,6 @@ PATH_TO_FROZEN_GRAPH = "exported_model" + '/frozen_inference_graph.pb'
 # List of the strings that is used to add correct label for each box.
 PATH_TO_LABELS = os.path.join('../indycar_data_prepare', 'pascal_label_map.pbtxt')
 
-
 od_graph_def = tf.GraphDef()
 with tf.gfile.GFile(PATH_TO_FROZEN_GRAPH, 'rb') as fid:
     serialized_graph = fid.read()
@@ -50,10 +49,12 @@ with tf.gfile.GFile(PATH_TO_FROZEN_GRAPH, 'rb') as fid:
 
 category_index = label_map_util.create_category_index_from_labelmap(PATH_TO_LABELS, use_display_name=True)
 
+
 def load_image_into_numpy_array(image):
-  (im_width, im_height) = image.size
-  return np.array(image.getdata()).reshape(
-      (im_height, im_width, 3)).astype(np.uint8)
+    (im_width, im_height) = image.size
+    return np.array(image.getdata()).reshape(
+        (im_height, im_width, 3)).astype(np.uint8)
+
 
 sess = tf.Session()
 # Get handles to input and output tensors
@@ -78,14 +79,13 @@ if 'detection_masks' in tensor_dict:
         detection_masks, detection_boxes, image.shape[1], image.shape[2])
     detection_masks_reframed = tf.cast(
         tf.greater(detection_masks_reframed, 0.5), tf.uint8)
-        # Follow the convention by adding back the batch dimension
+    # Follow the convention by adding back the batch dimension
     tensor_dict['detection_masks'] = tf.expand_dims(
         detection_masks_reframed, 0)
 image_tensor = tf.get_default_graph().get_tensor_by_name('image_tensor:0')
 
-
-
-cap = cv2.VideoCapture('/share/jproject/sakkas/smoke-detection/videos/FAST FORWARD 102nd Running of the Indianapolis 500.mp4')
+cap = cv2.VideoCapture(
+    '/share/jproject/sakkas/smoke-detection/videos/FAST FORWARD 102nd Running of the Indianapolis 500.mp4')
 total_time = 0
 capture_time = 0
 preproc_time = 0
@@ -109,7 +109,7 @@ while image_count < target_im_count:
     temp_time = time.time()
     # Actual detection.
     output_dict = sess.run(tensor_dict,
-        feed_dict={image_tensor: image_np_expanded})
+                           feed_dict={image_tensor: image_np_expanded})
     infer_time += time.time() - temp_time
     temp_time = time.time()
     # all outputs are float32 numpy arrays, so convert types as appropriate
@@ -128,9 +128,8 @@ while image_count < target_im_count:
         category_index,
         instance_masks=output_dict.get('detection_masks'),
         use_normalized_coordinates=True, line_thickness=8)
-    frame = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)   
+    frame = cv2.cvtColor(image_np, cv2.COLOR_RGB2BGR)
     out.write(frame)
-
 
     postproc_time += time.time() - temp_time
     total_time += time.time() - start_time
