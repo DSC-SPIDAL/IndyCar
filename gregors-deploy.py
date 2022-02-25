@@ -644,17 +644,19 @@ def show_notebook():
     execute(f"cd {CONTAINERIZE}; gopen http://{ip}:{port}", driver=os.system)
 
 def is_note_book_done_yn():
-    yn_choice("Please run the jupyter ntebook now and continue after it completed")
+    yn_choice("Please run the jupyter notebook now and continue after it completed")
 
 def wait_for_notebook_done():
-    Console.blue("Please load the notbook and run it in the jupyter notebook")
+    Console.blue("Please load the jupyter noetbook 'car-notebook.py' and run it.")
+    Console.blue("It is likely the first one in the list.")
     done = False
     while not done:
-        print(".", end="")
+        print(".", end="", flush=True)
         content = Shell.run("minikube ssh ls /nfs/indycar/notebooks/car-notebook-done.txt")
         # print(content)
         done = not "No such file or directory" in content
         time.sleep(1)
+    print()
 
 
 @benchmark
