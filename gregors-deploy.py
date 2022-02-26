@@ -667,8 +667,11 @@ def create_notebook():
     token = get_token()
     print(token)
 
-    for file in [f"{CONTAINERIZE}/car-notebook-in.py",
-                 f"{CONTAINERIZE}/car-notebook-in.ipynb"]:
+    for file in [
+        #f"{CONTAINERIZE}/car-notebook-in.py",
+        f"{CONTAINERIZE}/car-notebook-in.ipynb"
+        f"{CONTAINERIZE}/car-multi-notebook-in.ipynb"
+    ]:
         content = readfile(file)
         content = content.replace("TOKEN", token)
         hline()
@@ -819,29 +822,34 @@ notebook_steps = [
     kill_services,
     download_data,
     setup_minikube,
-    open_k8_dashboard,
     setup_k8,
+    open_k8_dashboard,
     setup_zookeeper,
     setup_nimbus,
     setup_storm_ui,
     open_storm_ui,
     start_storm_workers,
-    # start_storm_service,
-
+    start_storm_service,  ##??
     setup_mqtt,
-    # delay till mqtt is running
     install_htm_java,
     start_storm_topology,
     minikube_setup_sh,
-
     start_socket_server,
-
     setup_jupyter_service,
     create_notebook,
     show_notebook,
-    # install_sass,
-    # creae_index_js,
-    # show_dashboard
+    is_note_book_done_yn
+    #wait_for_notebook_done,
+    #wait_for_storm_job,
+    ## storm-job-indycar-22-addefefd-39e8-4077-a03a-140fdb582e7a   0/1     Completed   0              6m8s
+    ## check for completed
+    ## do this in the notebook -> car is in the notebook
+    #install_sass,
+    #creae_index_js,
+    ## find the right pod and simply delete it ;-)
+    ## kubectl delete pod indycar-socketserver-2017-85db4cd775-fhcxj
+    ## restart_socketserver,
+    #show_dashboard
 ]
 
 
