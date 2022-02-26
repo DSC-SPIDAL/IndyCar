@@ -669,7 +669,7 @@ def create_notebook():
 
     for file in [
         #f"{CONTAINERIZE}/car-notebook-in.py",
-        f"{CONTAINERIZE}/car-notebook-in.ipynb"
+        f"{CONTAINERIZE}/car-notebook-in.ipynb",
         f"{CONTAINERIZE}/car-multi-notebook-in.ipynb"
     ]:
         content = readfile(file)
