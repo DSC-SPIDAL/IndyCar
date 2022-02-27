@@ -10,6 +10,8 @@ Usage:
   gregor-deploy.py --menu [--keep_history]
   gregor-deploy.py --token [--keep_history]
   gregor-deploy.py --mqtt [--keep_history]
+  gregor-deploy.py --about
+
 
 Deploys the indycar runtime environment on an ubuntu 20.04 system.
 
@@ -110,6 +112,25 @@ Description:
     | start_socket_server  | ok       | 113.281 |
     +----------------------+----------+---------+
 
+  Credits:
+    This script is authored by Gregor von Laszewski, any work conducted with it must cite the following:
+
+    This work is using cloudmesh/kubemanager developed by Gregor von Laszewski. Cube manager is available on GitHub at
+    \cite{github-las-kubemanager}.
+
+    @misc{github-las-cubemanager,
+        author={Gregor von Laszewski},
+        title={Cloudmesh Kubemanager},
+        url={TBD},
+        howpublished={GitHub, PyPi},
+        year=2022,
+        month=feb
+    }
+
+    Text entry for citation in other then LaTeX documents:
+        Gregor von Laszewski, Cloudmesh Kubemanager, published on GitHub, URL:TBD, Feb. 2022.
+
+
 
 """
 from docopt import docopt
@@ -132,8 +153,10 @@ from cloudmesh.common.sudo import Sudo
 
 commands = {}
 
+# cloudmesh/kubemanager
 screen = os.get_terminal_size()
 
+# cloudmesh/kubemanager
 def exit_handler(signal_received, frame):
     # Handle any cleanup here
     StopWatch.start("exit")
@@ -142,16 +165,16 @@ def exit_handler(signal_received, frame):
 
     exit(0)
 
-
+# cloudmesh/kubemanager
 def banner(msg):
     cloudmesh_banner(msg, c="#")
     add_history(str_banner(txt=msg.strip()))
 
-
+# cloudmesh/kubemanager
 def hline(c="-"):
     print(screen.columns * c)
 
-
+# this is anow in cloudmesh common Shell
 def rename(newname):
     def decorator(f):
         f.__name__ = newname
@@ -159,7 +182,7 @@ def rename(newname):
 
     return decorator
 
-
+# cloudmesh/kubemanager
 def benchmark(func):
     @rename(func.__name__)
     def wrapper(*args, **kwargs):
@@ -169,7 +192,7 @@ def benchmark(func):
 
     return wrapper
 
-
+# cloudmesh/kubemanager (make pid a parameter)
 @benchmark
 def kill_services():
     banner("kill_services")
@@ -183,7 +206,7 @@ def kill_services():
     os_system("minikube stop")
     os_system("minikube delete")
 
-
+# cloudmesh/kubemanager
 def find_pid(port):
     try:
         r = Shell_run(f"ss -lntupw | fgrep {port}").strip().split()[6].split(",")[1].split("=")[1]
@@ -191,7 +214,7 @@ def find_pid(port):
     except:
         return ""
 
-
+# cloudmesh/kubemanager
 def add_history(msg):
     m = msg.strip()
     file = open("history.txt", "a")  # append mode
@@ -199,7 +222,7 @@ def add_history(msg):
     file.close()
     os.system("sync")
 
-
+# cloudmesh/kubemanager (make admin-user a parameter)
 def get_token():
     print("TOKEN")
     r = Shell_run("kubectl -n kubernetes-dashboard"
@@ -226,6 +249,7 @@ DASHBOARD = f"{HOME}/dashboard"
 
 # def execute(commands, sleep_time=1, driver=Shell.run):
 
+# cloudmesh/kubemanager
 def execute(commands, sleep_time=1, driver=os.system):
     hline()
     print(commands)
@@ -252,15 +276,15 @@ def execute(commands, sleep_time=1, driver=os.system):
             time.sleep(sleep_time)
     return result
 
-
+# cloudmesh/kubemanager
 def os_system(command):
     return execute(command, driver=os.system)
 
-
+# cloudmesh/kubemanager
 def Shell_run(command):
     return execute(command, driver=Shell.run)
 
-
+# cloudmesh/kubemanager
 def clean_script(script):
     return textwrap.dedent(script).strip()
 
@@ -343,7 +367,7 @@ def download_data(id="1GMOyNnIOnq-P_TAR7iKtR7l-FraY8B76",
     else:
         print("data already downloaded")
 
-
+# cloudmesh/kubemanager
 @benchmark
 def setup_minikube(memory=10000, cpus=8, sleep_time=0):
     banner("setup_minikube")
@@ -357,18 +381,20 @@ def setup_minikube(memory=10000, cpus=8, sleep_time=0):
     execute(script, driver=os.system)
     time.sleep(sleep_time)
 
-
+# cloudmesh/kubemanager
 @benchmark
 def setup_k8():
     banner("setup_k8")
     token = get_token()
+    # "enable-skip-login"
     script = \
         f"""
     # deploy dahshboard
     #kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.0.0-beta8/aio/deploy/recommended.yaml
     
     kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.4.0/aio/deploy/recommended.yaml
-    
+    # kubectl apply -f ./{CONTAINERIZE}/recommended-secure-token.yaml
+    # kubectl apply -f ./{CONTAINERIZE}/recommended-insecure.yaml
     # create user
     cd {CONTAINERIZE}; kubectl create -f account.yaml
     
@@ -386,12 +412,12 @@ def setup_k8():
     """
     execute(script, driver=os.system)
 
-
+# cloudmesh/kubemanager
 def minikube_ip():
     ip = Shell_run("minikube ip").strip()
     return ip
 
-
+# cloudmesh/kubemanager
 def open_k8_dashboard():
     banner("open_k8_dashboard")
     global dashboard
@@ -414,7 +440,7 @@ def open_k8_dashboard():
         execute("gopen http://localhost:8001/api/v1/namespaces/kubernetes-dashboard/services/https:"
                 "kubernetes-dashboard:/proxy/#/login", driver=os.system)
 
-
+# cloudmesh/kubemanager
 def wait_for(name, state="Running"):
     print(f"Starting {name}: ")
     found = False
@@ -741,7 +767,7 @@ def show_dashboard():
     # yn_choice("continue to race dashboard")
     execute(f"cd {DASHBOARD}; gopen http://localhost:3000", driver=os.system)
 
-
+# cloudmesh/kubemanager
 def _continue(msg=""):
     global step
     if step:
@@ -759,13 +785,13 @@ def _continue(msg=""):
         print(screen.columns * "-")
         print()
 
-
+# cloudmesh/kubemanager
 def execute_step(s, interactive=False):
     if interactive:
         _continue(s.__name__)
     s()
 
-
+# cloudmesh/kubemanager
 def execute_steps(steps, interactive=False):
     for s, name in steps:
         banner(name)
@@ -852,7 +878,8 @@ notebook_steps = [
     #show_dashboard
 ]
 
-
+#make steps aparameter
+# cloudmesh/kubemanager
 def menu():
     next_choice = 0
     steps = all_steps
@@ -885,7 +912,7 @@ def menu():
             f = all_steps[i]
             f()
 
-
+# cloudmesh/kubemanager
 def workflow(steps=None):
     print(HOME)
     print(CONTAINERIZE)
@@ -964,6 +991,56 @@ def deploy_info():
     print()
 
 
+# cloudmesh/kubemanager
+LICENSE = \
+    """
+                                     Apache License
+                               Version 2.0, January 2004
+                            http://www.apache.org/licenses/
+    
+       Copyright 2022 Gregor von Laszewski, University of Virginia
+    
+       Licensed under the Apache License, Version 2.0 (the "License");
+       you may not use this file except in compliance with the License.
+       You may obtain a copy of the License at
+    
+           http://www.apache.org/licenses/LICENSE-2.0
+    
+       Unless required by applicable law or agreed to in writing, software
+       distributed under the License is distributed on an "AS IS" BASIS,
+       WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+       See the License for the specific language governing permissions and
+       limitations under the License.
+    
+       Credits:
+    
+        This script is authored by Gregor von Laszewski, any work 
+        conducted with it must cite the following:
+    
+        This work is using cloudmesh/kubemanager developed by 
+        Gregor von Laszewski. Cube manager is available on GitHub 
+        \cite{github-las-kubemanager}.
+    
+        @misc{github-las-cubemanager,
+            author={Gregor von Laszewski},
+            title={Cloudmesh Kubemanager},
+            url={TBD},
+            howpublished={GitHub, PyPi},
+            year=2022,
+            month=feb
+        }
+    
+        Text entry for citation in other then LaTeX documents:
+    
+            This work is using cloudmesh/kubemanager developed 
+            by Gregor von Laszewski. Cube manager is available 
+            on GitHub [1].
+    
+            [1] Gregor von Laszewski, Cloudmesh Kubemanager, 
+                published on GitHub, URL:TBD, Feb. 2022.
+    
+    """
+
 if __name__ == '__main__':
     arguments = docopt(__doc__)
     # print(arguments)
@@ -1005,27 +1082,10 @@ if __name__ == '__main__':
         get_token()
     elif arguments["--mqtt"]:
         open_mqtt()
+    elif arguments["--about"]:
+        print(LICENSE)
+
+
 
     else:
         Console.error("Usage issue")
-
-LICENSE = \
-"""
-                                 Apache License
-                           Version 2.0, January 2004
-                        http://www.apache.org/licenses/
-
-   Copyright 2022 Gregor von Laszewski, University of Virginia
-
-   Licensed under the Apache License, Version 2.0 (the "License");
-   you may not use this file except in compliance with the License.
-   You may obtain a copy of the License at
-
-       http://www.apache.org/licenses/LICENSE-2.0
-
-   Unless required by applicable law or agreed to in writing, software
-   distributed under the License is distributed on an "AS IS" BASIS,
-   WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
-   See the License for the specific language governing permissions and
-   limitations under the License.
-"""
